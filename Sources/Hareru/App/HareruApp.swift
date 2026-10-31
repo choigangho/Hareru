@@ -39,57 +39,6 @@ struct HareruApp: App {
     }
 }
 
-// MARK: - 메인 2탭 통합 뷰 + 최초 실행 시 회원가입·급수 진단 온보딩 자동 연결 (게임 탭 제거됨)
-public struct HareruMainTabView: View {
-    @State private var sessionEngine: StudySessionEngine
-
-    public init(sessionEngine: StudySessionEngine? = nil) {
-        if let sessionEngine {
-            _sessionEngine = State(initialValue: sessionEngine)
-        } else {
-            _sessionEngine = State(initialValue: StudySessionEngine(store: InMemoryMemoryStore()))
-        }
-    }
-
-    public var body: some View {
-        let _ = sessionEngine.stateRevision
-
-        if sessionEngine.userProfile == nil {
-            OnboardingFlowView(engine: sessionEngine)
-                .transition(.opacity)
-        } else {
-            TabView {
-                WordDeckView(engine: sessionEngine)
-                    .tabItem {
-                        Label("단어 학습", systemImage: "rectangle.stack.fill")
-                    }
-
-                InsightsHubView(engine: sessionEngine)
-                    .tabItem {
-                        Label("통계 · 노트", systemImage: "chart.bar.doc.horizontal.fill")
-                    }
-            }
-            .modifier(LiquidGlassTabBarBehavior())
-            .transition(.opacity)
-        }
-    }
-}
-
-// MARK: - iOS 26 Liquid Glass 탭 바: 스크롤 시 자동 최소화
-private struct LiquidGlassTabBarBehavior: ViewModifier {
-    func body(content: Content) -> some View {
-        #if os(iOS)
-        if #available(iOS 26.0, *) {
-            content.tabBarMinimizeBehavior(.onScrollDown)
-        } else {
-            content
-        }
-        #else
-        content
-        #endif
-    }
-}
-
 #Preview("1. 온보딩 (회원가입 · N급수 10문항 진단)") {
     HareruMainTabView(sessionEngine: StudySessionEngine(store: InMemoryMemoryStore()))
 }

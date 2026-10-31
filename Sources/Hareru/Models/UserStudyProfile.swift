@@ -1,12 +1,88 @@
 import Foundation
 import CryptoKit
 
-// MARK: - 사용자 계정 및 목표 학습 설정 프로필 (이메일/비밀번호 인증 + 진단 결과 저장)
+// MARK: - 가입/로그인 인증 제공자 (Apple · Google · 이메일)
+public enum AuthProviderKind: String, Codable, CaseIterable, Equatable, Sendable {
+    case apple = "Apple"
+    case google = "Google"
+    case email = "Email"
+}
+
+// MARK: - JLPT 공식 시험 일정 자동 산출기 (매년 7월 첫째 일요일 · 12월 첫째 일요일)
+public struct OfficialJLPTExamSession: Identifiable, Equatable, Sendable {
+    public let id: String
+    public let year: Int
+    public let round: Int          // 1 = 7월 제1차 시험, 2 = 12월 제2차 시험
+    public let examDate: Date
+    public let remainingDays: Int
+
+    public var title: String {
+        "\(year)년 \(round == 1 ? "7월" : "12월") (제\(round)차 JLPT)"
+    }
+
+    public var formattedDateString: String {
+        let cal = Calendar.current
+        let m = cal.component(.month, from: examDate)
+        let d = cal.component(.day, from: examDate)
+        return "\(year)년 \(m)월 \(d)일 (일)"
+    }
+
+    /// 기준 시각(`now`) 이후 가장 가까운 공식 JLPT 시험 2개 회차를 자동으로 계산하여 반환합니다.
+    public static func upcomingTwoSessions(
+        from now: Date = Date(),
+        calendar: Calendar = .current
+    ) -> [OfficialJLPTExamSession] {
+        let startOfToday = calendar.startOfDay(for: now)
+        let currentYear = calendar.component(.year, from: startOfToday)
+        var candidates: [(year: Int, round: Int, date: Date)] = []
+
+        for y in currentYear...(currentYear + 2) {
+            if let julyDate = firstSunday(year: y, month: 7, calendar: calendar) {
+                candidates.append((y, 1, julyDate))
+            }
+            if let decDate = firstSunday(year: y, month: 12, calendar: calendar) {
+                candidates.append((y, 2, decDate))
+            }
+        }
+
+        let future = candidates.filter { $0.date > startOfToday }
+        return future.prefix(2).map { entry in
+            let days = max(1, calendar.dateComponents([.day], from: startOfToday, to: entry.date).day ?? 30)
+            return OfficialJLPTExamSession(
+                id: "\(entry.year)_R\(entry.round)",
+                year: entry.year,
+                round: entry.round,
+                examDate: entry.date,
+                remainingDays: days
+            )
+        }
+    }
+
+    /// 특정 연·월의 첫째 일요일(`weekday == 1`) 날짜를 정확히 산출
+    public static func firstSunday(year: Int, month: Int, calendar: Calendar = .current) -> Date? {
+        for day in 1...7 {
+            var comps = DateComponents()
+            comps.year = year
+            comps.month = month
+            comps.day = day
+            comps.hour = 9
+            comps.minute = 0
+            if let candidate = calendar.date(from: comps),
+               calendar.component(.weekday, from: candidate) == 1 {
+                return calendar.startOfDay(for: candidate)
+            }
+        }
+        return nil
+    }
+}
+
+// MARK: - 사용자 계정 및 목표 학습 설정 프로필 (Apple/Google/이메일 인증 + 진단 결과 저장)
 public struct UserStudyProfile: Codable, Equatable, Sendable {
     public let userId: String
     public var email: String
     public var displayName: String
     public var passwordHash: String
+    public var authProvider: AuthProviderKind
     public var targetLevel: JLPTLevel
     public var examDate: Date
     public var diagnosticTestedCount: Int      // 진단 테스트 문항 수 (기본 10문항)
@@ -19,6 +95,7 @@ public struct UserStudyProfile: Codable, Equatable, Sendable {
         email: String,
         displayName: String,
         passwordHash: String,
+        authProvider: AuthProviderKind = .email,
         targetLevel: JLPTLevel,
         examDate: Date,
         diagnosticTestedCount: Int = 10,
@@ -30,6 +107,7 @@ public struct UserStudyProfile: Codable, Equatable, Sendable {
         self.email = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         self.displayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
         self.passwordHash = passwordHash
+        self.authProvider = authProvider
         self.targetLevel = targetLevel
         self.examDate = examDate
         self.diagnosticTestedCount = max(1, diagnosticTestedCount)

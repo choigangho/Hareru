@@ -345,6 +345,7 @@ public final class UserStudyProfileRecord {
     public var email: String
     public var displayName: String
     public var passwordHash: String
+    public var authProviderRaw: String
     public var targetLevelRaw: String
     public var examDate: Date
     public var diagnosticTestedCount: Int
@@ -357,6 +358,7 @@ public final class UserStudyProfileRecord {
         self.email = profile.email
         self.displayName = profile.displayName
         self.passwordHash = profile.passwordHash
+        self.authProviderRaw = profile.authProvider.rawValue
         self.targetLevelRaw = profile.targetLevel.rawValue
         self.examDate = profile.examDate
         self.diagnosticTestedCount = profile.diagnosticTestedCount
@@ -369,6 +371,7 @@ public final class UserStudyProfileRecord {
         self.email = profile.email
         self.displayName = profile.displayName
         self.passwordHash = profile.passwordHash
+        self.authProviderRaw = profile.authProvider.rawValue
         self.targetLevelRaw = profile.targetLevel.rawValue
         self.examDate = profile.examDate
         self.diagnosticTestedCount = profile.diagnosticTestedCount
@@ -383,6 +386,7 @@ public final class UserStudyProfileRecord {
             email: email,
             displayName: displayName,
             passwordHash: passwordHash,
+            authProvider: AuthProviderKind(rawValue: authProviderRaw) ?? .email,
             targetLevel: JLPTLevel(rawValue: targetLevelRaw) ?? .n2,
             examDate: examDate,
             diagnosticTestedCount: diagnosticTestedCount,

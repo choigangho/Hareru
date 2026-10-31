@@ -1,16 +1,19 @@
 import SwiftUI
-import SwiftData
 
-// MARK: - 탭 1 단어 학습 허브 & 덱 화면
-// 앱을 켰을 때 바로 단어 카드가 뜨지 않고, 먼저 이전 학습 기록·남은 시험일 계획·진도 동향을 보여준 뒤
-// 사용자가 '이어서 학습하기' 또는 '오늘의 세션 시작하기'를 선택해 카드 덱으로 진입합니다.
+// MARK: - 단어 학습 대시보드 및 카드 덱 컨테이너
+// - 날씨 앱 헤더: "서울 · 비 14° · D-60일 하루 25단어"
+// - 이전 학습 요약 및 시험 D-Day 완주 예측
+// - 상단 덱 헤더: "12 / 30" 형태로 심플화 ('침식 N단계', '조우' 배지 완전 삭제)
+// - 오늘의 목표 완료 시 날씨가 맑게 개는(晴れる) 연출 트리거
 public struct WordDeckView: View {
     @State private var sessionEngine: StudySessionEngine
     @State private var isStudyingCards: Bool = false
-    @State private var showGoalResetOnboarding: Bool = false
+    @State private var showGoalResetSheet: Bool = false
     @State private var feedbackBanner: String?
     @State private var cardPresentationId = UUID()
     @Environment(\.scenePhase) private var scenePhase
+
+    private var weatherEngine = WeatherAtmosphereEngine.shared
 
     public init(engine: StudySessionEngine? = nil, startImmediatelyInDeck: Bool = false) {
         if let engine {
@@ -27,27 +30,24 @@ public struct WordDeckView: View {
         _isStudyingCards = State(initialValue: startImmediatelyInDeck)
     }
 
-    private var backgroundColors: [Color] {
-        if isStudyingCards, let item = sessionEngine.currentItem {
-            return item.activeColors(maxDailyEncounters: sessionEngine.configuration.maxDailyEncounters)
-        }
-        return CategoryThemeGroup.standardDefault.palette.swiftUIColors
+    private var palette: WeatherSkyPalette {
+        weatherEngine.activePalette
     }
 
-    private var isDeeplyEroded: Bool {
-        isStudyingCards && (sessionEngine.currentItem?.todayErosionCount ?? 0) >= 2
+    private var currentFailureCount: Int {
+        sessionEngine.currentItem?.todayErosionCount ?? 0
     }
 
     public var body: some View {
         ZStack {
-            LinearGradient(
-                colors: backgroundColors,
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+            // Apple 날씨 앱 스타일 상시 하늘 & 기상 파티클 렌더러
+            WeatherSkyCanvasView(
+                condition: weatherEngine.activeCondition,
+                timeOfDay: weatherEngine.activeTimeOfDay,
+                palette: palette,
+                failureCount: isStudyingCards ? currentFailureCount : 0,
+                isHareruCleared: weatherEngine.isHareruClearedToday
             )
-            .ignoresSafeArea()
-            .animation(.easeInOut(duration: 0.45), value: cardPresentationId)
-            .animation(.easeInOut(duration: 0.35), value: isStudyingCards)
 
             if isStudyingCards {
                 activeCardDeckBody
@@ -55,9 +55,9 @@ public struct WordDeckView: View {
                 studyOverviewDashboardBody
             }
         }
-        .sheet(isPresented: $showGoalResetOnboarding) {
+        .sheet(isPresented: $showGoalResetSheet) {
             OnboardingFlowView(engine: sessionEngine) { _ in
-                showGoalResetOnboarding = false
+                showGoalResetSheet = false
             }
         }
         .onChange(of: scenePhase) { _, newPhase in
@@ -70,16 +70,15 @@ public struct WordDeckView: View {
         }
     }
 
-    // MARK: - 1) 학습 시작 전 개요 대시보드 (이전 학습 요약 + 시험 D-Day 계획 + 이어서 학습 선택)
+    // MARK: - 1) 첫 화면: 오늘의 기상 브리핑 + D-Day 계획 + 학습 요약 홈
 
     private var studyOverviewDashboardBody: some View {
         let _ = sessionEngine.stateRevision
         let snapshots = sessionEngine.store.allSnapshots()
-        let logs = sessionEngine.store.allReviewLogs()
         let todayKey = DayKeyFormatter.dayKey(for: Date(), calendar: sessionEngine.calendar)
 
-        let totalGraduatedCount = snapshots.values.filter { $0.reps > 0 }.count
-        let todayReviewedWordsCount = snapshots.values.filter {
+        let totalMasteredCount = snapshots.values.filter { $0.reps > 0 }.count
+        let todayLearnedCount = snapshots.values.filter {
             $0.lastEncounterDayKey == todayKey && $0.todayEncounterCount > 0
         }.count
         let dueReviewCount = snapshots.values.filter {
@@ -90,251 +89,190 @@ public struct WordDeckView: View {
         return NavigationStack {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 18) {
-                    // A. 사용자 목표 급수 & 시험 D-Day 동적 암기 계획 카드
+                    // A. 상단 날씨 앱 스타일 기상 브리핑 헤더
+                    weatherBriefingHeader
+
+                    // B. 목표 급수 및 시험 D-Day 완주 예측 카드
                     if let profile = sessionEngine.userProfile,
                        let plan = sessionEngine.currentStudyPlanProjection() {
-                        examPlanSummaryCard(profile: profile, plan: plan)
+                        examPlanProjectionCard(profile: profile, plan: plan)
                     }
 
-                    // B. 이전 학습 요약 & 오늘 진행 현황 카드
+                    // C. 이전 학습 기록 요약 & 세션 시작/이어하기 카드
                     previousProgressSummaryCard(
                         hasActiveQueue: hasActiveQueue,
                         remainingInQueue: sessionEngine.queue.count,
-                        sessionGraduatedCount: sessionEngine.graduatedWordIds.count,
-                        todayReviewedWordsCount: todayReviewedWordsCount,
-                        totalGraduatedCount: totalGraduatedCount,
-                        dueReviewCount: dueReviewCount,
-                        recentLogsCount: logs.count
+                        sessionMasteredCount: sessionEngine.graduatedWordIds.count,
+                        todayLearnedCount: todayLearnedCount,
+                        totalMasteredCount: totalMasteredCount,
+                        dueReviewCount: dueReviewCount
                     )
-
-                    // C. 카테고리 컬러 테마 가이드 (단어별 무작위 색상 대신 5대 카테고리 + 기본 테마)
-                    categoryPaletteGuideCard
                 }
                 .padding(18)
+                .padding(.bottom, 80) // 하단 플로팅 토글 바 여백
             }
-            .navigationTitle("오늘의 단어 학습")
-            .toolbar {
-                ToolbarItem(placement: .automatic) {
-                    Button {
-                        showGoalResetOnboarding = true
-                    } label: {
-                        Label("목표·진단 재설정", systemImage: "slider.horizontal.3")
-                            .font(.caption.weight(.semibold))
-                    }
-                }
-            }
+            .navigationTitle("학습")
+            .foregroundStyle(palette.primaryTextColor)
         }
     }
 
-    private func examPlanSummaryCard(
-        profile: UserStudyProfile,
-        plan: StudyPlanProjection
-    ) -> some View {
-        let badgeColor: Color = {
-            switch plan.feasibility {
-            case .comfortable: return .teal
-            case .achievable: return .orange
-            case .tight: return .red
-            }
-        }()
-
-        return VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Label("\(profile.displayName) · \(profile.targetLevel.rawValue) 목표", systemImage: "flag.checkered")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.indigo)
+    private var weatherBriefingHeader: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                Image(systemName: weatherEngine.activeCondition.sfSymbolName(for: weatherEngine.activeTimeOfDay))
+                    .font(.title2)
+                Text(weatherEngine.locationTitle)
+                    .font(.title3.bold())
                 Spacer()
-                Text("시험 D-\(plan.remainingDays)일")
-                    .font(.caption.monospacedDigit().weight(.bold))
-                    .padding(.horizontal, 9)
-                    .padding(.vertical, 4)
-                    .background(Color.indigo.opacity(0.14), in: Capsule())
-                    .foregroundStyle(.indigo)
+                Text("\(weatherEngine.temperatureCelsius)°")
+                    .font(.system(size: 32, weight: .semibold, design: .rounded))
+            }
+
+            Text("\(weatherEngine.activeCondition.koreanTitle) · \(weatherEngine.activeTimeOfDay.koreanLabel)")
+                .font(.subheadline)
+                .foregroundStyle(palette.secondaryTextColor)
+        }
+        .padding(18)
+        .hareruGlassCard(cornerRadius: 24, tint: palette.glassTintColor)
+    }
+
+    private func examPlanProjectionCard(profile: UserStudyProfile, plan: StudyPlanProjection) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("\(profile.targetLevel.rawValue) 목표 · D-\(plan.remainingDays)", systemImage: "flag.fill")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(palette.accentColor)
+                Spacer()
+                Text(plan.feasibility.summaryBadge)
+                    .font(.caption2.weight(.bold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(.white.opacity(0.18), in: Capsule())
             }
 
             HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("오늘의 권장 암기량")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("오늘 권장 암기량")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(palette.secondaryTextColor)
                     Text("하루 \(plan.requiredDailyNewWords)단어")
-                        .font(.title2.bold().monospacedDigit())
+                        .font(.title3.bold().monospacedDigit())
                 }
                 Spacer()
-                VStack(alignment: .trailing, spacing: 3) {
-                    Text(plan.isUsingLiveLearningTrend ? "실시간 학습 속도 동향" : "진단 기반 예상 속도")
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(plan.isUsingLiveLearningTrend ? "실시간 학습 속도 반영됨" : "진단 기반 예상 속도")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(palette.secondaryTextColor)
                     Text("일 \(plan.estimatedDailyPaceCapacity)단어 소화 가능")
                         .font(.subheadline.weight(.bold).monospacedDigit())
-                        .foregroundStyle(badgeColor)
+                        .foregroundStyle(palette.accentColor)
                 }
-            }
-
-            HStack(spacing: 8) {
-                Circle()
-                    .fill(badgeColor)
-                    .frame(width: 8, height: 8)
-                Text(plan.statusHeadline)
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(badgeColor)
             }
 
             Text(plan.statusDetail)
                 .font(.caption2)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+                .foregroundStyle(palette.secondaryTextColor)
         }
         .padding(18)
-        .hareruGlassCard(cornerRadius: 24)
+        .hareruGlassCard(cornerRadius: 24, tint: palette.glassTintColor)
     }
 
     private func previousProgressSummaryCard(
         hasActiveQueue: Bool,
         remainingInQueue: Int,
-        sessionGraduatedCount: Int,
-        todayReviewedWordsCount: Int,
-        totalGraduatedCount: Int,
-        dueReviewCount: Int,
-        recentLogsCount: Int
+        sessionMasteredCount: Int,
+        todayLearnedCount: Int,
+        totalMasteredCount: Int,
+        dueReviewCount: Int
     ) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Label("이전 학습 기록 요약", systemImage: "clock.arrow.circlepath")
-                    .font(.subheadline.weight(.bold))
+                Text("학습 현황")
+                    .font(.headline)
                 Spacer()
                 if hasActiveQueue {
                     Text("진행 중인 세션 있음")
                         .font(.caption2.weight(.bold))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
-                        .background(Color.teal.opacity(0.16), in: Capsule())
-                        .foregroundStyle(.teal)
+                        .background(palette.accentColor.opacity(0.2), in: Capsule())
                 }
             }
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                miniMetric(title: "누적 졸업", value: "\(totalGraduatedCount)단어")
-                miniMetric(title: "오늘 학습", value: "\(todayReviewedWordsCount)단어")
-                miniMetric(title: "복습 대기", value: "\(dueReviewCount)단어")
+                miniBox(title: "누적 암기", value: "\(totalMasteredCount)단어")
+                miniBox(title: "오늘 학습", value: "\(todayLearnedCount)단어")
+                miniBox(title: "복습 대기", value: "\(dueReviewCount)단어")
             }
 
             if hasActiveQueue {
-                Text("직전 세션에서 \(sessionGraduatedCount)단어를 졸업하고, 현재 \(remainingInQueue)장의 카드가 큐에 남아 있습니다.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } else if recentLogsCount > 0 {
-                Text("누적 \(recentLogsCount)회의 카드 평가 기록이 학습 속도 동향에 반영되어 있습니다.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } else {
-                Text("아직 카드 학습 기록이 없습니다. 첫 세션을 시작하면 실제 정답률에 맞춰 일일 암기 계획이 실시간으로 정교해집니다.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            VStack(spacing: 10) {
-                if hasActiveQueue {
-                    Button {
-                        sessionEngine.resumeReactionTimer()
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-                            isStudyingCards = true
-                        }
-                    } label: {
-                        HStack {
-                            Image(systemName: "play.fill")
-                            Text("이어서 학습하기 (남은 \(remainingInQueue)장)")
-                                .fontWeight(.bold)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
+                Button {
+                    sessionEngine.resumeReactionTimer()
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                        isStudyingCards = true
                     }
-                    .hareruProminentButtonStyle()
-                    .tint(.indigo)
-
-                    Button {
-                        startFreshSessionAndEnterDeck()
-                    } label: {
-                        Text("새 세션으로 처음부터 다시 편성하기")
-                            .font(.caption.weight(.semibold))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 4)
+                } label: {
+                    HStack {
+                        Image(systemName: "play.fill")
+                        Text("이어서 학습하기 (남은 \(remainingInQueue)장)")
+                            .fontWeight(.bold)
                     }
-                    .hareruSecondaryButtonStyle()
-                    .tint(.secondary)
-                } else {
-                    Button {
-                        startFreshSessionAndEnterDeck()
-                    } label: {
-                        HStack {
-                            Image(systemName: "play.circle.fill")
-                            Text(totalGraduatedCount > 0 ? "이어서 오늘의 학습 시작하기" : "첫 단어 학습 시작하기")
-                                .fontWeight(.bold)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                    }
-                    .hareruProminentButtonStyle()
-                    .tint(.indigo)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(palette.accentColor, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .foregroundStyle(palette.isDarkSky ? Color.black : Color.white)
                 }
+                .buttonStyle(.plain)
+
+                Button {
+                    startFreshSessionAndEnterDeck()
+                } label: {
+                    Text("새 세션으로 처음부터 시작하기")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(palette.secondaryTextColor)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.plain)
+            } else {
+                Button {
+                    startFreshSessionAndEnterDeck()
+                } label: {
+                    HStack {
+                        Image(systemName: "play.circle.fill")
+                        Text(totalMasteredCount > 0 ? "이어서 오늘의 학습 시작하기" : "첫 단어 학습 시작하기")
+                            .fontWeight(.bold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(palette.accentColor, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .foregroundStyle(palette.isDarkSky ? Color.black : Color.white)
+                }
+                .buttonStyle(.plain)
             }
         }
         .padding(18)
-        .hareruGlassCard(cornerRadius: 24)
+        .hareruGlassCard(cornerRadius: 24, tint: palette.glassTintColor)
     }
 
-    private func miniMetric(title: String, value: String) -> some View {
+    private func miniBox(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(title)
                 .font(.caption2)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(palette.secondaryTextColor)
             Text(value)
                 .font(.subheadline.bold().monospacedDigit())
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
-    private var categoryPaletteGuideCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("카테고리별 테마 컬러 안내")
-                .font(.caption.weight(.bold))
-                .foregroundStyle(.secondary)
-
-            Text("눈이 피로하지 않도록 단어마다 색을 바꾸지 않고, 의미 카테고리별로 차분한 테마 색상을 적용합니다.")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(CategoryThemeGroup.allCases, id: \.rawValue) { group in
-                        HStack(spacing: 6) {
-                            Circle()
-                                .fill(group.palette.accentColor)
-                                .frame(width: 10, height: 10)
-                            Text(group.rawValue)
-                                .font(.caption2.weight(.semibold))
-                        }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(
-                            group.palette.swiftUIColors[0].opacity(0.55),
-                            in: Capsule()
-                        )
-                    }
-                }
-            }
-        }
-        .padding(16)
-        .hareruGlassCard(cornerRadius: 20)
-    }
-
-    // MARK: - 2) 실제 단어 카드 학습 화면 본체
+    // MARK: - 2) 카드 학습 진행 화면
 
     private var activeCardDeckBody: some View {
-        VStack(spacing: 18) {
-            headerBar
+        VStack(spacing: 16) {
+            // 상단 간소화된 진행 헤더 ("< 요약" 및 "12 / 30" 심플 표기)
+            simpleDeckHeader
                 .frame(maxWidth: 360)
 
             if let banner = feedbackBanner {
@@ -342,30 +280,27 @@ public struct WordDeckView: View {
                     .font(.caption.weight(.semibold))
                     .padding(.horizontal, 14)
                     .padding(.vertical, 6)
-                    .hareruGlass(in: Capsule())
+                    .hareruGlass(in: Capsule(), tint: palette.glassTintColor)
+                    .foregroundStyle(palette.primaryTextColor)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
 
             Spacer(minLength: 0)
 
             if let activeItem = sessionEngine.currentItem {
-                ScrollView(.vertical, showsIndicators: false) {
-                    WordCardView(
-                        item: activeItem,
-                        timing: .standard,
-                        catalog: sessionEngine.catalog,
-                        onReveal: {
-                            sessionEngine.markAnswerRevealed()
-                        },
-                        onEvaluate: { button in
-                            handleEvaluation(button: button)
-                        }
-                    )
-                    .id(cardPresentationId)
-                    .padding(.vertical, 4)
-                }
-                .scrollBounceBehavior(.basedOnSize)
-                .environment(\.colorScheme, isDeeplyEroded ? .dark : .light)
+                WordCardView(
+                    item: activeItem,
+                    timing: .standard,
+                    catalog: sessionEngine.catalog,
+                    onReveal: {
+                        sessionEngine.markAnswerRevealed()
+                    },
+                    onEvaluate: { button in
+                        handleEvaluation(button: button)
+                    }
+                )
+                .id(cardPresentationId)
+                .padding(.vertical, 4)
             } else {
                 sessionCompletedCard
             }
@@ -374,108 +309,63 @@ public struct WordDeckView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+        .padding(.bottom, 72) // 하단 토글 바 여백
     }
 
-    // MARK: - 상단 진행 헤더 (학습 요약으로 돌아가기 버튼 포함)
+    private var simpleDeckHeader: some View {
+        let total = sessionEngine.initialCardCount
+        let remaining = sessionEngine.queue.count
+        let completed = max(0, total - remaining)
 
-    private var headerBar: some View {
-        HareruGlassGroup(spacing: 8) {
-            VStack(spacing: 10) {
-                HStack(spacing: 8) {
-                    Button {
-                        sessionEngine.pauseReactionTimer()
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-                            isStudyingCards = false
-                        }
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chevron.left")
-                            Text("요약")
-                        }
-                        .font(.caption.weight(.bold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 7)
-                        .hareruGlass(in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-
-                    if let item = sessionEngine.currentItem {
-                        Label("\(item.word.jlptLevel.rawValue) · \(item.word.categoryThemeGroup.rawValue)", systemImage: "tag.fill")
-                            .font(.caption.weight(.semibold))
-                            .padding(.horizontal, 11)
-                            .padding(.vertical, 7)
-                            .hareruGlass(in: Capsule())
-
-                        if item.isAwaitingFinalConfirmation {
-                            Text("최종 확인")
-                                .font(.caption2.weight(.bold))
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 7)
-                                .foregroundStyle(.white)
-                                .hareruGlass(in: Capsule(), tint: .teal)
-                        } else if item.todayErosionCount > 0 {
-                            Text("침식 \(item.todayErosionCount)단계")
-                                .font(.caption2.weight(.bold))
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 7)
-                                .foregroundStyle(.white)
-                                .hareruGlass(in: Capsule(), tint: .red)
-                        }
-                    }
-
-                    Spacer()
-
-                    Text("\(sessionEngine.queue.count)장 남음")
-                        .font(.caption.monospacedDigit().weight(.semibold))
-                        .contentTransition(.numericText())
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 7)
-                        .hareruGlass(in: Capsule())
+        return HStack {
+            Button {
+                sessionEngine.pauseReactionTimer()
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                    isStudyingCards = false
                 }
-
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        Capsule()
-                            .fill(.white.opacity(0.32))
-                        Capsule()
-                            .fill(isDeeplyEroded ? Color.red : backgroundColors[2])
-                            .frame(width: geo.size.width * CGFloat(sessionEngine.completionProgress))
-                            .animation(.spring(response: 0.4, dampingFraction: 0.82), value: sessionEngine.completionProgress)
-                    }
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.left")
+                    Text("요약")
                 }
-                .frame(height: 6)
+                .font(.caption.weight(.bold))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .hareruGlass(in: Capsule(), tint: palette.glassTintColor)
+                .foregroundStyle(palette.primaryTextColor)
             }
+            .buttonStyle(.plain)
+
+            Spacer()
+
+            // 100/200 형태의 간단하고 깔끔한 숫자 표기
+            Text("\(completed) / \(total)")
+                .font(.headline.monospacedDigit().weight(.bold))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .hareruGlass(in: Capsule(), tint: palette.glassTintColor)
+                .foregroundStyle(palette.primaryTextColor)
         }
     }
 
-    // MARK: - 세션 완료 카드
+    // MARK: - 세션 완료 카드 (목표 완료 시 날씨가 개는 '晴れる' 연출)
 
     private var sessionCompletedCard: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: 16) {
             Image(systemName: "sun.max.fill")
-                .font(.system(size: 48))
-                .foregroundStyle(.orange)
+                .font(.system(size: 52))
+                .foregroundStyle(Color.yellow)
 
             Text("흐릿하던 기억이 맑게 갰어요!")
                 .font(.title3.bold())
+                .foregroundStyle(palette.primaryTextColor)
 
-            VStack(spacing: 6) {
-                Text("이번 세션 졸업 단어: \(sessionEngine.graduatedWordIds.count)개")
-                    .font(.subheadline.weight(.semibold))
-                if !sessionEngine.deferredTodayWordIds.isEmpty {
-                    Text("수면 공고화로 내일 이관된 단어: \(sessionEngine.deferredTodayWordIds.count)개")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                if let plan = sessionEngine.currentStudyPlanProjection() {
-                    Text("최근 정답률 동향이 반영되어 일일 소화 가능 속도가 \(plan.estimatedDailyPaceCapacity)단어로 업데이트되었습니다.")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-            }
+            Text("이번 세션에서 \(sessionEngine.graduatedWordIds.count)단어를 완벽하게 암기 완료했습니다.")
+                .font(.caption)
+                .foregroundStyle(palette.secondaryTextColor)
+                .multilineTextAlignment(.center)
 
-            HStack(spacing: 10) {
+            HStack(spacing: 12) {
                 Button {
                     withAnimation {
                         isStudyingCards = false
@@ -483,8 +373,8 @@ public struct WordDeckView: View {
                 } label: {
                     Text("학습 요약으로")
                         .font(.subheadline.weight(.semibold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
                 }
                 .hareruSecondaryButtonStyle()
 
@@ -492,28 +382,31 @@ public struct WordDeckView: View {
                     startFreshSessionAndEnterDeck()
                 } label: {
                     Label("다음 세션 시작", systemImage: "arrow.clockwise")
-                        .font(.subheadline.weight(.semibold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
+                        .font(.subheadline.weight(.bold))
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
                 }
                 .hareruProminentButtonStyle()
-                .tint(.indigo)
+                .tint(palette.accentColor)
             }
         }
-        .padding(32)
+        .padding(28)
         .frame(maxWidth: 360)
-        .hareruGlass(in: RoundedRectangle(cornerRadius: 30, style: .continuous))
+        .hareruGlassCard(cornerRadius: 30, tint: palette.glassTintColor)
+        .onAppear {
+            // 오늘의 세션을 끝까지 완료하면 앱 이름처럼 날씨가 맑게 개는 Hareru 효과 트리거
+            weatherEngine.isHareruClearedToday = true
+        }
     }
 
-    // MARK: - 내부 동작 헬퍼
+    // MARK: - 세션 시작 & 평가 피드백
 
     private func startFreshSessionAndEnterDeck() {
         let targetLevel = sessionEngine.userProfile?.targetLevel
         if let level = targetLevel, !sessionEngine.catalog.words(for: level).isEmpty {
-            // 목표 급수 단어를 우선 배치하되 전체 카탈로그도 함께 이어서 학습할 수 있도록 편성
             let levelWords = sessionEngine.catalog.words(for: level)
-            let remainingWords = sessionEngine.catalog.words.filter { $0.jlptLevel != level }
-            sessionEngine.startSession(words: levelWords + remainingWords)
+            let otherWords = sessionEngine.catalog.words.filter { $0.jlptLevel != level }
+            sessionEngine.startSession(words: levelWords + otherWords)
         } else {
             sessionEngine.startSession()
         }
@@ -528,35 +421,23 @@ public struct WordDeckView: View {
 
         let message: String?
         switch outcome.status {
-        case .requeued(_, let encounters, let erosion):
-            if erosion > 0 {
-                message = "다시 순환합니다 · 조우 \(encounters)/\(sessionEngine.configuration.maxDailyEncounters)"
-            } else {
-                message = "잠시 후 한 번 더 확인합니다 (\(outcome.grade.displayName))"
-            }
-        case .confirmationQueued(_, _, let didPurify):
-            message = didPurify
-                ? "컬러 정화 완료! 세션 마지막에 최종 확인 1회 남았습니다"
-                : "세션 마지막에 최종 확인 1회 진행합니다"
-        case .graduated(let schedule, let didPurify, _, _):
-            if didPurify {
-                message = "침식 정화 & 졸업 완료! (\(schedule.scheduledIntervalDays)일 뒤 복습)"
-            } else {
-                message = "졸업 완료! (\(outcome.grade.displayName) · \(schedule.scheduledIntervalDays)일 뒤 복습)"
-            }
-        case .deferredByDailyCap(_, let prescribed):
-            message = prescribed
-                ? "3일 누적 보류 → 손글씨 처방 노트로 이동했습니다"
-                : "오늘 8회 도달 · 수면 후 내일 맑은 머리로 다시 만나요"
+        case .requeued:
+            message = "잠시 후 다시 확인합니다"
+        case .confirmationQueued:
+            message = "세션 마지막에 한 번 더 확인합니다"
+        case .graduated(let schedule, _, _, _):
+            message = "암기 완료! (\(schedule.scheduledIntervalDays)일 뒤 복습)"
+        case .deferredByDailyCap:
+            message = "오늘 8회 도달 · 내일 맑은 머리로 다시 만나요"
         }
 
-        withAnimation(.easeInOut(duration: 0.25)) {
+        withAnimation(.easeInOut(duration: 0.2)) {
             feedbackBanner = message
             cardPresentationId = UUID()
         }
     }
 }
 
-#Preview("학습 대시보드 & 카드 덱") {
+#Preview("학습 뷰") {
     WordDeckView(engine: StudySessionEngine(store: InMemoryMemoryStore()))
 }

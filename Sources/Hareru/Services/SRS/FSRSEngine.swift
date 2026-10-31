@@ -9,44 +9,44 @@ public enum ReviewButton: String, Codable, CaseIterable, Equatable, Hashable, Se
 
     public var koreanTitle: String {
         switch self {
-        case .again: return "어려움"
+        case .again: return "모르겠음"
         case .hard: return "애매함"
-        case .good: return "앎"
+        case .good: return "알고있음"
         case .easy: return "쉬움"
         }
     }
 }
 
-// MARK: - 내부 6단계 히든 평가 등급 (반응 시간 × 선택 버튼 조합, SPEC.md §3.1)
+// MARK: - 내부 6단계 히든 평가 등급 (반응 시간 × 선택 버튼 조합, 사용자 UI에는 노출하지 않음)
 public enum EvaluationGrade: Int, Codable, CaseIterable, Comparable, Equatable, Hashable, Sendable {
-    case again = 1                // 1. 어려움 (큐 재투입 + 침식도 상승)
-    case hiddenHintAssisted = 2   // 2. [히든 1 · 힌트의존] (세션 말미 가벼운 재확인)
+    case again = 1                // 1. 모르겠음 (큐 재투입 + 침식도 상승)
+    case hiddenHintAssisted = 2   // 2. [내부 보정 · 지연 응답] (세션 말미 가벼운 재확인)
     case hard = 3                 // 3. 애매함 (세션 내 1회 재확인)
-    case good = 4                 // 4. 앎 [졸업 기준선] (즉시 졸업 + 컬러 정화, 약 1일)
-    case hiddenNearEasy = 5       // 5. [히든 2 · 준-쉬움] (즉시 졸업 + 컬러 정화, 약 2일)
-    case easy = 6                 // 6. 쉬움 (즉시 졸업 + 컬러 정화, 4일 이상 장기 점프)
+    case good = 4                 // 4. 알고있음 [암기 완료 기준선] (즉시 완료 + 컬러 정화, 약 1일)
+    case hiddenNearEasy = 5       // 5. [내부 보정 · 빠른 인출] (즉시 완료 + 컬러 정화, 약 2일)
+    case easy = 6                 // 6. 쉬움 (즉시 완료 + 컬러 정화, 4일 이상 장기 점프)
 
     public static func < (lhs: EvaluationGrade, rhs: EvaluationGrade) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 
-    /// 당일 세션 졸업 기준선 달성 여부 (`4등급: 앎` 이상)
+    /// 당일 세션 암기 완료 기준선 달성 여부 (`4등급: 알고있음` 이상)
     public var isGraduating: Bool {
         rawValue >= EvaluationGrade.good.rawValue
     }
 
-    /// 배경 그라데이션 Red+Black 침식을 유발하는 등급 여부 (`1등급: 어려움`)
+    /// 배경 그라데이션 Red+Black 침식을 유발하는 등급 여부 (`1등급: 모르겠음`)
     public var incrementsErosion: Bool {
         self == .again
     }
 
     public var displayName: String {
         switch self {
-        case .again: return "어려움"
-        case .hiddenHintAssisted: return "히든1·힌트의존"
+        case .again: return "모르겠음"
+        case .hiddenHintAssisted: return "애매함"
         case .hard: return "애매함"
-        case .good: return "앎"
-        case .hiddenNearEasy: return "히든2·준쉬움"
+        case .good: return "알고있음"
+        case .hiddenNearEasy: return "알고있음"
         case .easy: return "쉬움"
         }
     }
