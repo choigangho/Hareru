@@ -1,0 +1,40 @@
+[
+  {
+    "id": "food_beer",
+    "category": "음식",
+    "term": "ビール",
+    "reading": "びーる",
+    "meaning": "맥주",
+    "example": "とりあえず、ビールで乾杯しましょう。",
+    "translation": {
+      "before": "일단 ",
+      "answer": "맥주",
+      "after": "로 건배합시다."
+    },
+    "themeColors": ["#FFC733", "#FAF5E6", "#73421F"],
+    "voiceProfile": "buchou",
+    "audio": {
+      "term": "beer_term.wav",
+      "example": "beer_example.wav"
+    }
+  },
+  {
+    "id": "food_ramen",
+    "category": "음식",
+    "term": "ラーメン",
+    "reading": "らーめん",
+    "meaning": "라멘",
+    "example": "締めはやっぱり豚骨ラーメンですね。",
+    "translation": {
+      "before": "마무리는 역시 돈코츠 ",
+      "answer": "라멘",
+      "after": "이네요."
+    },
+    "themeColors": ["#D9382E", "#F5E0B3", "#40261A"],
+    "voiceProfile": "tenchou",
+    "audio": {
+      "term": "ramen_term.wav",
+      "example": "ramen_example.wav"
+    }
+  }
+]
