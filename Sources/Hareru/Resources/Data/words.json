@@ -1,40 +1,330 @@
 [
   {
-    "id": "food_beer",
+    "id": "n5_food_beer",
+    "jlptLevel": "N5",
     "category": "음식",
     "term": "ビール",
     "reading": "びーる",
-    "meaning": "맥주",
-    "example": "とりあえず、ビールで乾杯しましょう。",
-    "translation": {
-      "before": "일단 ",
-      "answer": "맥주",
-      "after": "로 건배합시다."
-    },
-    "themeColors": ["#FFC733", "#FAF5E6", "#73421F"],
-    "voiceProfile": "buchou",
-    "audio": {
-      "term": "beer_term.wav",
-      "example": "beer_example.wav"
+    "pitchAccent": 1,
+    "palette": ["#FFC733", "#FAF5E6", "#73421F"],
+    "termAudioFile": "beer_term",
+    "senses": [
+      {
+        "id": "n5_food_beer_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사",
+        "meaning": "맥주",
+        "exampleMarkup": "とりあえず、ビールで{乾杯|かんぱい}しましょう。",
+        "translation": {
+          "before": "일단 ",
+          "answer": "맥주",
+          "after": "로 건배합시다."
+        },
+        "voiceId": "buchou",
+        "exampleAudioFile": "beer_example"
+      }
+    ],
+    "nonKanjiNote": {
+      "kind": "loanword",
+      "originLanguage": "Dutch / English",
+      "originTerm": "bier / beer",
+      "explanation": "네덜란드어 bier에서 유래해 가타카나로 정착한 외래어"
     }
   },
   {
-    "id": "food_ramen",
+    "id": "n5_food_ramen",
+    "jlptLevel": "N5",
     "category": "음식",
     "term": "ラーメン",
     "reading": "らーめん",
-    "meaning": "라멘",
-    "example": "締めはやっぱり豚骨ラーメンですね。",
-    "translation": {
-      "before": "마무리는 역시 돈코츠 ",
-      "answer": "라멘",
-      "after": "이네요."
-    },
-    "themeColors": ["#D9382E", "#F5E0B3", "#40261A"],
-    "voiceProfile": "tenchou",
-    "audio": {
-      "term": "ramen_term.wav",
-      "example": "ramen_example.wav"
+    "pitchAccent": 1,
+    "palette": ["#D9382E", "#F5E0B3", "#40261A"],
+    "termAudioFile": "ramen_term",
+    "senses": [
+      {
+        "id": "n5_food_ramen_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사",
+        "meaning": "라멘",
+        "exampleMarkup": "{締め|し}はやっぱり{豚骨|とんこつ}ラーメンですね。",
+        "translation": {
+          "before": "마무리는 역시 돈코츠 ",
+          "answer": "라멘",
+          "after": "이네요."
+        },
+        "voiceId": "tenchou",
+        "exampleAudioFile": "ramen_example"
+      }
+    ],
+    "nonKanjiNote": {
+      "kind": "loanword",
+      "originLanguage": "Chinese",
+      "originTerm": "拉麺 (lāmiàn)",
+      "explanation": "중국어 라몐(拉麺)에서 유래해 일상 가타카나로 굳어진 외래어"
+    }
+  },
+  {
+    "id": "n5_adj_amai",
+    "jlptLevel": "N5",
+    "category": "감각·판단",
+    "term": "甘い",
+    "reading": "あまい",
+    "pitchAccent": 0,
+    "palette": ["#F472B6", "#FFFBEB", "#831843"],
+    "termAudioFile": "amai_term",
+    "senses": [
+      {
+        "id": "n5_adj_amai_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "イ형용사",
+        "meaning": "달다, 달콤하다",
+        "exampleMarkup": "このケーキ、ほどよく{甘|あま}くて{美味|おい}しいですね。",
+        "translation": {
+          "before": "이 케이크, 적당히 ",
+          "answer": "달콤해서",
+          "after": " 맛있네요."
+        },
+        "voiceId": "cafe_staff",
+        "exampleAudioFile": "amai_s1_example"
+      },
+      {
+        "id": "n5_adj_amai_s2",
+        "senseNumber": 2,
+        "partOfSpeech": "イ형용사",
+        "meaning": "(생각·판단이) 무르다, 안일하다",
+        "exampleMarkup": "{現実|げんじつ}はそんなに{甘|あま}くないぞ。",
+        "translation": {
+          "before": "현실은 그렇게 ",
+          "answer": "만만하지",
+          "after": " 않다."
+        },
+        "voiceId": "expedition_captain",
+        "subPalette": ["#3F6212", "#ECFCCB", "#1A2E05"],
+        "exampleAudioFile": "amai_s2_example"
+      },
+      {
+        "id": "n5_adj_amai_s3",
+        "senseNumber": 3,
+        "partOfSpeech": "イ형용사",
+        "meaning": "(마무리·경계가) 허술하다",
+        "exampleMarkup": "アリバイの{詰め|つ}が{甘|あま}いですね。",
+        "translation": {
+          "before": "알리바이의 마무리가 ",
+          "answer": "허술하네요",
+          "after": "."
+        },
+        "voiceId": "modulated_detective",
+        "subPalette": ["#0284C7", "#E0F2FE", "#0C4A6E"],
+        "exampleAudioFile": "amai_s3_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "甘",
+        "activeReading": "あま.い",
+        "dictionaryReading": "あま.い",
+        "readingType": "kunyomi"
+      }
+    ]
+  },
+  {
+    "id": "n4_social_kanpai",
+    "jlptLevel": "N4",
+    "category": "모임·회식",
+    "term": "乾杯",
+    "reading": "かんぱい",
+    "pitchAccent": 0,
+    "palette": ["#F59E0B", "#FEF3C7", "#78350F"],
+    "termAudioFile": "kanpai_term",
+    "senses": [
+      {
+        "id": "n4_social_kanpai_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사·동사(する)",
+        "meaning": "건배",
+        "exampleMarkup": "{今日|きょう}の{成功|せいこう}を{祝|いわ}って、{乾杯|かんぱい}！",
+        "translation": {
+          "before": "오늘의 성공을 축하하며, ",
+          "answer": "건배",
+          "after": "!"
+        },
+        "voiceId": "buchou",
+        "exampleAudioFile": "kanpai_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "乾",
+        "activeReading": "かん",
+        "dictionaryReading": "カン",
+        "readingType": "onyomi"
+      },
+      {
+        "kanji": "杯",
+        "activeReading": "ぱい",
+        "dictionaryReading": "ハイ",
+        "readingType": "onyomi"
+      }
+    ]
+  },
+  {
+    "id": "n3_noun_kansou",
+    "jlptLevel": "N3",
+    "category": "생활·날씨",
+    "term": "乾燥",
+    "reading": "かんそう",
+    "pitchAccent": 0,
+    "palette": ["#D97706", "#FEF9C3", "#451A03"],
+    "termAudioFile": "kansou_term",
+    "senses": [
+      {
+        "id": "n3_noun_kansou_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사·동사(する)",
+        "meaning": "건조, 마름",
+        "exampleMarkup": "{冬|ふゆ}はお{肌|はだ}が{乾燥|かんそう}しやすいねえ。",
+        "translation": {
+          "before": "겨울에는 피부가 ",
+          "answer": "건조해지기",
+          "after": " 쉽구나."
+        },
+        "voiceId": "kyoto_grandma",
+        "exampleAudioFile": "kansou_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "乾",
+        "activeReading": "かん",
+        "dictionaryReading": "カン",
+        "readingType": "onyomi"
+      },
+      {
+        "kanji": "燥",
+        "activeReading": "そう",
+        "dictionaryReading": "ソウ",
+        "readingType": "onyomi"
+      }
+    ]
+  },
+  {
+    "id": "n3_biz_uketamawaru",
+    "jlptLevel": "N3",
+    "category": "비즈니스·접객",
+    "term": "承る",
+    "reading": "うけたまわる",
+    "pitchAccent": 5,
+    "palette": ["#475569", "#F1F5F9", "#0F172A"],
+    "termAudioFile": "uketamawaru_term",
+    "senses": [
+      {
+        "id": "n3_biz_uketamawaru_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "동사 5단(겸양어)",
+        "meaning": "(삼가) 받다, 접수하다",
+        "exampleMarkup": "ご{予約|よやく}を{承ります|うけたまわ}。",
+        "translation": {
+          "before": "예약을 ",
+          "answer": "접수하겠습니다",
+          "after": "."
+        },
+        "voiceId": "tokyo_senpai",
+        "exampleAudioFile": "uketamawaru_s1_example"
+      },
+      {
+        "id": "n3_biz_uketamawaru_s2",
+        "senseNumber": 2,
+        "partOfSpeech": "동사 5단(겸양어)",
+        "meaning": "(말씀을) 삼가 듣다, 전해 듣다",
+        "exampleMarkup": "ご{事情|じじょう}はすでに{承って|うけたまわ}おります。",
+        "translation": {
+          "before": "사정은 이미 ",
+          "answer": "전해 듣고",
+          "after": " 있습니다."
+        },
+        "voiceId": "alchemy_merchant",
+        "subPalette": ["#7E22CE", "#F3E8FF", "#3B0764"],
+        "exampleAudioFile": "uketamawaru_s2_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "承",
+        "activeReading": "うけたまわ.る",
+        "dictionaryReading": "うけたまわ.る",
+        "readingType": "kunyomi"
+      }
+    ]
+  },
+  {
+    "id": "n2_biz_shounin",
+    "jlptLevel": "N2",
+    "category": "비즈니스",
+    "term": "承認",
+    "reading": "しょうにん",
+    "pitchAccent": 0,
+    "palette": ["#B45309", "#FEF3C7", "#451A03"],
+    "termAudioFile": "shounin_term",
+    "senses": [
+      {
+        "id": "n2_biz_shounin_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사·동사(する)",
+        "meaning": "승인, 허락",
+        "exampleMarkup": "{作戦|さくせん}の{承認|しょうにん}を{求|もと}める。",
+        "translation": {
+          "before": "작전의 ",
+          "answer": "승인",
+          "after": "을 요청한다."
+        },
+        "voiceId": "knight_commander",
+        "exampleAudioFile": "shounin_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "承",
+        "activeReading": "しょう",
+        "dictionaryReading": "ショウ",
+        "readingType": "onyomi"
+      },
+      {
+        "kanji": "認",
+        "activeReading": "にん",
+        "dictionaryReading": "ニン",
+        "readingType": "onyomi"
+      }
+    ]
+  },
+  {
+    "id": "n4_adv_toriaezu",
+    "jlptLevel": "N4",
+    "category": "일상 회화",
+    "term": "とりあえず",
+    "reading": "とりあえず",
+    "pitchAccent": 3,
+    "palette": ["#3B82F6", "#EFF6FF", "#1E3A8A"],
+    "termAudioFile": "toriaezu_term",
+    "senses": [
+      {
+        "id": "n4_adv_toriaezu_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "부사",
+        "meaning": "우선, 일단",
+        "exampleMarkup": "とりあえず、お{弁当|べんとう}{温|あたた}めますか？",
+        "translation": {
+          "before": "",
+          "answer": "일단",
+          "after": ", 도시락 데워 드릴까요?"
+        },
+        "voiceId": "konbini_clerk",
+        "exampleAudioFile": "toriaezu_example"
+      }
+    ],
+    "nonKanjiNote": {
+      "kind": "native_kana",
+      "originTerm": "取り敢えず",
+      "explanation": "동사 복합형 '取り敢えず'에서 굳어져 일상에서 히라가나로 표기하는 부사"
     }
   }
 ]

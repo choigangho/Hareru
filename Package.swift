@@ -32,5 +32,10 @@ let package = Package(
                 .process("Resources")
             ]
         ),
+        .testTarget(
+            name: "HareruTests",
+            dependencies: ["Hareru"],
+            path: "Tests/HareruTests"
+        ),
     ]
 )

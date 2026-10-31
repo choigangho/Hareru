@@ -1,11 +1,136 @@
 import Foundation
 
-// MARK: - 음성 캐릭터 설정
-struct VoiceProfile: Codable, Equatable, Hashable {
-    let label: String
-    let pitch: Float
-    let rate: Float
+// MARK: - 성우 캐릭터 분류
+public enum VoiceArchetype: String, Codable, Equatable, Hashable, Sendable {
+    case everyday = "everyday"       // 현실 일상·직장 캐릭터
+    case homage = "homage"           // 서브컬처·장르 오마주 캐릭터
+    case modulated = "modulated"     // 특수 음향 필터(변조/방송 등) 캐릭터
+}
 
-    static let buchou = VoiceProfile(label: "부장님", pitch: 0.75, rate: 0.42)
-    static let tenchou = VoiceProfile(label: "라멘집 사장님", pitch: 0.90, rate: 0.48)
+// MARK: - 256kbps AivisSpeech 성우 캐릭터 프로필
+public struct VoiceProfile: Codable, Identifiable, Equatable, Hashable, Sendable {
+    public let id: String
+    public let label: String
+    public let archetype: VoiceArchetype
+    public let tagline: String
+    public let accentHex: String
+    public let aivisStyleId: Int?
+
+    public init(
+        id: String,
+        label: String,
+        archetype: VoiceArchetype = .everyday,
+        tagline: String = "",
+        accentHex: String = "#5C4033",
+        aivisStyleId: Int? = nil
+    ) {
+        self.id = id
+        self.label = label
+        self.archetype = archetype
+        self.tagline = tagline
+        self.accentHex = accentHex
+        self.aivisStyleId = aivisStyleId
+    }
+
+    // MARK: - 기본 시그니처 성우 라인업 (SPEC.md §4)
+
+    public static let buchou = VoiceProfile(
+        id: "buchou",
+        label: "이자카야 부장님",
+        archetype: .everyday,
+        tagline: "퇴근 후 생맥주 한 잔에 진심인 호탕한 상사",
+        accentHex: "#73421F"
+    )
+
+    public static let tenchou = VoiceProfile(
+        id: "tenchou",
+        label: "라멘집 사장님",
+        archetype: .everyday,
+        tagline: "진한 돈코츠 육수 자부심으로 뭉친 장인",
+        accentHex: "#8C271E"
+    )
+
+    public static let konbiniClerk = VoiceProfile(
+        id: "konbini_clerk",
+        label: "편의점 알바생",
+        archetype: .everyday,
+        tagline: "새벽 근무 중에도 텐션 높은 친절 알바생",
+        accentHex: "#2563EB"
+    )
+
+    public static let tokyoSenpai = VoiceProfile(
+        id: "tokyo_senpai",
+        label: "도쿄 오피스 선배",
+        archetype: .everyday,
+        tagline: "정중하고 깔끔한 비즈니스 일본어의 정석",
+        accentHex: "#334155"
+    )
+
+    public static let cafeStaff = VoiceProfile(
+        id: "cafe_staff",
+        label: "디저트 점원",
+        archetype: .everyday,
+        tagline: "부드럽고 상냥한 디저트 카페 파티시에",
+        accentHex: "#DB2777"
+    )
+
+    public static let kyotoGrandma = VoiceProfile(
+        id: "kyoto_grandma",
+        label: "교토 할머니",
+        archetype: .everyday,
+        tagline: "나긋나긋한 교토 사투리로 차를 내어주는 어르신",
+        accentHex: "#65A30D"
+    )
+
+    public static let expeditionCaptain = VoiceProfile(
+        id: "expedition_captain",
+        label: "벽 외 조사단장",
+        archetype: .homage,
+        tagline: "안일한 생각을 단숨에 꾸짖는 냉철한 지휘관",
+        accentHex: "#3F6212"
+    )
+
+    public static let knightCommander = VoiceProfile(
+        id: "knight_commander",
+        label: "왕국 기사단장",
+        archetype: .homage,
+        tagline: "맹세와 신의를 중시하는 중후한 기사",
+        accentHex: "#B45309"
+    )
+
+    public static let alchemyMerchant = VoiceProfile(
+        id: "alchemy_merchant",
+        label: "연금술 상인",
+        archetype: .homage,
+        tagline: "등가교환과 흥정에 능숙한 노련한 상인",
+        accentHex: "#9333EA"
+    )
+
+    public static let modulatedDetective = VoiceProfile(
+        id: "modulated_detective",
+        label: "음성변조 명탐정",
+        archetype: .modulated,
+        tagline: "모니터 너머 기계 변조음으로 허점을 찌르는 탐정",
+        accentHex: "#0284C7"
+    )
+
+    public static let allPresets: [VoiceProfile] = [
+        .buchou,
+        .tenchou,
+        .konbiniClerk,
+        .tokyoSenpai,
+        .cafeStaff,
+        .kyotoGrandma,
+        .expeditionCaptain,
+        .knightCommander,
+        .alchemyMerchant,
+        .modulatedDetective
+    ]
+
+    public static func preset(forId id: String) -> VoiceProfile {
+        if let found = allPresets.first(where: { $0.id == id }) {
+            return found
+        }
+        return VoiceProfile(id: id, label: id)
+    }
 }

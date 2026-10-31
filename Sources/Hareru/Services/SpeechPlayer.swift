@@ -72,19 +72,21 @@ final class SpeechPlayer: NSObject, AVAudioPlayerDelegate {
     }
 
     private static func resolveAudioURL(for fileName: String) -> URL? {
+        let cleanStem = AudioFileName.normalize(fileName)
+        guard !cleanStem.isEmpty else { return nil }
         let supportedExtensions = ["m4a", "wav", "mp3"]
 
         // 1) Swift Package(Bundle.module) 및 앱 번들(Bundle.main) 검색
         let bundles: [Bundle] = [Bundle.module, Bundle.main]
         for bundle in bundles {
             for ext in supportedExtensions {
-                if let url = bundle.url(forResource: fileName, withExtension: ext) {
+                if let url = bundle.url(forResource: cleanStem, withExtension: ext) {
                     return url
                 }
-                if let url = bundle.url(forResource: fileName, withExtension: ext, subdirectory: "Audio") {
+                if let url = bundle.url(forResource: cleanStem, withExtension: ext, subdirectory: "Audio") {
                     return url
                 }
-                if let url = bundle.url(forResource: fileName, withExtension: ext, subdirectory: "Resources/Audio") {
+                if let url = bundle.url(forResource: cleanStem, withExtension: ext, subdirectory: "Resources/Audio") {
                     return url
                 }
             }
@@ -97,7 +99,7 @@ final class SpeechPlayer: NSObject, AVAudioPlayerDelegate {
         let audioDir = sourceDir.appendingPathComponent("Resources/Audio", isDirectory: true)
 
         for ext in supportedExtensions {
-            let candidate = audioDir.appendingPathComponent("\(fileName).\(ext)")
+            let candidate = audioDir.appendingPathComponent("\(cleanStem).\(ext)")
             if FileManager.default.fileExists(atPath: candidate.path) {
                 return candidate
             }

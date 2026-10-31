@@ -1,0 +1,62 @@
+[
+  {
+    "character": "甘",
+    "koreanHunEum": "달 감",
+    "meanings": ["달다", "달콤하다", "느슨하다", "만만히 보다"],
+    "onyomi": ["カン"],
+    "kunyomi": ["あま.い", "あま.える", "あま.やかす"],
+    "strokeCount": 5,
+    "radical": "甘 (달 감)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "乾",
+    "koreanHunEum": "마를 건",
+    "meanings": ["마르다", "건조하다", "하늘"],
+    "onyomi": ["カン", "ケン"],
+    "kunyomi": ["かわ.く", "かわ.かす", "ほ.す"],
+    "strokeCount": 11,
+    "radical": "乙 (새 을)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "杯",
+    "koreanHunEum": "잔 배",
+    "meanings": ["술잔", "잔을 세는 단위"],
+    "onyomi": ["ハイ"],
+    "kunyomi": ["さかずき"],
+    "strokeCount": 8,
+    "radical": "木 (나무 목)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "燥",
+    "koreanHunEum": "마를 조",
+    "meanings": ["마르다", "메마르다", "들뜨다"],
+    "onyomi": ["ソウ"],
+    "kunyomi": ["はしゃ.ぐ"],
+    "strokeCount": 17,
+    "radical": "火 (불 화)",
+    "jlptLevel": "N2"
+  },
+  {
+    "character": "承",
+    "koreanHunEum": "받들 승",
+    "meanings": ["받들다", "삼가 받다", "잇다", "승인하다"],
+    "onyomi": ["ショウ"],
+    "kunyomi": ["うけたまわ.る", "う.ける"],
+    "strokeCount": 8,
+    "radical": "手 (손 수)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "認",
+    "koreanHunEum": "알 인",
+    "meanings": ["인정하다", "알아보다", "허락하다"],
+    "onyomi": ["ニン"],
+    "kunyomi": ["みと.める", "したた.める"],
+    "strokeCount": 14,
+    "radical": "言 (말씀 언)",
+    "jlptLevel": "N3"
+  }
+]
