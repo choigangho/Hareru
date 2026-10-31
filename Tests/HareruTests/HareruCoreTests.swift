@@ -514,4 +514,62 @@ final class HareruCoreTests: XCTestCase {
         try await Task.sleep(for: .milliseconds(30))
         XCTAssertEqual(session.currentElapsedSeconds(), locked, accuracy: 1e-9)
     }
+
+    // MARK: - 16. 한글 발음 → 일본어 자동 변환기 유사 발음 보정 & 문장 변환 검증
+
+    func testHangulKanaConverterPhoneticFuzzyMatchingAndSentenceConversion() {
+        let converter = HangulKanaConverter()
+
+        // 1) 평음/격음/경음/받침 유사 발음('칸파이', '간파이', '캄파이', '깐파이')이 모두 '乾杯'로 매칭되는지 검증
+        for variant in ["칸파이", "간파이", "캄파이", "깐파이"] {
+            let candidates = converter.suggestCandidates(for: variant)
+            XCTAssertEqual(candidates.first?.entry.surface, "乾杯", "Failed variant: \(variant)")
+        }
+
+        // 2) 장음 유무('비루' vs '비이루', '시마쇼' vs '시마쇼우') 동일 매칭 검증
+        XCTAssertEqual(converter.suggestCandidates(for: "비루").first?.entry.surface, "ビール")
+        XCTAssertEqual(converter.suggestCandidates(for: "비이루").first?.entry.surface, "ビール")
+        XCTAssertEqual(converter.suggestCandidates(for: "시마쇼").first?.entry.surface, "しましょう")
+        XCTAssertEqual(converter.suggestCandidates(for: "시마쇼우").first?.entry.surface, "しましょう")
+
+        // 3) 전체 한글 발음 문장 → 일본어 문장 자동 변환 검증
+        let fullSentence = converter.convertFullInput("토리아에즈 비루데 칸파이 시마쇼")
+        XCTAssertEqual(fullSentence, "とりあえず、ビールで乾杯しましょう")
+
+        let noisySentence = converter.convertFullInput("도리아에즈 삐루데 간파이 시마쇼우")
+        XCTAssertEqual(noisySentence, "とりあえず、ビールで乾杯しましょう")
+    }
+
+    // MARK: - 17. 분기형 SMS 에피소드 3턴 진행 & 호감도·재시도 판정 검증
+
+    func testSMSEpisodeEngineBranchingProgressionAndClear() {
+        let engine = SMSEpisodeEngine(episode: .buchouIzakaya)
+        XCTAssertEqual(engine.currentTurnIndex, 0)
+        XCTAssertEqual(engine.affectionScore, 20)
+        XCTAssertFalse(engine.isEpisodeCleared)
+
+        // 1) 엉뚱한 입력 시 턴이 넘어가지 않고 힌트 유도(.retryHint) 분기 반환
+        let retryBranch = engine.submitReplyImmediately("모르겠어요")
+        XCTAssertEqual(retryBranch?.tier, .retryHint)
+        XCTAssertEqual(engine.currentTurnIndex, 0)
+        XCTAssertEqual(engine.affectionScore, 20)
+
+        // 2) Turn 1: 한글 발음으로 건배 제안 전송 → 대성공(.greatSuccess, 호감도 +40) & Turn 2 진급
+        let turn1Branch = engine.submitReplyImmediately("토리아에즈 비루데 칸파이 시마쇼")
+        XCTAssertEqual(turn1Branch?.tier, .greatSuccess)
+        XCTAssertEqual(turn1Branch?.stamp, .cheers)
+        XCTAssertEqual(engine.currentTurnIndex, 1)
+        XCTAssertEqual(engine.affectionScore, 60)
+
+        // 3) Turn 2: 디저트 맛 칭찬 → 대성공 & Turn 3 진급
+        let turn2Branch = engine.submitReplyImmediately("아마쿠테 오이시이 데스네")
+        XCTAssertEqual(turn2Branch?.tier, .greatSuccess)
+        XCTAssertEqual(engine.currentTurnIndex, 2)
+        XCTAssertEqual(engine.affectionScore, 100)
+
+        // 4) Turn 3: 마무리 돈코츠 라멘 제안 → 에피소드 클리어!
+        let turn3Branch = engine.submitReplyImmediately("시메와 돈코츠 라멘 데스네")
+        XCTAssertEqual(turn3Branch?.tier, .greatSuccess)
+        XCTAssertTrue(engine.isEpisodeCleared)
+    }
 }

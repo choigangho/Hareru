@@ -12,13 +12,17 @@ let package = Package(
             name: "Hareru",
             targets: ["Hareru"]
         ),
+        .executable(
+            name: "HareruPreview",
+            targets: ["HareruPreview"]
+        ),
     ],
     targets: [
         .target(
             name: "Hareru",
             path: "Sources/Hareru",
             exclude: [
-                "App/HareruApp.swift",
+                "App",
                 "Features/Game/.gitkeep",
                 "Features/Insights/.gitkeep"
             ],
@@ -31,6 +35,11 @@ let package = Package(
             resources: [
                 .process("Resources")
             ]
+        ),
+        .executableTarget(
+            name: "HareruPreview",
+            dependencies: ["Hareru"],
+            path: "Sources/Hareru/App"
         ),
         .testTarget(
             name: "HareruTests",
