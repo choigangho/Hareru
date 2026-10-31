@@ -311,7 +311,7 @@ public struct WordCardView: View {
                 .foregroundStyle(.secondary)
 
             ForEach(item.supplementarySenses) { sense in
-                let senseAccent = (sense.subPalette ?? word.palette).accentColor
+                let senseAccent = word.categoryPalette.accentColor
                 VStack(alignment: .leading, spacing: 5) {
                     HStack(spacing: 6) {
                         Text("뜻 \(sense.senseNumber)")

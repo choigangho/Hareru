@@ -607,4 +607,103 @@ final class HareruCoreTests: XCTestCase {
         XCTAssertEqual(unlocked?.handwritingCompletedCount, 1)
         XCTAssertTrue(session.prescribedLeechWords().isEmpty)
     }
+
+    // MARK: - 19. 카테고리 기반 테마 팔레트 통일 & 미분류 기본 색상 폴백 검증
+
+    func testCategoryThemeGroupAndDefaultPaletteFallback() {
+        // 같은 식음료 카테고리인 'ビール'와 'ラーメン'은 단어별 무작위 색이 아니라 동일한 카테고리 테마를 공유
+        XCTAssertEqual(Word.beer.categoryThemeGroup, .foodAndDining)
+        XCTAssertEqual(Word.ramen.categoryThemeGroup, .foodAndDining)
+        XCTAssertEqual(Word.beer.categoryPalette, Word.ramen.categoryPalette)
+
+        // 카테고리가 애매하거나 비어 있는 단어는 디폴트 테마(.standardDefault)로 깔끔하게 귀속
+        XCTAssertEqual(CategoryThemeGroup.resolve(for: "기타 미분류 어휘"), .standardDefault)
+        XCTAssertEqual(ThemePalette.forCategory("기타 미분류 어휘"), ThemePalette.defaultPalette)
+    }
+
+    // MARK: - 20. 10문항 진단 기반 일일 암기 계획 & 추후 학습 정답률에 따른 동적 진도 변화 검증
+
+    func testDiagnosticPlanAndLiveLearningTrendAdaptation() throws {
+        let repo = try CatalogRepository.loadBundled()
+        let questions = StudyPlanCalculator.makeDiagnosticQuestions(for: .n2, catalog: repo, count: 10)
+        XCTAssertEqual(questions.count, 10)
+        for q in questions {
+            XCTAssertEqual(q.choices.count, 4)
+            XCTAssertEqual(q.choices[q.correctIndex], q.word.meaning)
+        }
+
+        let today = makeDate(2026, 11, 1)
+        let examDate = makeDate(2026, 12, 31) // 60일 뒤 시험
+
+        // Case 1: N2 10문항 테스트에서 0개 맞힌 초심자 vs 9개 맞힌 숙련자 비교
+        let beginnerProfile = UserStudyProfile(
+            email: "beginner@hareru.app",
+            displayName: "초심자",
+            passwordHash: UserStudyProfile.hashPassword("pass1234"),
+            targetLevel: .n2,
+            examDate: examDate,
+            diagnosticTestedCount: 10,
+            diagnosticCorrectCount: 0,
+            diagnosticAverageSeconds: 7.5,
+            createdAt: today
+        )
+        let advancedProfile = UserStudyProfile(
+            email: "advanced@hareru.app",
+            displayName: "숙련자",
+            passwordHash: UserStudyProfile.hashPassword("pass1234"),
+            targetLevel: .n2,
+            examDate: examDate,
+            diagnosticTestedCount: 10,
+            diagnosticCorrectCount: 9,
+            diagnosticAverageSeconds: 2.5,
+            createdAt: today
+        )
+
+        let beginnerInitialPlan = StudyPlanCalculator.evaluatePlan(
+            profile: beginnerProfile,
+            snapshots: [:],
+            reviewLogs: [],
+            now: today,
+            calendar: fixedCalendar
+        )
+        let advancedInitialPlan = StudyPlanCalculator.evaluatePlan(
+            profile: advancedProfile,
+            snapshots: [:],
+            reviewLogs: [],
+            now: today,
+            calendar: fixedCalendar
+        )
+
+        // 숙련자는 기저 아는 단어가 많아 남은 암기량이 적고, 일일 소화 가능 속도도 훨씬 높음
+        XCTAssertGreaterThan(beginnerInitialPlan.remainingWordsToLearn, advancedInitialPlan.remainingWordsToLearn)
+        XCTAssertGreaterThan(advancedInitialPlan.estimatedDailyPaceCapacity, beginnerInitialPlan.estimatedDailyPaceCapacity)
+        XCTAssertEqual(beginnerInitialPlan.feasibility, .tight)
+        XCTAssertEqual(advancedInitialPlan.feasibility, .comfortable)
+
+        // Case 2: 처음 10장은 다 틀렸던 초심자라도, 이후 실제 학습(20회)에서 높은 정답률·빠른 반응 속도를 보이면
+        //         예상 일일 소화 가능 속도가 상승하고 완주 예상 일수가 단축되는지 검증!
+        let strongLiveLogs: [ReviewLogEntry] = (1...20).map { idx in
+            ReviewLogEntry(
+                id: "live_\(idx)",
+                wordId: "n5_food_beer",
+                reviewedAt: today,
+                button: .easy,
+                grade: .easy,
+                reactionSeconds: 2.1,
+                didGraduate: true,
+                didHitDailyCap: false
+            )
+        }
+        let beginnerUpdatedPlan = StudyPlanCalculator.evaluatePlan(
+            profile: beginnerProfile,
+            snapshots: [:],
+            reviewLogs: strongLiveLogs,
+            now: today,
+            calendar: fixedCalendar
+        )
+
+        XCTAssertTrue(beginnerUpdatedPlan.isUsingLiveLearningTrend)
+        XCTAssertGreaterThan(beginnerUpdatedPlan.estimatedDailyPaceCapacity, beginnerInitialPlan.estimatedDailyPaceCapacity)
+        XCTAssertLessThan(beginnerUpdatedPlan.expectedDaysAtCurrentPace, beginnerInitialPlan.expectedDaysAtCurrentPace)
+    }
 }

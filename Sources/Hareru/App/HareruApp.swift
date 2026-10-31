@@ -27,23 +27,7 @@ struct HareruApp: App {
 
     var body: some Scene {
         WindowGroup("Hareru (晴れる)") {
-            TabView {
-                WordDeckView(engine: sharedSessionEngine)
-                    .tabItem {
-                        Label("단어 학습", systemImage: "rectangle.stack.fill")
-                    }
-
-                GameHubView(engine: sharedSessionEngine)
-                    .tabItem {
-                        Label("게임 (SMS)", systemImage: "bubble.left.and.bubble.right.fill")
-                    }
-
-                InsightsHubView(engine: sharedSessionEngine)
-                    .tabItem {
-                        Label("통계 · 노트", systemImage: "chart.bar.doc.horizontal.fill")
-                    }
-            }
-            .modifier(LiquidGlassTabBarBehavior())
+            HareruMainTabView(sessionEngine: sharedSessionEngine)
             #if os(macOS)
             .frame(minWidth: 410, idealWidth: 420, maxWidth: 460,
                    minHeight: 780, idealHeight: 840, maxHeight: 920)
@@ -52,6 +36,42 @@ struct HareruApp: App {
         #if os(macOS)
         .windowResizability(.contentSize)
         #endif
+    }
+}
+
+// MARK: - 메인 2탭 통합 뷰 + 최초 실행 시 회원가입·급수 진단 온보딩 자동 연결 (게임 탭 제거됨)
+public struct HareruMainTabView: View {
+    @State private var sessionEngine: StudySessionEngine
+
+    public init(sessionEngine: StudySessionEngine? = nil) {
+        if let sessionEngine {
+            _sessionEngine = State(initialValue: sessionEngine)
+        } else {
+            _sessionEngine = State(initialValue: StudySessionEngine(store: InMemoryMemoryStore()))
+        }
+    }
+
+    public var body: some View {
+        let _ = sessionEngine.stateRevision
+
+        if sessionEngine.userProfile == nil {
+            OnboardingFlowView(engine: sessionEngine)
+                .transition(.opacity)
+        } else {
+            TabView {
+                WordDeckView(engine: sessionEngine)
+                    .tabItem {
+                        Label("단어 학습", systemImage: "rectangle.stack.fill")
+                    }
+
+                InsightsHubView(engine: sessionEngine)
+                    .tabItem {
+                        Label("통계 · 노트", systemImage: "chart.bar.doc.horizontal.fill")
+                    }
+            }
+            .modifier(LiquidGlassTabBarBehavior())
+            .transition(.opacity)
+        }
     }
 }
 
@@ -68,4 +88,23 @@ private struct LiquidGlassTabBarBehavior: ViewModifier {
         content
         #endif
     }
+}
+
+#Preview("1. 온보딩 (회원가입 · N급수 10문항 진단)") {
+    HareruMainTabView(sessionEngine: StudySessionEngine(store: InMemoryMemoryStore()))
+}
+
+#Preview("2. 메인 앱 (학습 요약 홈 · 카드 덱 · 통계)") {
+    let sampleProfile = UserStudyProfile(
+        email: "learner@hareru.app",
+        displayName: "도쿄합격생",
+        passwordHash: UserStudyProfile.hashPassword("hareru1234"),
+        targetLevel: .n2,
+        examDate: Calendar.current.date(byAdding: .day, value: 90, to: Date()) ?? Date(),
+        diagnosticTestedCount: 10,
+        diagnosticCorrectCount: 6,
+        diagnosticAverageSeconds: 3.8
+    )
+    let store = InMemoryMemoryStore(initialProfile: sampleProfile)
+    HareruMainTabView(sessionEngine: StudySessionEngine(store: store))
 }

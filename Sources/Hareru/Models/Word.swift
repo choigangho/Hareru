@@ -158,11 +158,21 @@ public struct Word: Codable, Identifiable, Equatable, Hashable, Sendable {
     public let term: String                // 메인 표제어 (일본어)
     public let reading: String             // 읽는 법 (히라가나)
     public let pitchAccent: Int?           // 악센트 핵 위치 (선택)
-    public let palette: ThemePalette       // 대표 의미 퍼스널 3색 그라데이션 팔레트
+    public let palette: ThemePalette       // 카테고리 기반 3색 그라데이션 팔레트 (미지정 시 카테고리 자동 매핑)
     public let termAudioFile: String       // 256kbps 단어 오디오 파일 스템
     public let senses: [WordSense]         // [대표 의미 1, 서브 의미 2...4]
     public let kanjiUsages: [WordKanjiUsage]
     public let nonKanjiNote: NonKanjiNote?
+
+    /// 단어가 속한 카테고리 컬러 테마 그룹 (`식음료·매장`, `비즈니스·업무`, ..., `기본`)
+    public var categoryThemeGroup: CategoryThemeGroup {
+        CategoryThemeGroup.resolve(for: category)
+    }
+
+    /// 화면 렌더링에 사용할 카테고리 기준 팔레트 (개별 단어마다 색이 튀지 않도록 카테고리 테마로 통일)
+    public var categoryPalette: ThemePalette {
+        ThemePalette.forCategory(category)
+    }
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -213,7 +223,8 @@ public struct Word: Codable, Identifiable, Equatable, Hashable, Sendable {
         let term = try container.decode(String.self, forKey: .term)
         let reading = try container.decode(String.self, forKey: .reading)
         let pitchAccent = try container.decodeIfPresent(Int.self, forKey: .pitchAccent)
-        let palette = try container.decode(ThemePalette.self, forKey: .palette)
+        let palette = try container.decodeIfPresent(ThemePalette.self, forKey: .palette)
+            ?? ThemePalette.forCategory(category)
         let termAudioFile = try container.decode(String.self, forKey: .termAudioFile)
         let senses = try container.decode([WordSense].self, forKey: .senses)
         guard !senses.isEmpty else {
@@ -268,9 +279,9 @@ public struct Word: Codable, Identifiable, Equatable, Hashable, Sendable {
         senses.filter { $0.id != senseId }
     }
 
-    /// 특정 의미에 대응하는 테마 팔레트 (서브 의미에 고유 팔레트가 있으면 적용, 없으면 대표 팔레트 유지)
+    /// 특정 의미에 대응하는 테마 팔레트 (카테고리 테마를 기본으로 사용)
     public func activePalette(for sense: WordSense) -> ThemePalette {
-        sense.subPalette ?? palette
+        categoryPalette
     }
 
     /// 특정 의미 예문의 어절 박스 세그먼트 반환 (표제어 후리가나 스포일러 잠금 적용)
@@ -292,18 +303,17 @@ public struct Word: Codable, Identifiable, Equatable, Hashable, Sendable {
         kanjiUsages.first { $0.kanji == kanjiCharacter }
     }
 
-    /// 세션 내 실패 횟수에 따라 침식(Red+Black)이 반영된 3색 배열 반환
+    /// 세션 내 실패 횟수에 따라 침식(Red+Black)이 반영된 카테고리 3색 배열 반환
     public func colors(
         for sense: WordSense? = nil,
         sessionFailures failureCount: Int,
         maxFailuresBeforeCap: Int = 7
     ) -> [Color] {
-        let targetPalette = sense.map { activePalette(for: $0) } ?? palette
-        return targetPalette.colors(forFailureCount: failureCount, maxFailuresBeforeCap: maxFailuresBeforeCap)
+        categoryPalette.colors(forFailureCount: failureCount, maxFailuresBeforeCap: maxFailuresBeforeCap)
     }
 
     public func colors(forSessionFailures failureCount: Int, maxFailuresBeforeCap: Int = 7) -> [Color] {
-        palette.colors(forFailureCount: failureCount, maxFailuresBeforeCap: maxFailuresBeforeCap)
+        categoryPalette.colors(forFailureCount: failureCount, maxFailuresBeforeCap: maxFailuresBeforeCap)
     }
 
     // MARK: - 기존 뷰 호환 & 직관적 접근용 프로퍼티 (대표 의미 위임)
@@ -315,7 +325,7 @@ public struct Word: Codable, Identifiable, Equatable, Hashable, Sendable {
     public var transBefore: String { primarySense.translation.before }
     public var transAnswer: String { primarySense.translation.answer }
     public var transAfter: String { primarySense.translation.after }
-    public var colors: [Color] { palette.swiftUIColors }
+    public var colors: [Color] { categoryPalette.swiftUIColors }
     public var voice: VoiceProfile { primarySense.voice }
     public var exampleAudioFile: String { primarySense.exampleAudioFile }
 }

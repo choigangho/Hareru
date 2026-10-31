@@ -339,6 +339,60 @@ public final class GameTicketRecord {
     }
 }
 
+@Model
+public final class UserStudyProfileRecord {
+    @Attribute(.unique) public var userId: String
+    public var email: String
+    public var displayName: String
+    public var passwordHash: String
+    public var targetLevelRaw: String
+    public var examDate: Date
+    public var diagnosticTestedCount: Int
+    public var diagnosticCorrectCount: Int
+    public var diagnosticAverageSeconds: Double
+    public var createdAt: Date
+
+    public init(profile: UserStudyProfile) {
+        self.userId = profile.userId
+        self.email = profile.email
+        self.displayName = profile.displayName
+        self.passwordHash = profile.passwordHash
+        self.targetLevelRaw = profile.targetLevel.rawValue
+        self.examDate = profile.examDate
+        self.diagnosticTestedCount = profile.diagnosticTestedCount
+        self.diagnosticCorrectCount = profile.diagnosticCorrectCount
+        self.diagnosticAverageSeconds = profile.diagnosticAverageSeconds
+        self.createdAt = profile.createdAt
+    }
+
+    public func apply(_ profile: UserStudyProfile) {
+        self.email = profile.email
+        self.displayName = profile.displayName
+        self.passwordHash = profile.passwordHash
+        self.targetLevelRaw = profile.targetLevel.rawValue
+        self.examDate = profile.examDate
+        self.diagnosticTestedCount = profile.diagnosticTestedCount
+        self.diagnosticCorrectCount = profile.diagnosticCorrectCount
+        self.diagnosticAverageSeconds = profile.diagnosticAverageSeconds
+        self.createdAt = profile.createdAt
+    }
+
+    public var profile: UserStudyProfile {
+        UserStudyProfile(
+            userId: userId,
+            email: email,
+            displayName: displayName,
+            passwordHash: passwordHash,
+            targetLevel: JLPTLevel(rawValue: targetLevelRaw) ?? .n2,
+            examDate: examDate,
+            diagnosticTestedCount: diagnosticTestedCount,
+            diagnosticCorrectCount: diagnosticCorrectCount,
+            diagnosticAverageSeconds: diagnosticAverageSeconds,
+            createdAt: createdAt
+        )
+    }
+}
+
 // MARK: - 기억 저장소 추상 프로토콜 (SwiftData / InMemory 교체 가능)
 public protocol MemoryStoreProtocol: AnyObject {
     func snapshot(for wordId: String) -> WordMemorySnapshot?
@@ -348,6 +402,9 @@ public protocol MemoryStoreProtocol: AnyObject {
     func allReviewLogs() -> [ReviewLogEntry]
     func saveGameTicket(_ ticket: GameTicket)
     func allGameTickets() -> [GameTicket]
+    func currentUserProfile() -> UserStudyProfile?
+    func saveUserProfile(_ profile: UserStudyProfile)
+    func clearUserProfile()
 }
 
 // MARK: - 인메모리 저장소 (프리뷰 · 고속 유닛 테스트용)
@@ -355,11 +412,13 @@ public final class InMemoryMemoryStore: MemoryStoreProtocol {
     private var snapshotsById: [String: WordMemorySnapshot]
     private var logs: [ReviewLogEntry]
     private var ticketsById: [String: GameTicket]
+    private var profile: UserStudyProfile?
 
     public init(
         initialSnapshots: [WordMemorySnapshot] = [],
         initialLogs: [ReviewLogEntry] = [],
-        initialTickets: [GameTicket] = []
+        initialTickets: [GameTicket] = [],
+        initialProfile: UserStudyProfile? = nil
     ) {
         var map: [String: WordMemorySnapshot] = [:]
         for item in initialSnapshots {
@@ -372,6 +431,7 @@ public final class InMemoryMemoryStore: MemoryStoreProtocol {
             ticketMap[ticket.id] = ticket
         }
         self.ticketsById = ticketMap
+        self.profile = initialProfile
     }
 
     public func snapshot(for wordId: String) -> WordMemorySnapshot? {
@@ -401,6 +461,18 @@ public final class InMemoryMemoryStore: MemoryStoreProtocol {
     public func allGameTickets() -> [GameTicket] {
         ticketsById.values.sorted { $0.earnedAt < $1.earnedAt }
     }
+
+    public func currentUserProfile() -> UserStudyProfile? {
+        profile
+    }
+
+    public func saveUserProfile(_ profile: UserStudyProfile) {
+        self.profile = profile
+    }
+
+    public func clearUserProfile() {
+        self.profile = nil
+    }
 }
 
 // MARK: - SwiftData 기반 영구 저장소 (실기기 운영 & 영속성 검증용)
@@ -417,7 +489,8 @@ public final class SwiftDataMemoryStore: MemoryStoreProtocol {
         let schema = Schema([
             WordMemoryRecord.self,
             ReviewLogRecord.self,
-            GameTicketRecord.self
+            GameTicketRecord.self,
+            UserStudyProfileRecord.self
         ])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: inMemory)
         return try ModelContainer(for: schema, configurations: [configuration])
@@ -491,5 +564,36 @@ public final class SwiftDataMemoryStore: MemoryStoreProtocol {
             sortBy: [SortDescriptor(\.earnedAt, order: .forward)]
         )
         return ((try? context.fetch(descriptor)) ?? []).map(\.ticket)
+    }
+
+    public func currentUserProfile() -> UserStudyProfile? {
+        var descriptor = FetchDescriptor<UserStudyProfileRecord>(
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = 1
+        return (try? context.fetch(descriptor))?.first?.profile
+    }
+
+    public func saveUserProfile(_ profile: UserStudyProfile) {
+        let targetId = profile.userId
+        var descriptor = FetchDescriptor<UserStudyProfileRecord>(
+            predicate: #Predicate { $0.userId == targetId }
+        )
+        descriptor.fetchLimit = 1
+
+        if let existing = (try? context.fetch(descriptor))?.first {
+            existing.apply(profile)
+        } else {
+            context.insert(UserStudyProfileRecord(profile: profile))
+        }
+        try? context.save()
+    }
+
+    public func clearUserProfile() {
+        let records = (try? context.fetch(FetchDescriptor<UserStudyProfileRecord>())) ?? []
+        for record in records {
+            context.delete(record)
+        }
+        try? context.save()
     }
 }

@@ -614,6 +614,33 @@ public final class StudySessionEngine {
         return store.allGameTickets().filter { !$0.isConsumed }
     }
 
+    public var userProfile: UserStudyProfile? {
+        _ = stateRevision
+        return store.currentUserProfile()
+    }
+
+    public func saveUserProfile(_ profile: UserStudyProfile) {
+        store.saveUserProfile(profile)
+        stateRevision += 1
+    }
+
+    public func clearUserProfile() {
+        store.clearUserProfile()
+        stateRevision += 1
+    }
+
+    public func currentStudyPlanProjection(now: Date = Date()) -> StudyPlanProjection? {
+        _ = stateRevision
+        guard let profile = store.currentUserProfile() else { return nil }
+        return StudyPlanCalculator.evaluatePlan(
+            profile: profile,
+            snapshots: store.allSnapshots(),
+            reviewLogs: store.allReviewLogs(),
+            now: now,
+            calendar: calendar
+        )
+    }
+
     @discardableResult
     public func consumeGameTicket(id: String) -> GameTicket? {
         guard var ticket = store.allGameTickets().first(where: { $0.id == id }) else {
