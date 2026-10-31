@@ -8,8 +8,8 @@
    - JLPT 어휘 및 `JMdict` / `KANJIDIC2` 기반 단어·한자 매핑
    - 다의어 핵심 의미 분리 (최대 2~4개) 및 캐릭터 성우 자동 배정
    - `SplitText`용 `before / answer / after` 3분할 한국어 해석 무결성 자동 검사
-2. **`synthesize_aivis.py` (AivisSpeech 로컬 무인 녹음)**
+2. **`synthesize_aivis.py` (AivisSpeech 로컬 무인 녹음 · 256kbps)**
    - 맥북 로컬 `AivisSpeech Engine` (`http://127.0.0.1:10101`) 연동
-   - 캐릭터별 `style_id` 적용 후 단어·예문 오디오 자동 합성 및 `.m4a` 경량 압축 (`~30KB/단어`)
+   - 캐릭터별 `style_id` 적용 후 단어·예문 오디오 자동 합성 및 **`256kbps` 고음질 `.m4a` 인코딩**
 3. **`quick_review` (고속 검수기)**
    - 스페이스바로 연속 청취하며 억양이 어색한 항목만 `R` 키로 재합성 큐에 등록

@@ -1,18 +1,11 @@
 import Foundation
 import AVFoundation
 
-// MARK: - 음성 재생 서비스 (로컬 오디오 파일 우선 재생 + iOS 기본 TTS 자동 폴백)
-final class SpeechPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesizerDelegate {
-    private let synthesizer = AVSpeechSynthesizer()
+// MARK: - 음성 재생 서비스 (사전 제작된 고음질 로컬 오디오 전용 재생, TTS 폴백 없음)
+final class SpeechPlayer: NSObject, AVAudioPlayerDelegate {
     private var audioPlayer: AVAudioPlayer?
-    
-    // 단어 재생이 끝난 후 예문을 이어서 재생하기 위한 대기열
+    private var sequenceTask: Task<Void, Never>?
     private var nextAction: (() -> Void)?
-
-    override init() {
-        super.init()
-        synthesizer.delegate = self
-    }
 
     private func setupAudioSession() {
         #if os(iOS)
@@ -22,15 +15,19 @@ final class SpeechPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesizerDe
     }
 
     func stop() {
+        sequenceTask?.cancel()
+        sequenceTask = nil
         nextAction = nil
-        if audioPlayer?.isPlaying == true { audioPlayer?.stop() }
-        if synthesizer.isSpeaking { synthesizer.stopSpeaking(at: .immediate) }
+        if audioPlayer?.isPlaying == true {
+            audioPlayer?.stop()
+        }
+        audioPlayer = nil
     }
 
-    /// 단일 오디오 재생 (오디오 파일이 번들이나 Resources/Audio에 있으면 재생, 없으면 TTS로 읽음)
-    func playSingle(fileName: String, fallbackText: String, voice: VoiceProfile) {
+    /// 단일 오디오 재생 (사전 제작된 오디오 파일만 재생하며, 미수신 시 재생하지 않음)
+    func playSingle(fileName: String, fallbackText: String = "", voice: VoiceProfile? = nil) {
         stop()
-        playInternal(fileName: fileName, fallbackText: fallbackText, voice: voice)
+        _ = playInternal(fileName: fileName)
     }
 
     /// 정답 공개 시:
@@ -44,44 +41,38 @@ final class SpeechPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesizerDe
         stop()
 
         nextAction = { [weak self] in
-            // 단어 음성이 끝난 뒤 자연스러운 호흡(gapDelay)을 두고 예문 재생
-            DispatchQueue.main.asyncAfter(deadline: .now() + gapDelay) {
-                self?.playInternal(fileName: word.exampleAudioFile,
-                                   fallbackText: word.example,
-                                   voice: word.voice)
+            self?.sequenceTask = Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .seconds(gapDelay))
+                guard !Task.isCancelled else { return }
+                _ = self?.playInternal(fileName: word.exampleAudioFile)
             }
         }
 
-        // "정답 보기"를 누른 후 약간의 텀(initialDelay)을 둔 뒤 단어 음성 시작
-        DispatchQueue.main.asyncAfter(deadline: .now() + initialDelay) { [weak self] in
-            self?.playInternal(fileName: word.termAudioFile,
-                               fallbackText: word.term,
-                               voice: word.voice)
+        sequenceTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(initialDelay))
+            guard !Task.isCancelled else { return }
+            let started = self?.playInternal(fileName: word.termAudioFile) ?? false
+            if !started {
+                self?.nextAction = nil
+            }
         }
     }
 
-    private func playInternal(fileName: String, fallbackText: String, voice: VoiceProfile) {
+    @discardableResult
+    private func playInternal(fileName: String) -> Bool {
         setupAudioSession()
 
-        // 1순위: 프로젝트 번들 또는 Resources/Audio 폴더의 오디오 파일(mp3, m4a, wav) 탐색
-        if let url = Self.resolveAudioURL(for: fileName),
-           let player = try? AVAudioPlayer(contentsOf: url) {
-            self.audioPlayer = player
-            player.delegate = self
-            player.play()
-            return
+        guard let url = Self.resolveAudioURL(for: fileName),
+              let player = try? AVAudioPlayer(contentsOf: url) else {
+            return false
         }
-
-        // 2순위: 오디오 파일이 없을 때는 iOS 기본 TTS로 재생
-        let utterance = AVSpeechUtterance(string: fallbackText)
-        utterance.voice = Self.japaneseVoice()
-        utterance.pitchMultiplier = voice.pitch
-        utterance.rate = voice.rate
-        synthesizer.speak(utterance)
+        self.audioPlayer = player
+        player.delegate = self
+        return player.play()
     }
 
     private static func resolveAudioURL(for fileName: String) -> URL? {
-        let supportedExtensions = ["wav", "mp3", "m4a"]
+        let supportedExtensions = ["m4a", "wav", "mp3"]
 
         // 1) Swift Package(Bundle.module) 및 앱 번들(Bundle.main) 검색
         let bundles: [Bundle] = [Bundle.module, Bundle.main]
@@ -102,7 +93,7 @@ final class SpeechPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesizerDe
         // 2) Swift Playgrounds / 프리뷰 환경을 위한 상대 경로 탐색
         let sourceDir = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent() // Services
-            .deletingLastPathComponent() // BocaSample root
+            .deletingLastPathComponent() // Sources/Hareru
         let audioDir = sourceDir.appendingPathComponent("Resources/Audio", isDirectory: true)
 
         for ext in supportedExtensions {
@@ -115,24 +106,9 @@ final class SpeechPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesizerDe
         return nil
     }
 
-    // 오디오 파일 재생 완료 콜백
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         guard flag, let next = nextAction else { return }
         nextAction = nil
         next()
-    }
-
-    // TTS 읽기 완료 콜백
-    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        guard let next = nextAction else { return }
-        nextAction = nil
-        next()
-    }
-
-    private static func japaneseVoice() -> AVSpeechSynthesisVoice? {
-        let voices = AVSpeechSynthesisVoice.speechVoices().filter { $0.language == "ja-JP" }
-        if let otoya = voices.first(where: { $0.name.contains("Otoya") }) { return otoya }
-        return voices.max(by: { $0.quality.rawValue < $1.quality.rawValue })
-            ?? AVSpeechSynthesisVoice(language: "ja-JP")
     }
 }

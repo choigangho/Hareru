@@ -19,7 +19,7 @@ let package = Package(
             path: "Sources/Hareru",
             exclude: [
                 "App/HareruApp.swift",
-                "Features/LineChat/.gitkeep",
+                "Features/Game/.gitkeep",
                 "Features/Insights/.gitkeep"
             ],
             sources: [
