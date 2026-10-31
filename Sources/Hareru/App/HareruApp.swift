@@ -43,6 +43,7 @@ struct HareruApp: App {
                         Label("통계 · 노트", systemImage: "chart.bar.doc.horizontal.fill")
                     }
             }
+            .modifier(LiquidGlassTabBarBehavior())
             #if os(macOS)
             .frame(minWidth: 410, idealWidth: 420, maxWidth: 460,
                    minHeight: 780, idealHeight: 840, maxHeight: 920)
@@ -50,6 +51,21 @@ struct HareruApp: App {
         }
         #if os(macOS)
         .windowResizability(.contentSize)
+        #endif
+    }
+}
+
+// MARK: - iOS 26 Liquid Glass 탭 바: 스크롤 시 자동 최소화
+private struct LiquidGlassTabBarBehavior: ViewModifier {
+    func body(content: Content) -> some View {
+        #if os(iOS)
+        if #available(iOS 26.0, *) {
+            content.tabBarMinimizeBehavior(.onScrollDown)
+        } else {
+            content
+        }
+        #else
+        content
         #endif
     }
 }

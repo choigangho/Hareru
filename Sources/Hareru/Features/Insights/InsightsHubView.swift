@@ -107,7 +107,7 @@ public struct InsightsHubView: View {
                         }
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .hareruGlass(in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                         .transition(.opacity)
                     }
 
@@ -124,6 +124,11 @@ public struct InsightsHubView: View {
                 }
                 .padding(16)
             }
+            .background(HareruAmbientBackground(colors: [
+                Color(red: 0.70, green: 0.90, blue: 0.88),
+                Color(red: 0.80, green: 0.76, blue: 0.98),
+                Color(red: 1.00, green: 0.84, blue: 0.70)
+            ]))
             .navigationTitle("통계 · 도감 · 노트")
         }
     }
@@ -204,7 +209,7 @@ public struct InsightsHubView: View {
                 }
             }
             .padding(16)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .hareruGlass(in: RoundedRectangle(cornerRadius: 20, style: .continuous))
 
             // 역전 성공(Comeback) 단어 하이라이트
             VStack(alignment: .leading, spacing: 10) {
@@ -245,7 +250,7 @@ public struct InsightsHubView: View {
                 }
             }
             .padding(16)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .hareruGlass(in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
     }
 
@@ -274,7 +279,7 @@ public struct InsightsHubView: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .hareruGlass(in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     private func color(for grade: EvaluationGrade) -> Color {
@@ -367,7 +372,7 @@ public struct InsightsHubView: View {
                     }
                 }
                 .padding(14)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .hareruGlass(in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             }
         }
     }
@@ -404,7 +409,7 @@ public struct InsightsHubView: View {
                     .foregroundStyle(.secondary)
             }
             .padding(16)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .hareruGlass(in: RoundedRectangle(cornerRadius: 20, style: .continuous))
 
             if leeches.isEmpty {
                 VStack(spacing: 12) {
@@ -433,12 +438,12 @@ public struct InsightsHubView: View {
                         Label("테스트용 처방 단어 시뮬레이션 (承る)", systemImage: "wand.and.stars")
                             .font(.caption.weight(.semibold))
                     }
-                    .buttonStyle(.borderedProminent)
+                    .hareruProminentButtonStyle()
                     .tint(.orange)
                 }
                 .padding(20)
                 .frame(maxWidth: .infinity)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .hareruGlass(in: RoundedRectangle(cornerRadius: 20, style: .continuous))
             } else {
                 ForEach(leeches) { word in
                     prescriptionWordCard(word)
@@ -534,11 +539,11 @@ public struct InsightsHubView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 6)
             }
-            .buttonStyle(.borderedProminent)
+            .hareruProminentButtonStyle()
             .tint(isAllChecked ? .green : .orange)
         }
         .padding(16)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .hareruGlass(in: RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
     // MARK: - 4) 오픈 사전 및 음성 라이선스 고지 (SPEC.md §5)
@@ -559,7 +564,7 @@ public struct InsightsHubView: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .hareruGlass(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
 

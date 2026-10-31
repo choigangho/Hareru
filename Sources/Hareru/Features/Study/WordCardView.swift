@@ -153,7 +153,7 @@ public struct WordCardView: View {
                             .font(.caption.weight(.semibold))
                     }
                 }
-                .buttonStyle(.bordered)
+                .hareruSecondaryButtonStyle()
                 .controlSize(.small)
                 .tint(accentColor)
                 .allowsHitTesting(isRevealed)
@@ -222,12 +222,11 @@ public struct WordCardView: View {
         }
         .padding(24)
         .frame(maxWidth: 360)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 30, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 30, style: .continuous)
-                .strokeBorder(.white.opacity(item.todayErosionCount > 0 ? 0.18 : 0.38), lineWidth: 1)
+        .hareruGlass(
+            in: RoundedRectangle(cornerRadius: 38, style: .continuous),
+            tint: item.todayErosionCount > 0 ? Color.black.opacity(0.25) : nil
         )
-        .shadow(color: .black.opacity(0.22), radius: 20, y: 10)
+        .shadow(color: .black.opacity(0.14), radius: 24, y: 12)
     }
 
     // MARK: - 서브 뷰 빌더
@@ -360,40 +359,50 @@ public struct WordCardView: View {
             Button {
                 revealAnswer()
             } label: {
-                Text("정답 보기")
+                Label("정답 보기", systemImage: "eye.fill")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 6)
             }
-            .buttonStyle(.borderedProminent)
+            .hareruProminentButtonStyle()
+            .buttonBorderShape(.capsule)
+            .controlSize(.large)
             .tint(accentColor)
         } else if onEvaluate != nil {
-            HStack(spacing: 8) {
-                evaluationButton(.again, tint: .red)
-                evaluationButton(.hard, tint: .orange)
-                evaluationButton(.good, tint: accentColor)
-                evaluationButton(.easy, tint: .teal)
+            HareruGlassGroup(spacing: 8) {
+                HStack(spacing: 8) {
+                    evaluationButton(.again, icon: "xmark", tint: .red)
+                    evaluationButton(.hard, icon: "questionmark", tint: .orange)
+                    evaluationButton(.good, icon: "checkmark", tint: accentColor)
+                    evaluationButton(.easy, icon: "bolt.fill", tint: .teal)
+                }
             }
         } else {
             Button("다시 가리기") {
                 hideForPreview()
             }
-            .buttonStyle(.bordered)
+            .hareruSecondaryButtonStyle()
+            .buttonBorderShape(.capsule)
             .tint(accentColor)
         }
     }
 
-    private func evaluationButton(_ button: ReviewButton, tint: Color) -> some View {
+    private func evaluationButton(_ button: ReviewButton, icon: String, tint: Color) -> some View {
         Button {
             speaker.stop()
             onEvaluate?(button)
         } label: {
-            Text(button.koreanTitle)
-                .font(.subheadline.weight(.bold))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+            VStack(spacing: 3) {
+                Image(systemName: icon)
+                    .font(.subheadline.weight(.bold))
+                Text(button.koreanTitle)
+                    .font(.caption.weight(.bold))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 6)
         }
-        .buttonStyle(.borderedProminent)
+        .hareruProminentButtonStyle()
+        .buttonBorderShape(.roundedRectangle(radius: 18))
         .tint(tint)
     }
 

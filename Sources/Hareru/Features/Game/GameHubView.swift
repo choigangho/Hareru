@@ -37,7 +37,7 @@ public struct GameHubView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .padding(12)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .hareruGlass(in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
 
                     // 1) 상단 게임 그룹 모드 배너
@@ -77,7 +77,7 @@ public struct GameHubView: View {
                                 Spacer()
                             }
                             .padding(12)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .hareruGlass(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                         }
                     }
 
@@ -93,6 +93,7 @@ public struct GameHubView: View {
                 }
                 .padding(16)
             }
+            .background(HareruAmbientBackground())
             .navigationTitle("게임 (SMS 미션)")
             .navigationDestination(item: $selectedEpisode) { episode in
                 SMSGameView(episode: episode) { finished, score in
@@ -158,11 +159,11 @@ public struct GameHubView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 6)
             }
-            .buttonStyle(.borderedProminent)
+            .hareruProminentButtonStyle()
             .tint(accent)
         }
         .padding(16)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .hareruGlass(in: RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 }
 

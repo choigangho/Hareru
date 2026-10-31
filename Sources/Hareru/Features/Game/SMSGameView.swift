@@ -170,7 +170,7 @@ public struct SMSGameView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(.ultraThinMaterial)
+        .hareruGlass(in: Rectangle())
     }
 
     // MARK: - 2) 미션 가이드 배너
@@ -258,7 +258,7 @@ public struct SMSGameView: View {
                         }
                     }
                     .padding(12)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .hareruGlass(in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                 }
 
                 Spacer(minLength: 36)
@@ -292,7 +292,7 @@ public struct SMSGameView: View {
                             .multilineTextAlignment(.trailing)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 5)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .hareruGlass(in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                 }
             }
@@ -315,7 +315,7 @@ public struct SMSGameView: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 9)
-                .background(.regularMaterial, in: Capsule())
+                .hareruGlass(in: Capsule())
 
             Spacer()
         }
@@ -338,20 +338,20 @@ public struct SMSGameView: View {
                 Button("다시 대화하기") {
                     engine.startEpisode()
                 }
-                .buttonStyle(.bordered)
+                .hareruSecondaryButtonStyle()
 
                 if let onCompleteEpisode {
                     Button("결과 저장 & 목록으로") {
                         onCompleteEpisode(engine.episode, engine.affectionScore)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .hareruProminentButtonStyle()
                     .tint(accentColor)
                 }
             }
         }
         .padding(20)
         .frame(maxWidth: .infinity)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .hareruGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
     // MARK: - 4) 한글 발음 → 일본어 자동 변환 입력 바
@@ -392,7 +392,7 @@ public struct SMSGameView: View {
                             }
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
-                            .background(.regularMaterial, in: Capsule())
+                            .hareruGlass(in: Capsule())
                         }
                         .buttonStyle(.plain)
                     }
@@ -406,7 +406,7 @@ public struct SMSGameView: View {
                     .font(.subheadline)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 9)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .hareruGlass(in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                     .onSubmit {
                         sendMessage()
                     }
@@ -430,7 +430,7 @@ public struct SMSGameView: View {
             }
         }
         .padding(12)
-        .background(.ultraThinMaterial)
+        .hareruGlass(in: Rectangle())
     }
 
     private func sendMessage() {

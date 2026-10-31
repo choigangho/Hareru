@@ -56,7 +56,7 @@ public struct WordDeckView: View {
                         .font(.caption.weight(.semibold))
                         .padding(.horizontal, 14)
                         .padding(.vertical, 6)
-                        .background(.ultraThinMaterial, in: Capsule())
+                        .hareruGlass(in: Capsule())
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
@@ -106,36 +106,37 @@ public struct WordDeckView: View {
     // MARK: - 상단 진행 헤더
 
     private var headerBar: some View {
+        HareruGlassGroup(spacing: 8) {
         VStack(spacing: 10) {
             HStack(spacing: 8) {
                 if let item = sessionEngine.currentItem {
                     Label("\(item.word.jlptLevel.rawValue) · \(item.word.category)", systemImage: "sparkles")
                         .font(.caption.weight(.semibold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(.ultraThinMaterial, in: Capsule())
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .hareruGlass(in: Capsule())
 
                     if item.isAwaitingFinalConfirmation {
                         Text("최종 확인")
                             .font(.caption2.weight(.bold))
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.teal.opacity(0.85), in: Capsule())
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 7)
                             .foregroundStyle(.white)
+                            .hareruGlass(in: Capsule(), tint: .teal)
                     } else if item.todayErosionCount > 0 {
                         Text("침식 \(item.todayErosionCount)단계")
                             .font(.caption2.weight(.bold))
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.red.opacity(0.80), in: Capsule())
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 7)
                             .foregroundStyle(.white)
+                            .hareruGlass(in: Capsule(), tint: .red)
                     }
                 } else {
                     Label("오늘의 세션 완료", systemImage: "checkmark.seal.fill")
                         .font(.caption.weight(.semibold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(.ultraThinMaterial, in: Capsule())
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .hareruGlass(in: Capsule())
                 }
 
                 Spacer()
@@ -144,14 +145,17 @@ public struct WordDeckView: View {
                 if ticketCount > 0 {
                     Label("\(ticketCount)", systemImage: "ticket.fill")
                         .font(.caption.weight(.bold))
-                        .padding(.horizontal, 9)
-                        .padding(.vertical, 4)
-                        .background(.ultraThinMaterial, in: Capsule())
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 7)
+                        .hareruGlass(in: Capsule(), tint: .orange)
                 }
 
-                Text("남은 카드 \(sessionEngine.queue.count)")
+                Text("\(sessionEngine.queue.count)장 남음")
                     .font(.caption.monospacedDigit().weight(.semibold))
-                    .foregroundStyle(isDeeplyEroded ? Color.white.opacity(0.85) : Color.primary.opacity(0.75))
+                    .contentTransition(.numericText())
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
+                    .hareruGlass(in: Capsule())
             }
 
             GeometryReader { geo in
@@ -164,7 +168,8 @@ public struct WordDeckView: View {
                         .animation(.spring(response: 0.4, dampingFraction: 0.82), value: sessionEngine.completionProgress)
                 }
             }
-            .frame(height: 8)
+            .frame(height: 6)
+        }
         }
     }
 
@@ -204,12 +209,12 @@ public struct WordDeckView: View {
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
             }
-            .buttonStyle(.borderedProminent)
+            .hareruProminentButtonStyle()
             .tint(.orange)
         }
         .padding(32)
         .frame(maxWidth: 360)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 30, style: .continuous))
+        .hareruGlass(in: RoundedRectangle(cornerRadius: 30, style: .continuous))
     }
 
     // MARK: - 평가 후 피드백 배너 및 다음 카드 전환
