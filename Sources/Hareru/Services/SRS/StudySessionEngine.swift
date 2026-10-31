@@ -136,6 +136,7 @@ public final class StudySessionEngine {
     public private(set) var deferredTodayWordIds: [String] = []
     public private(set) var earnedTicketsInSession: [GameTicket] = []
     public private(set) var lastOutcome: SessionEvaluationOutcome?
+    public private(set) var stateRevision: Int = 0
 
     // ContinuousClock 기반 반응 시간 측정 상태 (카드 등장 ~ '정답 보기' 클릭)
     private let clock = ContinuousClock()
@@ -251,6 +252,7 @@ public final class StudySessionEngine {
         self.earnedTicketsInSession = []
         self.pendingTicketWords = []
         self.lastOutcome = nil
+        self.stateRevision += 1
 
         if !queue.isEmpty {
             beginCardPresentation()
@@ -547,6 +549,7 @@ public final class StudySessionEngine {
         }
 
         lastOutcome = outcome
+        stateRevision += 1
 
         if !queue.isEmpty {
             beginCardPresentation()
@@ -560,6 +563,7 @@ public final class StudySessionEngine {
     // MARK: - 4) 탭 2 SMS 게임 티켓 & 탭 3 오프라인 손글씨 처방 노트 연동 API
 
     public func prescribedLeechWords() -> [Word] {
+        _ = stateRevision
         let snapshots = store.allSnapshots()
         return catalog.words.filter { snapshots[$0.id]?.isLeechPrescribed == true }
     }
@@ -581,11 +585,33 @@ public final class StudySessionEngine {
         snapshot.dueAt = now
         snapshot.handwritingCompletedCount += 1
         store.saveSnapshot(snapshot)
+        stateRevision += 1
+        return snapshot
+    }
+
+    /// 테스트 및 시연용: 특정 단어를 3일 누적 보류(손글씨 처방 노트 대상) 상태로 즉시 지정합니다.
+    @discardableResult
+    public func simulateLeechPrescription(
+        for wordId: String,
+        now: Date = Date()
+    ) -> WordMemorySnapshot {
+        let todayKey = DayKeyFormatter.dayKey(for: now, calendar: calendar)
+        var snapshot = store.snapshot(for: wordId) ?? WordMemorySnapshot(wordId: wordId)
+        snapshot = snapshot.normalized(forDayKey: todayKey)
+        snapshot.deferredDayKeys = ["2026-10-29", "2026-10-30", todayKey]
+        snapshot.isLeechPrescribed = true
+        snapshot.dueAt = DayKeyFormatter.startOfNextDay(after: now, calendar: calendar, days: 1)
+        store.saveSnapshot(snapshot)
+        if configuration.excludePrescribedLeeches {
+            queue.removeAll { $0.word.id == wordId }
+        }
+        stateRevision += 1
         return snapshot
     }
 
     public func unconsumedGameTickets() -> [GameTicket] {
-        store.allGameTickets().filter { !$0.isConsumed }
+        _ = stateRevision
+        return store.allGameTickets().filter { !$0.isConsumed }
     }
 
     @discardableResult
@@ -595,6 +621,7 @@ public final class StudySessionEngine {
         }
         ticket.isConsumed = true
         store.saveGameTicket(ticket)
+        stateRevision += 1
         return ticket
     }
 

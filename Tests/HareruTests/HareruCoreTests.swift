@@ -27,8 +27,15 @@ final class HareruCoreTests: XCTestCase {
 
     func testBundledCatalogLoadsAndValidatesCleanly() throws {
         let repo = try CatalogRepository.loadBundled()
-        XCTAssertEqual(repo.words.count, 8)
-        XCTAssertTrue(repo.validationIssues().isEmpty)
+        XCTAssertEqual(repo.words.count, 30)
+        XCTAssertEqual(repo.kanjiByCharacter.count, 37)
+        XCTAssertTrue(repo.validationIssues().isEmpty, "Issues: \(repo.validationIssues())")
+
+        // 10명의 시그니처 성우 캐릭터가 모두 30단어 스타터 팩에 등장하는지 검증
+        let representedVoiceIds = Set(repo.words.flatMap { $0.senses.map(\.voice.id) })
+        for preset in VoiceProfile.allPresets {
+            XCTAssertTrue(representedVoiceIds.contains(preset.id), "Missing voice preset in 30-word catalog: \(preset.id)")
+        }
 
         let beer = try XCTUnwrap(repo.word(forId: "n5_food_beer"))
         XCTAssertFalse(beer.hasKanji)
@@ -269,7 +276,7 @@ final class HareruCoreTests: XCTestCase {
     func testCircularQueueSmartOffsets() throws {
         let repo = try CatalogRepository.loadBundled()
         let store = InMemoryMemoryStore()
-        let config = SessionConfiguration(againReinsertOffset: 2, hardReinsertOffset: 4)
+        let config = SessionConfiguration(newCardLimit: 30, againReinsertOffset: 2, hardReinsertOffset: 4)
         let session = StudySessionEngine(
             catalog: repo,
             store: store,
@@ -278,7 +285,7 @@ final class HareruCoreTests: XCTestCase {
         )
         let today = makeDate(2026, 11, 1)
         session.startSession(now: today)
-        XCTAssertEqual(session.queue.count, 8)
+        XCTAssertEqual(session.queue.count, 30)
 
         let firstId = session.queue[0].word.id
         let hintOutcome = try XCTUnwrap(
@@ -571,5 +578,33 @@ final class HareruCoreTests: XCTestCase {
         let turn3Branch = engine.submitReplyImmediately("시메와 돈코츠 라멘 데스네")
         XCTAssertEqual(turn3Branch?.tier, .greatSuccess)
         XCTAssertTrue(engine.isEpisodeCleared)
+    }
+
+    // MARK: - 18. 탭 3 처방 노트 시뮬레이션 및 해금 연동 검증
+
+    func testSimulateLeechPrescriptionAndUnlockFlow() throws {
+        let repo = try CatalogRepository.loadBundled()
+        let store = InMemoryMemoryStore()
+        let session = StudySessionEngine(
+            catalog: repo,
+            store: store,
+            configuration: SessionConfiguration(newCardLimit: 30),
+            calendar: fixedCalendar
+        )
+        let today = makeDate(2026, 11, 1)
+        session.startSession(now: today)
+        XCTAssertEqual(session.queue.count, 30)
+
+        // '承る'를 손글씨 처방 노트 대상으로 시뮬레이션 지정 → 일반 큐에서 즉시 분리
+        let prescribed = session.simulateLeechPrescription(for: "n3_biz_uketamawaru", now: today)
+        XCTAssertTrue(prescribed.isLeechPrescribed)
+        XCTAssertEqual(session.prescribedLeechWords().map(\.id), ["n3_biz_uketamawaru"])
+        XCTAssertEqual(session.queue.count, 29)
+
+        // 종이 노트 3회 필기 완료 처리 → 처방 해제
+        let unlocked = session.completeHandwritingPrescription(for: "n3_biz_uketamawaru", now: today)
+        XCTAssertEqual(unlocked?.isLeechPrescribed, false)
+        XCTAssertEqual(unlocked?.handwritingCompletedCount, 1)
+        XCTAssertTrue(session.prescribedLeechWords().isEmpty)
     }
 }

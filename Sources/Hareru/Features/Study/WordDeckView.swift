@@ -196,12 +196,10 @@ public struct WordDeckView: View {
             }
 
             Button {
-                let previewStore = InMemoryMemoryStore()
-                sessionEngine = StudySessionEngine(store: previewStore)
                 sessionEngine.startSession()
                 cardPresentationId = UUID()
             } label: {
-                Label("샘플 덱 다시 체험하기", systemImage: "arrow.clockwise")
+                Label("다음 학습 세션 시작하기", systemImage: "arrow.clockwise")
                     .font(.subheadline.weight(.semibold))
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)

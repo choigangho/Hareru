@@ -326,5 +326,862 @@
       "originTerm": "取り敢えず",
       "explanation": "동사 복합형 '取り敢えず'에서 굳어져 일상에서 히라가나로 표기하는 부사"
     }
+  },
+  {
+    "id": "n5_adj_oishii",
+    "jlptLevel": "N5",
+    "category": "음식",
+    "term": "美味しい",
+    "reading": "おいしい",
+    "pitchAccent": 3,
+    "palette": ["#EC4899", "#FDF2F8", "#831843"],
+    "termAudioFile": "oishii_term",
+    "senses": [
+      {
+        "id": "n5_adj_oishii_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "イ형용사",
+        "meaning": "맛있다",
+        "exampleMarkup": "焼きたてのケーキはとても{美味|おい}しいですよ。",
+        "translation": {
+          "before": "갓 구운 케이크는 정말 ",
+          "answer": "맛있어요",
+          "after": "."
+        },
+        "voiceId": "cafe_staff",
+        "exampleAudioFile": "oishii_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "美",
+        "activeReading": "おい",
+        "dictionaryReading": "ミ",
+        "readingType": "special"
+      },
+      {
+        "kanji": "味",
+        "activeReading": "しい",
+        "dictionaryReading": "ミ",
+        "readingType": "special"
+      }
+    ]
+  },
+  {
+    "id": "n4_noun_yoyaku",
+    "jlptLevel": "N4",
+    "category": "비즈니스·접객",
+    "term": "予約",
+    "reading": "よやく",
+    "pitchAccent": 0,
+    "palette": ["#0284C7", "#F0F9FF", "#0C4A6E"],
+    "termAudioFile": "yoyaku_term",
+    "senses": [
+      {
+        "id": "n4_noun_yoyaku_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사·동사(する)",
+        "meaning": "예약",
+        "exampleMarkup": "{今日|きょう}の{予約|よやく}を{確認|かくにん}します。",
+        "translation": {
+          "before": "오늘의 ",
+          "answer": "예약",
+          "after": "을 확인합니다."
+        },
+        "voiceId": "tokyo_senpai",
+        "exampleAudioFile": "yoyaku_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "予",
+        "activeReading": "よ",
+        "dictionaryReading": "ヨ",
+        "readingType": "onyomi"
+      },
+      {
+        "kanji": "約",
+        "activeReading": "やく",
+        "dictionaryReading": "ヤク",
+        "readingType": "onyomi"
+      }
+    ]
+  },
+  {
+    "id": "n4_noun_yakusoku",
+    "jlptLevel": "N4",
+    "category": "일상·관계",
+    "term": "約束",
+    "reading": "やくそく",
+    "pitchAccent": 0,
+    "palette": ["#D97706", "#FFFBEB", "#78350F"],
+    "termAudioFile": "yakusoku_term",
+    "senses": [
+      {
+        "id": "n4_noun_yakusoku_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사·동사(する)",
+        "meaning": "약속",
+        "exampleMarkup": "{騎士|きし}として、その{約束|やくそく}は必ず{守|まも}る。",
+        "translation": {
+          "before": "기사로서, 그 ",
+          "answer": "약속",
+          "after": "은 반드시 지킨다."
+        },
+        "voiceId": "knight_commander",
+        "exampleAudioFile": "yakusoku_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "約",
+        "activeReading": "やく",
+        "dictionaryReading": "ヤク",
+        "readingType": "onyomi"
+      },
+      {
+        "kanji": "束",
+        "activeReading": "そく",
+        "dictionaryReading": "ソク",
+        "readingType": "onyomi"
+      }
+    ]
+  },
+  {
+    "id": "n5_noun_chuumon",
+    "jlptLevel": "N5",
+    "category": "음식·매장",
+    "term": "注文",
+    "reading": "ちゅうもん",
+    "pitchAccent": 0,
+    "palette": ["#EA580C", "#FFF7ED", "#7C2D12"],
+    "termAudioFile": "chuumon_term",
+    "senses": [
+      {
+        "id": "n5_noun_chuumon_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사·동사(する)",
+        "meaning": "주문",
+        "exampleMarkup": "ご{注文|ちゅうもん}はお{決|き}まりですか？",
+        "translation": {
+          "before": "",
+          "answer": "주문",
+          "after": "은 정하셨나요?"
+        },
+        "voiceId": "cafe_staff",
+        "exampleAudioFile": "chuumon_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "注",
+        "activeReading": "ちゅう",
+        "dictionaryReading": "チュウ",
+        "readingType": "onyomi"
+      },
+      {
+        "kanji": "文",
+        "activeReading": "もん",
+        "dictionaryReading": "モン",
+        "readingType": "onyomi"
+      }
+    ]
+  },
+  {
+    "id": "n4_noun_chuui",
+    "jlptLevel": "N4",
+    "category": "안전·판단",
+    "term": "注意",
+    "reading": "ちゅうい",
+    "pitchAccent": 1,
+    "palette": ["#EF4444", "#FEF2F2", "#7F1D1D"],
+    "termAudioFile": "chuui_term",
+    "senses": [
+      {
+        "id": "n4_noun_chuui_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사·동사(する)",
+        "meaning": "주의, 조심",
+        "exampleMarkup": "{周囲|しゅうい}の{動|うご}きに{注意|ちゅうい}しろ！",
+        "translation": {
+          "before": "주변의 움직임에 ",
+          "answer": "주의",
+          "after": "하라!"
+        },
+        "voiceId": "expedition_captain",
+        "exampleAudioFile": "chuui_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "注",
+        "activeReading": "ちゅう",
+        "dictionaryReading": "チュウ",
+        "readingType": "onyomi"
+      },
+      {
+        "kanji": "意",
+        "activeReading": "い",
+        "dictionaryReading": "イ",
+        "readingType": "onyomi"
+      }
+    ]
+  },
+  {
+    "id": "n5_adj_takai",
+    "jlptLevel": "N5",
+    "category": "상태·거래",
+    "term": "高い",
+    "reading": "たかい",
+    "pitchAccent": 2,
+    "palette": ["#8B5CF6", "#F5F3FF", "#4C1D95"],
+    "termAudioFile": "takai_term",
+    "senses": [
+      {
+        "id": "n5_adj_takai_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "イ형용사",
+        "meaning": "(가격이) 비싸다",
+        "exampleMarkup": "この{秘薬|ひやく}はちょっと{高|たか}いよ。",
+        "translation": {
+          "before": "이 비약은 조금 ",
+          "answer": "비싸다",
+          "after": "고."
+        },
+        "voiceId": "alchemy_merchant",
+        "exampleAudioFile": "takai_s1_example"
+      },
+      {
+        "id": "n5_adj_takai_s2",
+        "senseNumber": 2,
+        "partOfSpeech": "イ형용사",
+        "meaning": "(위치·수준이) 높다",
+        "exampleMarkup": "この{壁|かべ}は想像以上に{高|たか}い。",
+        "translation": {
+          "before": "이 벽은 상상 이상으로 ",
+          "answer": "높다",
+          "after": "."
+        },
+        "voiceId": "expedition_captain",
+        "subPalette": ["#3F6212", "#ECFCCB", "#1A2E05"],
+        "exampleAudioFile": "takai_s2_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "高",
+        "activeReading": "たか.い",
+        "dictionaryReading": "たか.い",
+        "readingType": "kunyomi"
+      }
+    ]
+  },
+  {
+    "id": "n5_adj_atsui",
+    "jlptLevel": "N5",
+    "category": "온도·감정",
+    "term": "熱い",
+    "reading": "あつい",
+    "pitchAccent": 2,
+    "palette": ["#DC2626", "#FEF2F2", "#7F1D1D"],
+    "termAudioFile": "atsui_term",
+    "senses": [
+      {
+        "id": "n5_adj_atsui_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "イ형용사",
+        "meaning": "(온도가) 뜨겁다",
+        "exampleMarkup": "スープが{熱|あつ}いから{気|き}をつけてな！",
+        "translation": {
+          "before": "국물이 ",
+          "answer": "뜨거우니까",
+          "after": " 조심하라구!"
+        },
+        "voiceId": "tenchou",
+        "exampleAudioFile": "atsui_s1_example"
+      },
+      {
+        "id": "n5_adj_atsui_s2",
+        "senseNumber": 2,
+        "partOfSpeech": "イ형용사",
+        "meaning": "(마음·열정이) 뜨겁다",
+        "exampleMarkup": "お前の{熱|あつ}い{想|おも}い、しかと受け止めた。",
+        "translation": {
+          "before": "그대의 ",
+          "answer": "뜨거운",
+          "after": " 마음, 확실히 받아들였다."
+        },
+        "voiceId": "knight_commander",
+        "subPalette": ["#B45309", "#FEF3C7", "#451A03"],
+        "exampleAudioFile": "atsui_s2_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "熱",
+        "activeReading": "あつ.い",
+        "dictionaryReading": "あつ.い",
+        "readingType": "kunyomi"
+      }
+    ]
+  },
+  {
+    "id": "n4_noun_seikou",
+    "jlptLevel": "N4",
+    "category": "성취·비즈니스",
+    "term": "成功",
+    "reading": "せいこう",
+    "pitchAccent": 0,
+    "palette": ["#10B981", "#ECFDF5", "#064E3B"],
+    "termAudioFile": "seikou_term",
+    "senses": [
+      {
+        "id": "n4_noun_seikou_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사·동사(する)",
+        "meaning": "성공",
+        "exampleMarkup": "プロジェクトの{成功|せいこう}をお{祈|いの}りします。",
+        "translation": {
+          "before": "프로젝트의 ",
+          "answer": "성공",
+          "after": "을 기원합니다."
+        },
+        "voiceId": "tokyo_senpai",
+        "exampleAudioFile": "seikou_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "成",
+        "activeReading": "せい",
+        "dictionaryReading": "セイ",
+        "readingType": "onyomi"
+      },
+      {
+        "kanji": "功",
+        "activeReading": "こう",
+        "dictionaryReading": "コウ",
+        "readingType": "onyomi"
+      }
+    ]
+  },
+  {
+    "id": "n4_noun_kansei",
+    "jlptLevel": "N4",
+    "category": "성취·제작",
+    "term": "完成",
+    "reading": "かんせい",
+    "pitchAccent": 0,
+    "palette": ["#6366F1", "#EEF2FF", "#312E81"],
+    "termAudioFile": "kansei_term",
+    "senses": [
+      {
+        "id": "n4_noun_kansei_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사·동사(する)",
+        "meaning": "완성",
+        "exampleMarkup": "ついに新しい調合が{完成|かんせい}したぞ！",
+        "translation": {
+          "before": "드디어 새로운 조합이 ",
+          "answer": "완성",
+          "after": "되었다!"
+        },
+        "voiceId": "alchemy_merchant",
+        "exampleAudioFile": "kansei_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "完",
+        "activeReading": "かん",
+        "dictionaryReading": "カン",
+        "readingType": "onyomi"
+      },
+      {
+        "kanji": "成",
+        "activeReading": "せい",
+        "dictionaryReading": "セイ",
+        "readingType": "onyomi"
+      }
+    ]
+  },
+  {
+    "id": "n5_noun_kyou",
+    "jlptLevel": "N5",
+    "category": "시간·일상",
+    "term": "今日",
+    "reading": "きょう",
+    "pitchAccent": 1,
+    "palette": ["#F97316", "#FFF7ED", "#7C2D12"],
+    "termAudioFile": "kyou_term",
+    "senses": [
+      {
+        "id": "n5_noun_kyou_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사",
+        "meaning": "오늘",
+        "exampleMarkup": "{今日|きょう}も一日お{疲|つか}れさまでした！",
+        "translation": {
+          "before": "",
+          "answer": "오늘",
+          "after": "도 하루 수고하셨습니다!"
+        },
+        "voiceId": "buchou",
+        "exampleAudioFile": "kyou_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "今",
+        "activeReading": "きょ",
+        "dictionaryReading": "コン",
+        "readingType": "special"
+      },
+      {
+        "kanji": "日",
+        "activeReading": "う",
+        "dictionaryReading": "ニチ",
+        "readingType": "special"
+      }
+    ]
+  },
+  {
+    "id": "n5_noun_jikan",
+    "jlptLevel": "N5",
+    "category": "시간·일상",
+    "term": "時間",
+    "reading": "じかん",
+    "pitchAccent": 0,
+    "palette": ["#0EA5E9", "#F0F9FF", "#0369A1"],
+    "termAudioFile": "jikan_term",
+    "senses": [
+      {
+        "id": "n5_noun_jikan_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사",
+        "meaning": "시간",
+        "exampleMarkup": "犯行の{時間|じかん}が一致しませんね。",
+        "translation": {
+          "before": "범행 ",
+          "answer": "시간",
+          "after": "이 일치하지 않는군요."
+        },
+        "voiceId": "modulated_detective",
+        "exampleAudioFile": "jikan_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "時",
+        "activeReading": "じ",
+        "dictionaryReading": "ジ",
+        "readingType": "onyomi"
+      },
+      {
+        "kanji": "間",
+        "activeReading": "かん",
+        "dictionaryReading": "カン",
+        "readingType": "onyomi"
+      }
+    ]
+  },
+  {
+    "id": "n4_noun_shime",
+    "jlptLevel": "N4",
+    "category": "모임·식사",
+    "term": "締め",
+    "reading": "しめ",
+    "pitchAccent": 0,
+    "palette": ["#B45309", "#FEF3C7", "#78350F"],
+    "termAudioFile": "shime_term",
+    "senses": [
+      {
+        "id": "n4_noun_shime_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사",
+        "meaning": "마무리 (회식 마지막 식사·마감)",
+        "exampleMarkup": "飲んだ後の{締め|し}は何にする？",
+        "translation": {
+          "before": "술 마신 뒤 ",
+          "answer": "마무리",
+          "after": "는 뭘로 할까?"
+        },
+        "voiceId": "buchou",
+        "exampleAudioFile": "shime_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "締",
+        "activeReading": "し.め",
+        "dictionaryReading": "し.める",
+        "readingType": "kunyomi"
+      }
+    ]
+  },
+  {
+    "id": "n3_food_tonkotsu",
+    "jlptLevel": "N3",
+    "category": "음식",
+    "term": "豚骨",
+    "reading": "とんこつ",
+    "pitchAccent": 0,
+    "palette": ["#991B1B", "#FEF2F2", "#450A0A"],
+    "termAudioFile": "tonkotsu_term",
+    "senses": [
+      {
+        "id": "n3_food_tonkotsu_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사",
+        "meaning": "돈코츠 (돼지뼈 육수)",
+        "exampleMarkup": "うちは十{時間|じかん}煮込んだ{豚骨|とんこつ}スープだ！",
+        "translation": {
+          "before": "우리 집은 10시간 푹 고아 낸 ",
+          "answer": "돈코츠",
+          "after": " 육수라구!"
+        },
+        "voiceId": "tenchou",
+        "exampleAudioFile": "tonkotsu_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "豚",
+        "activeReading": "とん",
+        "dictionaryReading": "トン",
+        "readingType": "onyomi"
+      },
+      {
+        "kanji": "骨",
+        "activeReading": "こつ",
+        "dictionaryReading": "コツ",
+        "readingType": "onyomi"
+      }
+    ]
+  },
+  {
+    "id": "n5_noun_obentou",
+    "jlptLevel": "N5",
+    "category": "음식·편의점",
+    "term": "お弁当",
+    "reading": "おべんとう",
+    "pitchAccent": 0,
+    "palette": ["#2563EB", "#EFF6FF", "#1E3A8A"],
+    "termAudioFile": "obentou_term",
+    "senses": [
+      {
+        "id": "n5_noun_obentou_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사",
+        "meaning": "도시락",
+        "exampleMarkup": "こちらの幕の内お{弁当|べんとう}が人気ですよ！",
+        "translation": {
+          "before": "이쪽 마쿠노우치 ",
+          "answer": "도시락",
+          "after": "이 인기예요!"
+        },
+        "voiceId": "konbini_clerk",
+        "exampleAudioFile": "obentou_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "弁",
+        "activeReading": "べん",
+        "dictionaryReading": "ベン",
+        "readingType": "onyomi"
+      },
+      {
+        "kanji": "当",
+        "activeReading": "とう",
+        "dictionaryReading": "トウ",
+        "readingType": "onyomi"
+      }
+    ]
+  },
+  {
+    "id": "n4_verb_atatameru",
+    "jlptLevel": "N4",
+    "category": "일상·편의점",
+    "term": "温める",
+    "reading": "あたためる",
+    "pitchAccent": 4,
+    "palette": ["#F59E0B", "#FFFBEB", "#92400E"],
+    "termAudioFile": "atatameru_term",
+    "senses": [
+      {
+        "id": "n4_verb_atatameru_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "동사 1단",
+        "meaning": "데우다, 따뜻하게 하다",
+        "exampleMarkup": "お{茶|ちゃ}を{温|あたた}めておいたよ。",
+        "translation": {
+          "before": "차를 따뜻하게 ",
+          "answer": "데워",
+          "after": " 두었단다."
+        },
+        "voiceId": "kyoto_grandma",
+        "exampleAudioFile": "atatameru_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "温",
+        "activeReading": "あたた.める",
+        "dictionaryReading": "あたた.める",
+        "readingType": "kunyomi"
+      }
+    ]
+  },
+  {
+    "id": "n4_verb_iwau",
+    "jlptLevel": "N4",
+    "category": "모임·관계",
+    "term": "祝う",
+    "reading": "いわう",
+    "pitchAccent": 2,
+    "palette": ["#E11D48", "#FFF1F2", "#881337"],
+    "termAudioFile": "iwau_term",
+    "senses": [
+      {
+        "id": "n4_verb_iwau_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "동사 5단",
+        "meaning": "축하하다",
+        "exampleMarkup": "みんなで{勝利|しょうり}を{祝|いわ}おう！",
+        "translation": {
+          "before": "다 함께 승리를 ",
+          "answer": "축하하자",
+          "after": "!"
+        },
+        "voiceId": "knight_commander",
+        "exampleAudioFile": "iwau_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "祝",
+        "activeReading": "いわ.う",
+        "dictionaryReading": "いわ.う",
+        "readingType": "kunyomi"
+      }
+    ]
+  },
+  {
+    "id": "n3_noun_genjitsu",
+    "jlptLevel": "N3",
+    "category": "사고·판단",
+    "term": "現実",
+    "reading": "げんじつ",
+    "pitchAccent": 0,
+    "palette": ["#3F6212", "#ECFCCB", "#1A2E05"],
+    "termAudioFile": "genjitsu_term",
+    "senses": [
+      {
+        "id": "n3_noun_genjitsu_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사",
+        "meaning": "현실",
+        "exampleMarkup": "目の前の{現実|げんじつ}から目を背けるな。",
+        "translation": {
+          "before": "눈앞의 ",
+          "answer": "현실",
+          "after": "에서 눈을 돌리지 마라."
+        },
+        "voiceId": "expedition_captain",
+        "exampleAudioFile": "genjitsu_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "現",
+        "activeReading": "げん",
+        "dictionaryReading": "ゲン",
+        "readingType": "onyomi"
+      },
+      {
+        "kanji": "実",
+        "activeReading": "じつ",
+        "dictionaryReading": "ジツ",
+        "readingType": "onyomi"
+      }
+    ]
+  },
+  {
+    "id": "n3_noun_jijou",
+    "jlptLevel": "N3",
+    "category": "사회·관계",
+    "term": "事情",
+    "reading": "じじょう",
+    "pitchAccent": 0,
+    "palette": ["#7C3AED", "#F5F3FF", "#4C1D95"],
+    "termAudioFile": "jijou_term",
+    "senses": [
+      {
+        "id": "n3_noun_jijou_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사",
+        "meaning": "사정, 형편",
+        "exampleMarkup": "何か特別な{事情|じじょう}がありそうですね。",
+        "translation": {
+          "before": "무언가 특별한 ",
+          "answer": "사정",
+          "after": "이 있어 보이는군요."
+        },
+        "voiceId": "modulated_detective",
+        "exampleAudioFile": "jijou_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "事",
+        "activeReading": "じ",
+        "dictionaryReading": "ジ",
+        "readingType": "onyomi"
+      },
+      {
+        "kanji": "情",
+        "activeReading": "じょう",
+        "dictionaryReading": "ジョウ",
+        "readingType": "onyomi"
+      }
+    ]
+  },
+  {
+    "id": "n3_noun_sakusen",
+    "jlptLevel": "N3",
+    "category": "전략·기획",
+    "term": "作戦",
+    "reading": "さくせん",
+    "pitchAccent": 0,
+    "palette": ["#15803D", "#F0FDF4", "#14532D"],
+    "termAudioFile": "sakusen_term",
+    "senses": [
+      {
+        "id": "n3_noun_sakusen_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사",
+        "meaning": "작전, 전략",
+        "exampleMarkup": "これより第{二|に}{作戦|さくせん}を{開始|かいし}する！",
+        "translation": {
+          "before": "지금부터 제2",
+          "answer": "작전",
+          "after": "을 개시한다!"
+        },
+        "voiceId": "expedition_captain",
+        "exampleAudioFile": "sakusen_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "作",
+        "activeReading": "さく",
+        "dictionaryReading": "サク",
+        "readingType": "onyomi"
+      },
+      {
+        "kanji": "戦",
+        "activeReading": "せん",
+        "dictionaryReading": "セン",
+        "readingType": "onyomi"
+      }
+    ]
+  },
+  {
+    "id": "n3_verb_motomeru",
+    "jlptLevel": "N3",
+    "category": "행동·요구",
+    "term": "求める",
+    "reading": "もとめる",
+    "pitchAccent": 3,
+    "palette": ["#0369A1", "#E0F2FE", "#0C4A6E"],
+    "termAudioFile": "motomeru_term",
+    "senses": [
+      {
+        "id": "n3_verb_motomeru_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "동사 1단",
+        "meaning": "구하다, 요구하다",
+        "exampleMarkup": "真実の{証拠|しょうこ}を{求|もと}めています。",
+        "translation": {
+          "before": "진실의 증거를 ",
+          "answer": "구하고",
+          "after": " 있습니다."
+        },
+        "voiceId": "modulated_detective",
+        "exampleAudioFile": "motomeru_example"
+      }
+    ],
+    "kanjiUsages": [
+      {
+        "kanji": "求",
+        "activeReading": "もと.める",
+        "dictionaryReading": "もと.める",
+        "readingType": "kunyomi"
+      }
+    ]
+  },
+  {
+    "id": "n5_food_keeki",
+    "jlptLevel": "N5",
+    "category": "음식·디저트",
+    "term": "ケーキ",
+    "reading": "けーき",
+    "pitchAccent": 1,
+    "palette": ["#DB2777", "#FDF2F8", "#831843"],
+    "termAudioFile": "keeki_term",
+    "senses": [
+      {
+        "id": "n5_food_keeki_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "명사",
+        "meaning": "케이크",
+        "exampleMarkup": "苺のショートケーキはいかがですか？",
+        "translation": {
+          "before": "딸기 쇼트",
+          "answer": "케이크",
+          "after": "는 어떠신가요?"
+        },
+        "voiceId": "cafe_staff",
+        "exampleAudioFile": "keeki_example"
+      }
+    ],
+    "nonKanjiNote": {
+      "kind": "loanword",
+      "originLanguage": "English",
+      "originTerm": "cake",
+      "explanation": "영어 cake를 가타카나로 표기한 디저트 외래어"
+    }
+  },
+  {
+    "id": "n4_adv_yappari",
+    "jlptLevel": "N4",
+    "category": "일상 회화",
+    "term": "やっぱり",
+    "reading": "やっぱり",
+    "pitchAccent": 3,
+    "palette": ["#65A30D", "#F7FEE7", "#365314"],
+    "termAudioFile": "yappari_term",
+    "senses": [
+      {
+        "id": "n4_adv_yappari_s1",
+        "senseNumber": 1,
+        "partOfSpeech": "부사",
+        "meaning": "역시, 과연",
+        "exampleMarkup": "{京都|きょうと}のお{茶|ちゃ}はやっぱり落ち着くねえ。",
+        "translation": {
+          "before": "교토의 차는 ",
+          "answer": "역시",
+          "after": " 마음이 편안해지는구나."
+        },
+        "voiceId": "kyoto_grandma",
+        "exampleAudioFile": "yappari_example"
+      }
+    ],
+    "nonKanjiNote": {
+      "kind": "native_kana",
+      "originTerm": "矢張り (やはり)",
+      "explanation": "'やはり'가 구어체에서 촉음화되어 굳어진 일상 부사 표현"
+    }
   }
 ]

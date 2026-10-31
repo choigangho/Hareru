@@ -58,5 +58,315 @@
     "strokeCount": 14,
     "radical": "言 (말씀 언)",
     "jlptLevel": "N3"
+  },
+  {
+    "character": "美",
+    "koreanHunEum": "아름다울 미",
+    "meanings": ["아름답다", "맛있다", "훌륭하다"],
+    "onyomi": ["ビ", "ミ"],
+    "kunyomi": ["うつく.しい"],
+    "strokeCount": 9,
+    "radical": "羊 (양 양)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "味",
+    "koreanHunEum": "맛 미",
+    "meanings": ["맛", "취미", "의미"],
+    "onyomi": ["ミ"],
+    "kunyomi": ["あじ", "あじ.わう"],
+    "strokeCount": 8,
+    "radical": "口 (입 구)",
+    "jlptLevel": "N4"
+  },
+  {
+    "character": "予",
+    "koreanHunEum": "미리 예",
+    "meanings": ["미리", "사전에", "맡기다"],
+    "onyomi": ["ヨ", "シャ"],
+    "kunyomi": ["あらかじ.め"],
+    "strokeCount": 4,
+    "radical": "亅 (갈고리 궐)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "約",
+    "koreanHunEum": "맺을 약",
+    "meanings": ["약속하다", "묶다", "대략"],
+    "onyomi": ["ヤク"],
+    "kunyomi": ["つづ.まる"],
+    "strokeCount": 9,
+    "radical": "糸 (실 사)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "束",
+    "koreanHunEum": "묶을 속",
+    "meanings": ["묶다", "다발", "단속하다"],
+    "onyomi": ["ソク"],
+    "kunyomi": ["たば", "たば.ねる"],
+    "strokeCount": 7,
+    "radical": "木 (나무 목)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "注",
+    "koreanHunEum": "부을 주",
+    "meanings": ["붓다", "주의를 기울이다", "주문하다"],
+    "onyomi": ["チュウ"],
+    "kunyomi": ["そそ.ぐ", "さ.す"],
+    "strokeCount": 8,
+    "radical": "水 (물 수)",
+    "jlptLevel": "N4"
+  },
+  {
+    "character": "文",
+    "koreanHunEum": "글월 문",
+    "meanings": ["글", "문장", "문화"],
+    "onyomi": ["ブン", "モン"],
+    "kunyomi": ["ふみ", "あや"],
+    "strokeCount": 4,
+    "radical": "文 (글월 문)",
+    "jlptLevel": "N4"
+  },
+  {
+    "character": "意",
+    "koreanHunEum": "뜻 의",
+    "meanings": ["뜻", "마음", "생각"],
+    "onyomi": ["イ"],
+    "kunyomi": ["こころ"],
+    "strokeCount": 13,
+    "radical": "心 (마음 심)",
+    "jlptLevel": "N4"
+  },
+  {
+    "character": "高",
+    "koreanHunEum": "높을 고",
+    "meanings": ["높다", "비싸다", "뛰어나다"],
+    "onyomi": ["コウ"],
+    "kunyomi": ["たか.い", "たか", "たか.まる"],
+    "strokeCount": 10,
+    "radical": "高 (높을 고)",
+    "jlptLevel": "N5"
+  },
+  {
+    "character": "熱",
+    "koreanHunEum": "더울 열",
+    "meanings": ["뜨겁다", "열", "열정"],
+    "onyomi": ["ネツ"],
+    "kunyomi": ["あつ.い"],
+    "strokeCount": 15,
+    "radical": "火 (불 화)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "成",
+    "koreanHunEum": "이룰 성",
+    "meanings": ["이루다", "되다", "성장하다"],
+    "onyomi": ["セイ", "ジョウ"],
+    "kunyomi": ["な.る", "な.す"],
+    "strokeCount": 6,
+    "radical": "戈 (창 과)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "功",
+    "koreanHunEum": "공 공",
+    "meanings": ["공로", "성과", "보람"],
+    "onyomi": ["コウ", "ク"],
+    "kunyomi": ["いさお"],
+    "strokeCount": 5,
+    "radical": "力 (힘 력)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "完",
+    "koreanHunEum": "완전할 완",
+    "meanings": ["완전하다", "끝내다", "마무리하다"],
+    "onyomi": ["カン"],
+    "kunyomi": ["まった.く"],
+    "strokeCount": 7,
+    "radical": "宀 (집 면)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "今",
+    "koreanHunEum": "이제 금",
+    "meanings": ["지금", "현재", "이번"],
+    "onyomi": ["コン", "キン"],
+    "kunyomi": ["いま"],
+    "strokeCount": 4,
+    "radical": "人 (사람 인)",
+    "jlptLevel": "N5"
+  },
+  {
+    "character": "日",
+    "koreanHunEum": "날 일",
+    "meanings": ["날", "해", "일본"],
+    "onyomi": ["ニチ", "ジツ"],
+    "kunyomi": ["ひ", "び", "か"],
+    "strokeCount": 4,
+    "radical": "日 (날 일)",
+    "jlptLevel": "N5"
+  },
+  {
+    "character": "時",
+    "koreanHunEum": "때 시",
+    "meanings": ["시간", "때", "시각"],
+    "onyomi": ["ジ"],
+    "kunyomi": ["とき", "どき"],
+    "strokeCount": 10,
+    "radical": "日 (날 일)",
+    "jlptLevel": "N5"
+  },
+  {
+    "character": "間",
+    "koreanHunEum": "사이 간",
+    "meanings": ["사이", "간격", "동안"],
+    "onyomi": ["カン", "ケン"],
+    "kunyomi": ["あいだ", "ま"],
+    "strokeCount": 12,
+    "radical": "門 (문 문)",
+    "jlptLevel": "N5"
+  },
+  {
+    "character": "締",
+    "koreanHunEum": "맺을 체",
+    "meanings": ["묶다", "조이다", "마무리하다"],
+    "onyomi": ["テイ"],
+    "kunyomi": ["し.める", "し.まる"],
+    "strokeCount": 15,
+    "radical": "糸 (실 사)",
+    "jlptLevel": "N2"
+  },
+  {
+    "character": "豚",
+    "koreanHunEum": "돼지 돈",
+    "meanings": ["돼지"],
+    "onyomi": ["トン"],
+    "kunyomi": ["ぶた"],
+    "strokeCount": 11,
+    "radical": "豕 (돼지 시)",
+    "jlptLevel": "N2"
+  },
+  {
+    "character": "骨",
+    "koreanHunEum": "뼈 골",
+    "meanings": ["뼈", "골격", "요령"],
+    "onyomi": ["コツ"],
+    "kunyomi": ["ほね"],
+    "strokeCount": 10,
+    "radical": "骨 (뼈 골)",
+    "jlptLevel": "N2"
+  },
+  {
+    "character": "弁",
+    "koreanHunEum": "분별할 변",
+    "meanings": ["말재주", "가리다", "도시락(弁当)"],
+    "onyomi": ["ベン", "ヘン"],
+    "kunyomi": ["わきま.える"],
+    "strokeCount": 5,
+    "radical": "廾 (받들 공)",
+    "jlptLevel": "N2"
+  },
+  {
+    "character": "当",
+    "koreanHunEum": "마땅 당",
+    "meanings": ["맞다", "해당하다", "마땅하다"],
+    "onyomi": ["トウ"],
+    "kunyomi": ["あ.たる", "あ.てる"],
+    "strokeCount": 6,
+    "radical": "小 (작을 소)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "温",
+    "koreanHunEum": "따뜻할 온",
+    "meanings": ["따뜻하다", "데우다", "온도"],
+    "onyomi": ["オン"],
+    "kunyomi": ["あたた.かい", "あたた.める"],
+    "strokeCount": 12,
+    "radical": "水 (물 수)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "祝",
+    "koreanHunEum": "축하할 축",
+    "meanings": ["축하하다", "기원하다", "축일"],
+    "onyomi": ["シュク", "シュウ"],
+    "kunyomi": ["いわ.う"],
+    "strokeCount": 9,
+    "radical": "示 (보일 시)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "現",
+    "koreanHunEum": "나타날 현",
+    "meanings": ["나타나다", "현재", "현실"],
+    "onyomi": ["ゲン"],
+    "kunyomi": ["あらわ.れる", "あらわ.す"],
+    "strokeCount": 11,
+    "radical": "玉 (구슬 옥)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "実",
+    "koreanHunEum": "열매 실",
+    "meanings": ["열매", "실제", "참되다"],
+    "onyomi": ["ジツ"],
+    "kunyomi": ["み", "みの.る"],
+    "strokeCount": 8,
+    "radical": "宀 (집 면)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "事",
+    "koreanHunEum": "일 사",
+    "meanings": ["일", "사건", "사정"],
+    "onyomi": ["ジ", "ズ"],
+    "kunyomi": ["こと"],
+    "strokeCount": 8,
+    "radical": "亅 (갈고리 궐)",
+    "jlptLevel": "N4"
+  },
+  {
+    "character": "情",
+    "koreanHunEum": "뜻 정",
+    "meanings": ["정", "마음", "사정", "정보"],
+    "onyomi": ["ジョウ", "セイ"],
+    "kunyomi": ["なさ.け"],
+    "strokeCount": 11,
+    "radical": "心 (마음 심)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "作",
+    "koreanHunEum": "지을 작",
+    "meanings": ["만들다", "짓다", "작전"],
+    "onyomi": ["サク", "サ"],
+    "kunyomi": ["つく.る"],
+    "strokeCount": 7,
+    "radical": "人 (사람 인)",
+    "jlptLevel": "N4"
+  },
+  {
+    "character": "戦",
+    "koreanHunEum": "싸움 전",
+    "meanings": ["싸우다", "전쟁", "시합"],
+    "onyomi": ["セン"],
+    "kunyomi": ["たたか.う", "いくさ"],
+    "strokeCount": 13,
+    "radical": "戈 (창 과)",
+    "jlptLevel": "N3"
+  },
+  {
+    "character": "求",
+    "koreanHunEum": "구할 구",
+    "meanings": ["구하다", "요구하다", "바라다"],
+    "onyomi": ["キュウ", "グ"],
+    "kunyomi": ["もと.める"],
+    "strokeCount": 7,
+    "radical": "水 (물 수)",
+    "jlptLevel": "N3"
   }
 ]

@@ -6,7 +6,17 @@ import AppKit
 
 @main
 struct HareruApp: App {
+    @State private var sharedSessionEngine: StudySessionEngine
+
     init() {
+        let store: MemoryStoreProtocol
+        if let container = try? SwiftDataMemoryStore.makeContainer(inMemory: false) {
+            store = SwiftDataMemoryStore(container: container)
+        } else {
+            store = InMemoryMemoryStore()
+        }
+        _sharedSessionEngine = State(initialValue: StudySessionEngine(store: store))
+
         #if os(macOS)
         NSApplication.shared.setActivationPolicy(.regular)
         DispatchQueue.main.async {
@@ -18,14 +28,19 @@ struct HareruApp: App {
     var body: some Scene {
         WindowGroup("Hareru (晴れる)") {
             TabView {
-                WordDeckView()
+                WordDeckView(engine: sharedSessionEngine)
                     .tabItem {
                         Label("단어 학습", systemImage: "rectangle.stack.fill")
                     }
 
-                GameHubView()
+                GameHubView(engine: sharedSessionEngine)
                     .tabItem {
                         Label("게임 (SMS)", systemImage: "bubble.left.and.bubble.right.fill")
+                    }
+
+                InsightsHubView(engine: sharedSessionEngine)
+                    .tabItem {
+                        Label("통계 · 노트", systemImage: "chart.bar.doc.horizontal.fill")
                     }
             }
             #if os(macOS)

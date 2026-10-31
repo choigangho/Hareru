@@ -3,17 +3,43 @@ import SwiftUI
 // MARK: - 탭 2 게임 그룹 허브 화면 (SMS 에피소드 선택 & 미니게임 확장 그룹, SPEC.md §1.3)
 public struct GameHubView: View {
     public let episodes: [SMSEpisode]
+    private let sessionEngine: StudySessionEngine?
     @State private var selectedEpisode: SMSEpisode?
     @State private var clearedScoresByEpisodeId: [String: Int] = [:]
 
-    public init(episodes: [SMSEpisode] = SMSEpisode.samples) {
+    public init(
+        episodes: [SMSEpisode] = SMSEpisode.samples,
+        engine: StudySessionEngine? = nil
+    ) {
         self.episodes = episodes
+        self.sessionEngine = engine
+    }
+
+    private var availableTickets: [GameTicket] {
+        guard let sessionEngine else { return [] }
+        _ = sessionEngine.stateRevision
+        return sessionEngine.unconsumedGameTickets()
     }
 
     public var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
+                    if !availableTickets.isEmpty {
+                        HStack(spacing: 10) {
+                            Image(systemName: "ticket.fill")
+                                .foregroundStyle(.orange)
+                            Text("보유 중인 SMS 미션 티켓: \(availableTickets.count)장")
+                                .font(.caption.weight(.bold))
+                            Spacer()
+                            Text("미션 시작 시 1장 자동 사용")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(12)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    }
+
                     // 1) 상단 게임 그룹 모드 배너
                     VStack(alignment: .leading, spacing: 10) {
                         Text("게임 모드 그룹")
@@ -118,6 +144,9 @@ public struct GameHubView: View {
                 .foregroundStyle(.secondary)
 
             Button {
+                if let firstTicket = availableTickets.first {
+                    _ = sessionEngine?.consumeGameTicket(id: firstTicket.id)
+                }
                 selectedEpisode = episode
             } label: {
                 HStack {
