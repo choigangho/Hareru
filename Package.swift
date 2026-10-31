@@ -2,28 +2,31 @@
 import PackageDescription
 
 let package = Package(
-    name: "BocaSample",
+    name: "Hareru",
     platforms: [
         .iOS(.v17),
         .macOS(.v14)
     ],
     products: [
         .library(
-            name: "BocaSample",
-            targets: ["BocaSample"]
+            name: "Hareru",
+            targets: ["Hareru"]
         ),
     ],
     targets: [
         .target(
-            name: "BocaSample",
-            path: ".",
+            name: "Hareru",
+            path: "Sources/Hareru",
             exclude: [
-                "App/BocaSampleApp.swift"
+                "App/HareruApp.swift",
+                "Features/LineChat/.gitkeep",
+                "Features/Insights/.gitkeep"
             ],
             sources: [
                 "Models",
-                "Services",
-                "Views"
+                "Features",
+                "Components",
+                "Services"
             ],
             resources: [
                 .process("Resources")

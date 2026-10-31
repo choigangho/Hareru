@@ -83,16 +83,19 @@ final class SpeechPlayer: NSObject, AVAudioPlayerDelegate, AVSpeechSynthesizerDe
     private static func resolveAudioURL(for fileName: String) -> URL? {
         let supportedExtensions = ["wav", "mp3", "m4a"]
 
-        // 1) 앱 번들 루트 및 Resources/Audio 서브디렉토리 검색
-        for ext in supportedExtensions {
-            if let url = Bundle.main.url(forResource: fileName, withExtension: ext) {
-                return url
-            }
-            if let url = Bundle.main.url(forResource: fileName, withExtension: ext, subdirectory: "Audio") {
-                return url
-            }
-            if let url = Bundle.main.url(forResource: fileName, withExtension: ext, subdirectory: "Resources/Audio") {
-                return url
+        // 1) Swift Package(Bundle.module) 및 앱 번들(Bundle.main) 검색
+        let bundles: [Bundle] = [Bundle.module, Bundle.main]
+        for bundle in bundles {
+            for ext in supportedExtensions {
+                if let url = bundle.url(forResource: fileName, withExtension: ext) {
+                    return url
+                }
+                if let url = bundle.url(forResource: fileName, withExtension: ext, subdirectory: "Audio") {
+                    return url
+                }
+                if let url = bundle.url(forResource: fileName, withExtension: ext, subdirectory: "Resources/Audio") {
+                    return url
+                }
             }
         }
 

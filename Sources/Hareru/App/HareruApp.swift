@@ -3,7 +3,7 @@
 import SwiftUI
 
 @main
-struct BocaSampleApp: App {
+struct HareruApp: App {
     var body: some Scene {
         WindowGroup {
             WordDeckView()
