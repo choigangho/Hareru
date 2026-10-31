@@ -1,6 +1,5 @@
-// xcode: set sdk=iOS
-
 import SwiftUI
+import Hareru
 
 @main
 struct HareruApp: App {

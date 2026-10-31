@@ -2,10 +2,14 @@ import Foundation
 import AVFoundation
 
 // MARK: - 음성 재생 서비스 (사전 제작된 고음질 로컬 오디오 전용 재생, TTS 폴백 없음)
-final class SpeechPlayer: NSObject, AVAudioPlayerDelegate {
+public final class SpeechPlayer: NSObject, AVAudioPlayerDelegate {
     private var audioPlayer: AVAudioPlayer?
     private var sequenceTask: Task<Void, Never>?
     private var nextAction: (() -> Void)?
+
+    public override init() {
+        super.init()
+    }
 
     private func setupAudioSession() {
         #if os(iOS)
@@ -14,7 +18,7 @@ final class SpeechPlayer: NSObject, AVAudioPlayerDelegate {
         #endif
     }
 
-    func stop() {
+    public func stop() {
         sequenceTask?.cancel()
         sequenceTask = nil
         nextAction = nil
@@ -25,16 +29,18 @@ final class SpeechPlayer: NSObject, AVAudioPlayerDelegate {
     }
 
     /// 단일 오디오 재생 (사전 제작된 오디오 파일만 재생하며, 미수신 시 재생하지 않음)
-    func playSingle(fileName: String, fallbackText: String = "", voice: VoiceProfile? = nil) {
+    @discardableResult
+    public func playSingle(fileName: String, fallbackText: String = "", voice: VoiceProfile? = nil) -> Bool {
         stop()
-        _ = playInternal(fileName: fileName)
+        return playInternal(fileName: fileName)
     }
 
     /// 정답 공개 시:
     /// 1) initialDelay(초) 후 단어 음성 재생
-    /// 2) 단어 음성이 끝나면 gapDelay(초) 후 예문 음성 자동 재생
-    func playTermThenExample(
-        for word: Word,
+    /// 2) 단어 음성이 끝나면 gapDelay(초) 후 해당 의미의 예문 음성 자동 재생
+    public func playTermThenExample(
+        termAudioFile: String,
+        exampleAudioFile: String,
         initialDelay: Double = 0.5,
         gapDelay: Double = 0.45
     ) {
@@ -44,18 +50,33 @@ final class SpeechPlayer: NSObject, AVAudioPlayerDelegate {
             self?.sequenceTask = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .seconds(gapDelay))
                 guard !Task.isCancelled else { return }
-                _ = self?.playInternal(fileName: word.exampleAudioFile)
+                _ = self?.playInternal(fileName: exampleAudioFile)
             }
         }
 
         sequenceTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(initialDelay))
             guard !Task.isCancelled else { return }
-            let started = self?.playInternal(fileName: word.termAudioFile) ?? false
+            let started = self?.playInternal(fileName: termAudioFile) ?? false
             if !started {
                 self?.nextAction = nil
             }
         }
+    }
+
+    public func playTermThenExample(
+        for word: Word,
+        sense: WordSense? = nil,
+        initialDelay: Double = 0.5,
+        gapDelay: Double = 0.45
+    ) {
+        let targetSense = sense ?? word.primarySense
+        playTermThenExample(
+            termAudioFile: word.termAudioFile,
+            exampleAudioFile: targetSense.exampleAudioFile,
+            initialDelay: initialDelay,
+            gapDelay: gapDelay
+        )
     }
 
     @discardableResult
@@ -108,7 +129,7 @@ final class SpeechPlayer: NSObject, AVAudioPlayerDelegate {
         return nil
     }
 
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+    public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         guard flag, let next = nextAction else { return }
         nextAction = nil
         next()

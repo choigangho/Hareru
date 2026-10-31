@@ -11,13 +11,15 @@ public struct WordMemorySnapshot: Codable, Identifiable, Equatable, Hashable, Se
     public var lastReviewedAt: Date?
     public var dueAt: Date
 
-    // 당일 세션 조우·침식 추적 (날짜 변경 시 자동 초기화)
+    // 당일 세션 조우·침식·최종 확인 추적 (날짜 변경 시 자동 초기화)
     public var lastEncounterDayKey: String?
     public var todayEncounterCount: Int
+    public var todayNonGraduatingCount: Int
     public var todayErosionCount: Int
     public var hadInterDayLapseToday: Bool
+    public var awaitingFinalConfirmation: Bool
 
-    // 서로 다른 날 8회 캡 보류 이력 & 손글씨 처방 노트 상태 (SPEC.md §1.3, §3.2)
+    // 서로 다른 날 8회 캡 보류 이력 & 손글씨 처방 노트 상태 (SPEC.md §1.4, §3.2)
     public var deferredDayKeys: [String]
     public var isLeechPrescribed: Bool
     public var handwritingCompletedCount: Int
@@ -35,8 +37,10 @@ public struct WordMemorySnapshot: Codable, Identifiable, Equatable, Hashable, Se
         dueAt: Date = .distantPast,
         lastEncounterDayKey: String? = nil,
         todayEncounterCount: Int = 0,
+        todayNonGraduatingCount: Int = 0,
         todayErosionCount: Int = 0,
         hadInterDayLapseToday: Bool = false,
+        awaitingFinalConfirmation: Bool = false,
         deferredDayKeys: [String] = [],
         isLeechPrescribed: Bool = false,
         handwritingCompletedCount: Int = 0,
@@ -51,8 +55,10 @@ public struct WordMemorySnapshot: Codable, Identifiable, Equatable, Hashable, Se
         self.dueAt = dueAt
         self.lastEncounterDayKey = lastEncounterDayKey
         self.todayEncounterCount = todayEncounterCount
+        self.todayNonGraduatingCount = todayNonGraduatingCount
         self.todayErosionCount = todayErosionCount
         self.hadInterDayLapseToday = hadInterDayLapseToday
+        self.awaitingFinalConfirmation = awaitingFinalConfirmation
         self.deferredDayKeys = Array(Set(deferredDayKeys)).sorted()
         self.isLeechPrescribed = isLeechPrescribed
         self.handwritingCompletedCount = handwritingCompletedCount
@@ -76,19 +82,21 @@ public struct WordMemorySnapshot: Codable, Identifiable, Equatable, Hashable, Se
         deferredDayKeys.count
     }
 
-    /// 기준 날짜(`dayKey`)가 바뀌었으면 당일 조우·침식 카운터를 0으로 리셋한 복사본 반환
+    /// 기준 날짜(`dayKey`)가 바뀌었으면 당일 조우·침식·최종 확인 카운터를 0으로 리셋한 복사본 반환
     public func normalized(forDayKey dayKey: String) -> WordMemorySnapshot {
         guard lastEncounterDayKey != dayKey else { return self }
         var copy = self
         copy.lastEncounterDayKey = dayKey
         copy.todayEncounterCount = 0
+        copy.todayNonGraduatingCount = 0
         copy.todayErosionCount = 0
         copy.hadInterDayLapseToday = false
+        copy.awaitingFinalConfirmation = false
         return copy
     }
 }
 
-// MARK: - 개별 평가 로그 스냅샷 (통계 · 반응시간 분석용)
+// MARK: - 원시 평가 이벤트 로그 스냅샷 (경계값 튜닝 & FSRS 옵티마이저 데이터셋 겸용)
 public struct ReviewLogEntry: Codable, Identifiable, Equatable, Hashable, Sendable {
     public let id: String
     public let wordId: String
@@ -96,6 +104,11 @@ public struct ReviewLogEntry: Codable, Identifiable, Equatable, Hashable, Sendab
     public let button: ReviewButton
     public let grade: EvaluationGrade
     public let reactionSeconds: Double
+    public let encounterIndexToday: Int
+    public let priorStability: Double
+    public let priorDifficulty: Double
+    public let elapsedDaysSinceLastReview: Double?
+    public let presentedSenseNumber: Int
     public let didGraduate: Bool
     public let didHitDailyCap: Bool
 
@@ -106,6 +119,11 @@ public struct ReviewLogEntry: Codable, Identifiable, Equatable, Hashable, Sendab
         button: ReviewButton,
         grade: EvaluationGrade,
         reactionSeconds: Double,
+        encounterIndexToday: Int = 1,
+        priorStability: Double = 0.0,
+        priorDifficulty: Double = 5.0,
+        elapsedDaysSinceLastReview: Double? = nil,
+        presentedSenseNumber: Int = 1,
         didGraduate: Bool,
         didHitDailyCap: Bool
     ) {
@@ -115,12 +133,17 @@ public struct ReviewLogEntry: Codable, Identifiable, Equatable, Hashable, Sendab
         self.button = button
         self.grade = grade
         self.reactionSeconds = reactionSeconds
+        self.encounterIndexToday = encounterIndexToday
+        self.priorStability = priorStability
+        self.priorDifficulty = priorDifficulty
+        self.elapsedDaysSinceLastReview = elapsedDaysSinceLastReview
+        self.presentedSenseNumber = presentedSenseNumber
         self.didGraduate = didGraduate
         self.didHitDailyCap = didHitDailyCap
     }
 }
 
-// MARK: - 탭 2 SMS 미션 게임 티켓 (졸업 보상 연결, SPEC.md §1.1, §1.2)
+// MARK: - 탭 2 SMS 미션 게임 티켓 (졸업 보상 연결, SPEC.md §1.2, §1.3)
 public struct GameTicket: Codable, Identifiable, Equatable, Hashable, Sendable {
     public let id: String
     public let voiceId: String             // 함께 대화할 상대 성우 캐릭터 ID
@@ -157,8 +180,10 @@ public final class WordMemoryRecord {
 
     public var lastEncounterDayKey: String?
     public var todayEncounterCount: Int
+    public var todayNonGraduatingCount: Int
     public var todayErosionCount: Int
     public var hadInterDayLapseToday: Bool
+    public var awaitingFinalConfirmation: Bool
 
     public var deferredDayKeysRaw: String
     public var isLeechPrescribed: Bool
@@ -175,8 +200,10 @@ public final class WordMemoryRecord {
         self.dueAt = snapshot.dueAt
         self.lastEncounterDayKey = snapshot.lastEncounterDayKey
         self.todayEncounterCount = snapshot.todayEncounterCount
+        self.todayNonGraduatingCount = snapshot.todayNonGraduatingCount
         self.todayErosionCount = snapshot.todayErosionCount
         self.hadInterDayLapseToday = snapshot.hadInterDayLapseToday
+        self.awaitingFinalConfirmation = snapshot.awaitingFinalConfirmation
         self.deferredDayKeysRaw = snapshot.deferredDayKeys.joined(separator: ",")
         self.isLeechPrescribed = snapshot.isLeechPrescribed
         self.handwritingCompletedCount = snapshot.handwritingCompletedCount
@@ -192,8 +219,10 @@ public final class WordMemoryRecord {
         self.dueAt = snapshot.dueAt
         self.lastEncounterDayKey = snapshot.lastEncounterDayKey
         self.todayEncounterCount = snapshot.todayEncounterCount
+        self.todayNonGraduatingCount = snapshot.todayNonGraduatingCount
         self.todayErosionCount = snapshot.todayErosionCount
         self.hadInterDayLapseToday = snapshot.hadInterDayLapseToday
+        self.awaitingFinalConfirmation = snapshot.awaitingFinalConfirmation
         self.deferredDayKeysRaw = snapshot.deferredDayKeys.joined(separator: ",")
         self.isLeechPrescribed = snapshot.isLeechPrescribed
         self.handwritingCompletedCount = snapshot.handwritingCompletedCount
@@ -216,8 +245,10 @@ public final class WordMemoryRecord {
             dueAt: dueAt,
             lastEncounterDayKey: lastEncounterDayKey,
             todayEncounterCount: todayEncounterCount,
+            todayNonGraduatingCount: todayNonGraduatingCount,
             todayErosionCount: todayErosionCount,
             hadInterDayLapseToday: hadInterDayLapseToday,
+            awaitingFinalConfirmation: awaitingFinalConfirmation,
             deferredDayKeys: dayKeys,
             isLeechPrescribed: isLeechPrescribed,
             handwritingCompletedCount: handwritingCompletedCount,
@@ -234,6 +265,11 @@ public final class ReviewLogRecord {
     public var buttonRaw: String
     public var gradeRaw: Int
     public var reactionSeconds: Double
+    public var encounterIndexToday: Int
+    public var priorStability: Double
+    public var priorDifficulty: Double
+    public var elapsedDaysSinceLastReview: Double?
+    public var presentedSenseNumber: Int
     public var didGraduate: Bool
     public var didHitDailyCap: Bool
 
@@ -244,6 +280,11 @@ public final class ReviewLogRecord {
         self.buttonRaw = entry.button.rawValue
         self.gradeRaw = entry.grade.rawValue
         self.reactionSeconds = entry.reactionSeconds
+        self.encounterIndexToday = entry.encounterIndexToday
+        self.priorStability = entry.priorStability
+        self.priorDifficulty = entry.priorDifficulty
+        self.elapsedDaysSinceLastReview = entry.elapsedDaysSinceLastReview
+        self.presentedSenseNumber = entry.presentedSenseNumber
         self.didGraduate = entry.didGraduate
         self.didHitDailyCap = entry.didHitDailyCap
     }
@@ -256,6 +297,11 @@ public final class ReviewLogRecord {
             button: ReviewButton(rawValue: buttonRaw) ?? .good,
             grade: EvaluationGrade(rawValue: gradeRaw) ?? .good,
             reactionSeconds: reactionSeconds,
+            encounterIndexToday: encounterIndexToday,
+            priorStability: priorStability,
+            priorDifficulty: priorDifficulty,
+            elapsedDaysSinceLastReview: elapsedDaysSinceLastReview,
+            presentedSenseNumber: presentedSenseNumber,
             didGraduate: didGraduate,
             didHitDailyCap: didHitDailyCap
         )

@@ -63,6 +63,11 @@ public struct WordSense: Codable, Identifiable, Equatable, Hashable, Sendable {
         FuriganaParser.parsePhraseBoxes(exampleMarkup)
     }
 
+    /// 표제어(`targetTerm`) 한자가 포함된 어절의 후리가나를 정답 공개 전까지 자동 잠금한 세그먼트 반환
+    public func exampleSegments(forTargetTerm targetTerm: String) -> [FuriganaSegment] {
+        FuriganaParser.parsePhraseBoxes(exampleMarkup, targetTerm: targetTerm)
+    }
+
     enum CodingKeys: String, CodingKey {
         case id
         case senseNumber
@@ -250,6 +255,29 @@ public struct Word: Codable, Identifiable, Equatable, Hashable, Sendable {
         senses.count > 1
     }
 
+    /// 복습 회차(`reps`)에 따라 출제할 의미를 순환 선택 (SPEC.md §4)
+    /// - 초회 학습(`reps <= 0`): 대표 의미(뜻 1) 고정
+    /// - 복습 회차(`reps >= 1`): `reps % senses.count` 라운드로빈으로 서브 의미(뜻 2~4)까지 능동 인출 유도
+    public func activeSense(forReps reps: Int) -> WordSense {
+        guard reps > 0, senses.count > 1 else { return primarySense }
+        return senses[reps % senses.count]
+    }
+
+    /// 현재 앞면 문제로 출제된 의미를 제외한 나머지 보조 의미 목록 (정답 공개 시 하단 노출용)
+    public func supplementarySenses(excluding senseId: String) -> [WordSense] {
+        senses.filter { $0.id != senseId }
+    }
+
+    /// 특정 의미에 대응하는 테마 팔레트 (서브 의미에 고유 팔레트가 있으면 적용, 없으면 대표 팔레트 유지)
+    public func activePalette(for sense: WordSense) -> ThemePalette {
+        sense.subPalette ?? palette
+    }
+
+    /// 특정 의미 예문의 어절 박스 세그먼트 반환 (표제어 후리가나 스포일러 잠금 적용)
+    public func segments(for sense: WordSense) -> [FuriganaSegment] {
+        sense.exampleSegments(forTargetTerm: term)
+    }
+
     /// 단어 표기(`term`)를 글자 단위로 분해하여 한자 터치 가능 여부를 반환
     public var termGlyphs: [TermGlyph] {
         FuriganaParser.segmentTermGlyphs(term)
@@ -265,6 +293,15 @@ public struct Word: Codable, Identifiable, Equatable, Hashable, Sendable {
     }
 
     /// 세션 내 실패 횟수에 따라 침식(Red+Black)이 반영된 3색 배열 반환
+    public func colors(
+        for sense: WordSense? = nil,
+        sessionFailures failureCount: Int,
+        maxFailuresBeforeCap: Int = 7
+    ) -> [Color] {
+        let targetPalette = sense.map { activePalette(for: $0) } ?? palette
+        return targetPalette.colors(forFailureCount: failureCount, maxFailuresBeforeCap: maxFailuresBeforeCap)
+    }
+
     public func colors(forSessionFailures failureCount: Int, maxFailuresBeforeCap: Int = 7) -> [Color] {
         palette.colors(forFailureCount: failureCount, maxFailuresBeforeCap: maxFailuresBeforeCap)
     }
@@ -274,7 +311,7 @@ public struct Word: Codable, Identifiable, Equatable, Hashable, Sendable {
     public var meaning: String { primarySense.meaning }
     public var example: String { primarySense.example }
     public var exampleMarkup: String { primarySense.exampleMarkup }
-    public var exampleSegments: [FuriganaSegment] { primarySense.exampleSegments }
+    public var exampleSegments: [FuriganaSegment] { primarySense.exampleSegments(forTargetTerm: term) }
     public var transBefore: String { primarySense.translation.before }
     public var transAnswer: String { primarySense.translation.answer }
     public var transAfter: String { primarySense.translation.after }

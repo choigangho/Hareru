@@ -217,15 +217,17 @@ public struct FSRSEngine: Sendable {
         return max(minimumDays, Int(rawInterval.rounded()))
     }
 
-    // MARK: - 3) 당일 졸업 시점 FSRS 상태 갱신 (당일 세션 내 실패 면책 보장)
+    // MARK: - 3) 당일 졸업 시점 FSRS 상태 갱신 (상한 캡 난이도 보정 + 평균 회귀)
 
-    /// 4등급(`앎`) 이상으로 졸업할 때 호출하여 장기 기억 파라미터(`S`, `D`, `dueAt`)를 갱신합니다.
-    /// - 중요(Ease Hell 방지, SPEC.md §3.2):
-    ///   당일 세션 내 반복 실패 횟수는 예열 과정으로 간주하여 장기 난이도(`D`)에 페널티를 전혀 부과하지 않습니다.
+    /// 4등급(`앎`) 이상으로 최종 졸업할 때 호출하여 장기 기억 파라미터(`S`, `D`, `dueAt`)를 갱신합니다.
+    /// - Ease Hell 없는 상한 캡 보정(SPEC.md §3.2):
+    ///   당일 고전한 단어(`intraSessionFailureCount > 0`)는 무한정 벌점을 주지 않고 상한선(`최대 +1.2`) 내에서만
+    ///   초기 `D`를 완만히 높여 초반 간격을 촘촘히 다져준 뒤 FSRS 평균 회귀로 자연 복원합니다.
     public func evaluateGraduation(
         previousState: MemoryState?,
         grade: EvaluationGrade,
         hadInterDayLapseToday: Bool,
+        intraSessionFailureCount: Int = 0,
         now: Date = Date(),
         calendar: Calendar = .current
     ) -> FSRSScheduleResult {
@@ -239,10 +241,13 @@ public struct FSRSEngine: Sendable {
         default: minDaysForGrade = 1
         }
 
+        let safeFailureCount = max(0, intraSessionFailureCount)
+
         // Case A: 신규 학습 단어 첫 졸업 (`reps == 0`)
         guard let prev = previousState, prev.reps > 0 else {
             let initS = Self.initialStability(for: grade)
-            let initD = Self.initialDifficulty(for: grade)
+            let boundedBump = min(Double(safeFailureCount) * 0.25, 1.2)
+            let initD = Self.clampDifficulty(Self.initialDifficulty(for: grade) + boundedBump)
             let interval = nextIntervalDays(stability: initS, minimumDays: minDaysForGrade)
             let dueDate = DayKeyFormatter.startOfNextDay(after: now, calendar: calendar, days: interval)
 
@@ -271,13 +276,11 @@ public struct FSRSEngine: Sendable {
         }
         let priorR = retrievability(elapsedDays: elapsedDays, stability: prev.stability)
 
-        // 당일 실패 면책(Ease Hell 방지):
-        // 세션 내 몇 번을 틀렸든 난이도 D를 가중 처벌하지 않으며,
-        // 높은 등급(5, 6)으로 졸업한 경우에만 완만한 난이도 하향 및 평균 회귀(5.0) 적용
         let updatedDifficulty = Self.updatedDifficultyOnGraduation(
             currentDifficulty: prev.difficulty,
             grade: grade,
-            hadInterDayLapseToday: hadInterDayLapseToday
+            hadInterDayLapseToday: hadInterDayLapseToday,
+            intraSessionFailureCount: safeFailureCount
         )
 
         let updatedStability: Double
@@ -355,14 +358,14 @@ public struct FSRSEngine: Sendable {
     private static func updatedDifficultyOnGraduation(
         currentDifficulty: Double,
         grade: EvaluationGrade,
-        hadInterDayLapseToday: Bool
+        hadInterDayLapseToday: Bool,
+        intraSessionFailureCount: Int
     ) -> Double {
-        // 당일 실패 면책(SPEC.md §3.2): 재학습 졸업이더라도 난이도 D 페널티를 부과하지 않음
         if hadInterDayLapseToday {
-            if grade == .easy {
-                return clampDifficulty(currentDifficulty - 0.25)
-            }
-            return clampDifficulty(currentDifficulty)
+            let boundedLapseBump = min(Double(max(0, intraSessionFailureCount)) * 0.20, 0.8)
+            let easyRelief = (grade == .easy) ? -0.25 : 0.0
+            let meanReverted = 0.10 * 5.0 + 0.90 * (currentDifficulty + boundedLapseBump + easyRelief)
+            return clampDifficulty(meanReverted)
         }
 
         let delta: Double

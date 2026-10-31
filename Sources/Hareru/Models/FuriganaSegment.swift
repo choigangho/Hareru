@@ -100,19 +100,27 @@ public struct TermGlyph: Codable, Identifiable, Equatable, Hashable, Sendable {
 }
 
 // MARK: - 어절 박스 묶음 후리가나 세그먼트 (SPEC.md §2.1)
-/// `[한자 + 뒤 히라가나(오쿠리가나·조사)]`를 하나의 어절 박스로 묶어
-/// 후리가나가 한자보다 길 때(예: 承ります → うけたまわ) 글자 사이가 벌어지는 현상을 원천 차단합니다.
+/// `[한자 + 뒤 히라가나(오쿠리가나·조사)]`를 하나의 어절 박스로 묶어 글자 밀림을 방지하며,
+/// `isTargetWord == true`인 정답 단어 어절의 후리가나는 파도 2(2~8초)에서 열지 않고 정답 보기 전까지 보호합니다.
 public struct FuriganaSegment: Codable, Identifiable, Equatable, Hashable, Sendable {
     public let id: Int
     public let baseText: String
     public let okurigana: String
     public let reading: String?
+    public let isTargetWord: Bool
 
-    public init(id: Int, baseText: String, okurigana: String = "", reading: String? = nil) {
+    public init(
+        id: Int,
+        baseText: String,
+        okurigana: String = "",
+        reading: String? = nil,
+        isTargetWord: Bool = false
+    ) {
         self.id = id
         self.baseText = baseText
         self.okurigana = okurigana
         self.reading = (reading?.isEmpty == true) ? nil : reading
+        self.isTargetWord = isTargetWord
     }
 
     /// 어절 박스 상단에 끊김 없이 렌더링할 일본어 본문 문자열 (`baseText + okurigana`)
@@ -129,7 +137,7 @@ public struct FuriganaSegment: Codable, Identifiable, Equatable, Hashable, Senda
 public enum FuriganaParser {
     private enum RawToken {
         case plain(String)
-        case ruby(surface: String, reading: String)
+        case ruby(surface: String, reading: String, explicitTarget: Bool)
     }
 
     /// `{한자|후리가나}` 마크업을 제거한 순수 일본어 예문 반환
@@ -138,7 +146,7 @@ public enum FuriganaParser {
             switch token {
             case .plain(let text):
                 return text
-            case .ruby(let surface, _):
+            case .ruby(let surface, _, _):
                 return surface
             }
         }.joined()
@@ -156,20 +164,44 @@ public enum FuriganaParser {
     }
 
     /// 마크업 문자열을 `[한자 + 뒤 히라가나]` 어절 박스 배열로 변환
-    /// - 지원 표기:
-    ///   1) 명시적 어절 묶음: `"{承ります|うけたまわ}。"` 또는 `"{承ります|うけたまわります}。"`
-    ///   2) 한자 단독 표기 후 자동 오쿠리가나 흡수: `"{承|うけたまわ}ります。"`
+    /// - Parameters:
+    ///   - markup: `{한자|후리가나}` 또는 `{*표제어한자|후리가나}` 마크업 문자열
+    ///   - targetTerm: 현재 카드의 표제어(`word.term`). 전달 시 표제어 한자가 포함된 어절을 자동 감지해 `isTargetWord = true`로 잠급니다.
+    ///   - maxAutoOkurigana: 자동 흡수할 뒤 히라가나 최대 글자 수
     public static func parsePhraseBoxes(
         _ markup: String,
+        targetTerm: String? = nil,
         maxAutoOkurigana: Int = 5
     ) -> [FuriganaSegment] {
+        let targetKanjiSet: Set<Character>
+        if let targetTerm {
+            targetKanjiSet = Set(targetTerm.filter { JapaneseScript.isKanji($0) })
+        } else {
+            targetKanjiSet = []
+        }
+
         let tokens = tokenize(markup)
+        return buildSegments(
+            from: tokens,
+            targetKanjiSet: targetKanjiSet,
+            maxAutoOkurigana: maxAutoOkurigana
+        )
+    }
+
+    // MARK: - 내부 보조 함수
+
+    private static func buildSegments(
+        from tokens: [RawToken],
+        targetKanjiSet: Set<Character>,
+        maxAutoOkurigana: Int
+    ) -> [FuriganaSegment] {
+        var mutableTokens = tokens
         var segments: [FuriganaSegment] = []
         var nextId = 0
         var i = 0
 
-        while i < tokens.count {
-            switch tokens[i] {
+        while i < mutableTokens.count {
+            switch mutableTokens[i] {
             case .plain(let text):
                 if !text.isEmpty {
                     segments.append(FuriganaSegment(id: nextId, baseText: text))
@@ -177,27 +209,22 @@ public enum FuriganaParser {
                 }
                 i += 1
 
-            case .ruby(let rawSurface, let rawReading):
+            case .ruby(let rawSurface, let rawReading, let explicitTarget):
                 let split = splitTrailingHiraganaFromRuby(surface: rawSurface, reading: rawReading)
                 var baseText = split.base
                 var okurigana = split.okurigana
                 let reading = split.cleanReading
                 let hadExplicitOkurigana = !okurigana.isEmpty
 
-                // 후리가나 길이가 본문 어절 폭보다 넓어 글자를 밀어낼 위험이 있거나,
-                // 한자만 단독 표기된 경우 바로 뒤의 히라가나를 어절 박스로 자동 흡수
                 let minimumSurfaceChars = Int(ceil(Double(reading.count) * 0.65))
-                if i + 1 < tokens.count, case .plain(let followingText) = tokens[i + 1] {
+                if i + 1 < mutableTokens.count, case .plain(let followingText) = mutableTokens[i + 1] {
                     let leadingHiragana = leadingHiraganaPrefix(in: followingText)
                     if !leadingHiragana.isEmpty {
                         let currentWidth = baseText.count + okurigana.count
                         let neededForWidth = max(0, minimumSurfaceChars - currentWidth)
-                        let absorbLimit: Int
-                        if hadExplicitOkurigana {
-                            absorbLimit = neededForWidth
-                        } else {
-                            absorbLimit = max(neededForWidth, maxAutoOkurigana)
-                        }
+                        let absorbLimit = hadExplicitOkurigana
+                            ? neededForWidth
+                            : max(neededForWidth, maxAutoOkurigana)
 
                         let absorbCount = min(leadingHiragana.count, absorbLimit)
                         if absorbCount > 0 {
@@ -205,35 +232,9 @@ public enum FuriganaParser {
                             okurigana += absorbed
                             let remainder = String(followingText.dropFirst(absorbCount))
                             if remainder.isEmpty {
-                                i += 1 // 다음 plain 토큰 전체 흡수 완료
+                                i += 1 // 다음 plain 토큰 전체 흡수
                             } else {
-                                // 남은 텍스트는 다음 루프에서 처리되도록 치환
-                                var mutableTokens = tokens
                                 mutableTokens[i + 1] = .plain(remainder)
-                                segments.append(
-                                    FuriganaSegment(
-                                        id: nextId,
-                                        baseText: baseText,
-                                        okurigana: okurigana,
-                                        reading: reading
-                                    )
-                                )
-                                nextId += 1
-                                // 나머지 토큰 재귀/반복 처리
-                                let tailMarkup = reconstructMarkup(from: Array(mutableTokens[(i + 1)...]))
-                                let tailSegments = parsePhraseBoxes(tailMarkup, maxAutoOkurigana: maxAutoOkurigana)
-                                for seg in tailSegments {
-                                    segments.append(
-                                        FuriganaSegment(
-                                            id: nextId,
-                                            baseText: seg.baseText,
-                                            okurigana: seg.okurigana,
-                                            reading: seg.reading
-                                        )
-                                    )
-                                    nextId += 1
-                                }
-                                return segments
                             }
                         }
                     }
@@ -244,12 +245,18 @@ public enum FuriganaParser {
                     okurigana = ""
                 }
 
+                let segmentKanjiSet = Set(baseText.filter { JapaneseScript.isKanji($0) })
+                let matchesTargetKanji = !targetKanjiSet.isEmpty
+                    && !segmentKanjiSet.isEmpty
+                    && (segmentKanjiSet.isSubset(of: targetKanjiSet) || targetKanjiSet.isSubset(of: segmentKanjiSet))
+
                 segments.append(
                     FuriganaSegment(
                         id: nextId,
                         baseText: baseText,
                         okurigana: okurigana,
-                        reading: reading
+                        reading: reading,
+                        isTargetWord: explicitTarget || matchesTargetKanji
                     )
                 )
                 nextId += 1
@@ -259,8 +266,6 @@ public enum FuriganaParser {
 
         return segments
     }
-
-    // MARK: - 내부 보조 함수
 
     private static func tokenize(_ markup: String) -> [RawToken] {
         var result: [RawToken] = []
@@ -277,15 +282,20 @@ public enum FuriganaParser {
                         result.append(.plain(plainBuffer))
                         plainBuffer = ""
                     }
-                    let surface = String(markup[afterOpen..<pipeIdx])
+                    var rawSurface = String(markup[afterOpen..<pipeIdx])
+                    var explicitTarget = false
+                    if rawSurface.hasPrefix("*"), rawSurface.count > 1 {
+                        explicitTarget = true
+                        rawSurface.removeFirst()
+                    }
                     let readingStart = markup.index(after: pipeIdx)
                     let reading = String(markup[readingStart..<closeIdx])
-                    if surface.isEmpty {
+                    if rawSurface.isEmpty {
                         result.append(.plain(reading))
                     } else if reading.isEmpty {
-                        result.append(.plain(surface))
+                        result.append(.plain(rawSurface))
                     } else {
-                        result.append(.ruby(surface: surface, reading: reading))
+                        result.append(.ruby(surface: rawSurface, reading: reading, explicitTarget: explicitTarget))
                     }
                     cursor = markup.index(after: closeIdx)
                     continue
@@ -301,19 +311,6 @@ public enum FuriganaParser {
         return result
     }
 
-    private static func reconstructMarkup(from tokens: [RawToken]) -> String {
-        tokens.map { token in
-            switch token {
-            case .plain(let text):
-                return text
-            case .ruby(let surface, let reading):
-                return "{\(surface)|\(reading)}"
-            }
-        }.joined()
-    }
-
-    /// `{承ります|うけたまわ}` 또는 `{承ります|うけたまわります}` 형태에서
-    /// 한자 어간(`承`), 뒤 히라가나(`ります`), 한자 발음(`うけたまわ`)을 분리
     private static func splitTrailingHiraganaFromRuby(
         surface: String,
         reading: String

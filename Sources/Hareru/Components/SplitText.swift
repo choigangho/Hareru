@@ -1,25 +1,44 @@
 import SwiftUI
 
 // MARK: - "앞 / 정답 / 뒤"로 나뉜 예문 해석 텍스트 컴포넌트
-struct SplitText: View {
-    let before: String
-    let answer: String
-    let after: String
-    let otherProgress: CGFloat
-    let answerProgress: CGFloat
+public struct SplitText: View {
+    public let before: String
+    public let answer: String
+    public let after: String
+    public let otherProgress: CGFloat
+    public let answerProgress: CGFloat
+    public var accentColor: Color = .primary
 
-    var body: some View {
+    public init(
+        before: String,
+        answer: String,
+        after: String,
+        otherProgress: CGFloat,
+        answerProgress: CGFloat,
+        accentColor: Color = .primary
+    ) {
+        self.before = before
+        self.answer = answer
+        self.after = after
+        self.otherProgress = otherProgress
+        self.answerProgress = answerProgress
+        self.accentColor = accentColor
+    }
+
+    public var body: some View {
         ZStack {
             line(answerVisible: false).hintBlur(otherProgress)
-            line(answerVisible: true).hintBlur(answerProgress)
+            line(answerVisible: true).furiganaBlur(answerProgress)
         }
         .multilineTextAlignment(.center)
     }
 
     private func line(answerVisible: Bool) -> Text {
-        let side = Text(before).foregroundStyle(answerVisible ? Color.clear : Color.primary)
-        let mid  = Text(answer).foregroundStyle(answerVisible ? Color.primary : Color.clear)
-        let tail = Text(after).foregroundStyle(answerVisible ? Color.clear : Color.primary)
+        let side = Text(before).foregroundStyle(answerVisible ? Color.clear : Color.secondary)
+        let mid  = Text(answer)
+            .fontWeight(.semibold)
+            .foregroundStyle(answerVisible ? accentColor : Color.clear)
+        let tail = Text(after).foregroundStyle(answerVisible ? Color.clear : Color.secondary)
         return Text("\(side)\(mid)\(tail)")
     }
 }
