@@ -22,7 +22,31 @@ def is_kanji(ch: str) -> bool:
     return 0x4E00 <= cp <= 0x9FFF or 0x3400 <= cp <= 0x4DBF or 0xF900 <= cp <= 0xFAFF
 
 
+NON_KANJI_KINDS = {"L": "loanword", "K": "native_kana", "O": "onomatopoeia"}
+
+
+def normalize_word_draft(draft: dict) -> dict:
+    """짧은 형식도 허용:
+    {"t": 표제어, "c": 카테고리, "s": [[품사, 뜻, 음성ID(미정이면 null), 예문 마크업, before, answer, after], ...],
+     "n": [종류 L/K/O, 설명, 원어(선택), 원어 표기(선택)]}"""
+    if "t" not in draft:
+        return draft
+    senses = [{"partOfSpeech": s[0], "meaning": s[1], "voiceId": s[2], "exampleMarkup": s[3],
+               "translation": {"before": s[4], "answer": s[5], "after": s[6]}} for s in draft["s"]]
+    result = {"term": draft["t"], "category": draft["c"], "senses": senses}
+    if "n" in draft:
+        n = draft["n"]
+        note = {"kind": NON_KANJI_KINDS.get(n[0], n[0]), "explanation": n[1]}
+        if len(n) > 2:
+            note["originLanguage"] = n[2]
+        if len(n) > 3:
+            note["originTerm"] = n[3]
+        result["nonKanjiNote"] = note
+    return result
+
+
 def export_word(base: dict, draft: dict) -> dict:
+    draft = normalize_word_draft(draft)
     if draft["term"] != base["term"]:
         raise SystemExit(f"초안 표제어 불일치: {base['id']} base={base['term']} draft={draft['term']}")
     senses = []
@@ -35,7 +59,8 @@ def export_word(base: dict, draft: dict) -> dict:
             "meaning": sense["meaning"],
             "exampleMarkup": sense["exampleMarkup"],
             "translation": sense["translation"],
-            "voiceId": sense["voiceId"],
+            # 음성 캐릭터는 게임 인물과 연동 예정 — 배정 전에는 "unassigned"
+            "voiceId": sense.get("voiceId") or "unassigned",
             "exampleAudioFile": f"{sense_id}_example",
         })
     word = {
@@ -53,7 +78,15 @@ def export_word(base: dict, draft: dict) -> dict:
     return word
 
 
+def normalize_kanji_draft(draft) -> dict:
+    """짧은 형식 [훈음, 부수 한국어 이름, 뜻1, 뜻2, ...]도 허용"""
+    if isinstance(draft, list):
+        return {"hunEum": draft[0], "radicalKoreanName": draft[1], "meanings": draft[2:]}
+    return draft
+
+
 def export_kanji(base: dict, draft: dict) -> dict:
+    draft = normalize_kanji_draft(draft)
     return {
         "character": base["character"],
         "koreanHunEum": draft["hunEum"],

@@ -32,7 +32,15 @@ public struct VoiceProfile: Codable, Identifiable, Equatable, Hashable, Sendable
         self.aivisStyleId = aivisStyleId
     }
 
-    // MARK: - 기본 시그니처 성우 라인업 (SPEC.md §4)
+    // MARK: - 음성 캐릭터 미정 (게임 인물이 확정되면 배정)
+    // 음성 캐릭터는 연구소 게임의 인물(주연·조연·기타 인물)과 연동하기로 결정 (Docs/GAME_DESIGN.md §2.1).
+    // 인물이 정해지기 전에 만든 단어 데이터는 이 값으로 두고, 카드에서는 별명 태그를 숨깁니다.
+    public static let unassigned = VoiceProfile(id: "unassigned", label: "")
+
+    public var isAssigned: Bool { id != Self.unassigned.id }
+
+    // MARK: - 기존 시그니처 성우 라인업 (SPEC.md §4)
+    // ⚠️ 게임 인물 확정 전의 임시 라인업. 이미 번들된 30단어·녹음 오디오가 참조하고 있어 남겨 둠.
 
     public static let buchou = VoiceProfile(
         id: "buchou",
@@ -128,6 +136,9 @@ public struct VoiceProfile: Codable, Identifiable, Equatable, Hashable, Sendable
     ]
 
     public static func preset(forId id: String) -> VoiceProfile {
+        if id == unassigned.id {
+            return unassigned
+        }
         if let found = allPresets.first(where: { $0.id == id }) {
             return found
         }

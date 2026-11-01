@@ -136,7 +136,9 @@ public struct WordCardView: View {
 
     private var termHeader: some View {
         VStack(spacing: 10) {
-            voiceNicknameTag
+            if quizzedSense.voice.isAssigned {
+                voiceNicknameTag
+            }
 
             tappableTermGlyphs
 

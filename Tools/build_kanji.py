@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""상용한자 2,136자 기본 데이터 빌드 (KANJIDIC2 + JLPT 단어 목록).
+"""한자 기본 데이터 빌드 — 상용한자 2,136자 + JLPT 단어에 쓰인 상용 외 한자 (KANJIDIC2 + JLPT 단어 목록).
 
 사용법:
     python3 -I Tools/build_kanji.py Tools/sources Tools/build/kanji_base.json
@@ -77,10 +77,12 @@ def build(sources: Path) -> list:
     for char in root.iter("character"):
         misc = char.find("misc")
         grade_text = misc.findtext("grade")
-        if not grade_text or not 1 <= int(grade_text) <= 8:
+        literal = char.findtext("literal")
+        is_joyo = bool(grade_text) and 1 <= int(grade_text) <= 8
+        # 상용한자 + 상용 외라도 JLPT 단어 표기에 실제로 쓰인 한자(飴, 醤油 등)
+        if not is_joyo and literal not in earliest:
             continue
 
-        literal = char.findtext("literal")
         rad_number = int(char.find("radical/rad_value[@rad_type='classical']").text)
         old_jlpt = misc.findtext("jlpt")
 
@@ -106,7 +108,8 @@ def build(sources: Path) -> list:
             "kunyomi": kunyomi,
             "koreanEum": korean_eum,          # 원본 제공 (예: ["감"])
             "englishMeanings": english,
-            "joyoGrade": int(grade_text),     # 1~6 교육한자, 8 = 그 외 상용한자
+            "joyoGrade": int(grade_text) if is_joyo else None,  # 1~6 교육한자, 8 = 그 외 상용한자, None = 상용 외
+            "isJoyo": is_joyo,
             "frequencyRank": int(misc.findtext("freq")) if misc.findtext("freq") else None,
             "jlptLevel": level,               # 추정 급수
             "jlptLevelSource": level_source,
@@ -131,7 +134,8 @@ def main() -> None:
     by_level = {}
     for k in kanji:
         by_level[k["jlptLevel"]] = by_level.get(k["jlptLevel"], 0) + 1
-    print(f"상용한자 {len(kanji)}자 → {output}")
+    print(f"한자 {len(kanji)}자 (상용 {sum(k['isJoyo'] for k in kanji)} + JLPT 단어에 쓰인 상용 외 "
+          f"{sum(not k['isJoyo'] for k in kanji)}) → {output}")
     print("급수별:", {lvl: by_level.get(lvl, 0) for lvl in LEVELS})
 
 

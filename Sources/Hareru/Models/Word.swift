@@ -127,7 +127,8 @@ public struct WordSense: Codable, Identifiable, Equatable, Hashable, Sendable {
         if let fullVoice = try container.decodeIfPresent(VoiceProfile.self, forKey: .voice) {
             self.voice = fullVoice
         } else {
-            let voiceId = try container.decode(String.self, forKey: .voiceId)
+            // 음성 캐릭터가 아직 배정되지 않은 데이터는 voiceId가 없거나 "unassigned"
+            let voiceId = try container.decodeIfPresent(String.self, forKey: .voiceId) ?? VoiceProfile.unassigned.id
             self.voice = VoiceProfile.preset(forId: voiceId)
         }
 

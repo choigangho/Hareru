@@ -163,7 +163,7 @@ def main() -> None:
     jmdict = load_jmdict(sources / "JMdict_e.gz")
     furigana = load_furigana(sources / "JmdictFurigana.json.zip")
 
-    results, unmatched = [], []
+    results, unmatched, used_ids = [], [], set()
     for w in jlpt_words:
         term, reading = w["term"], to_hiragana(w["reading"]) if not w["term"].isascii() else w["reading"]
         entry = jmdict.get((term, w["reading"])) or jmdict.get((term, reading))
@@ -180,8 +180,16 @@ def main() -> None:
         if has_kanji and not usages:
             usages, usage_estimated = estimated_group_usages(term, w["reading"]), True
         missing_kanji = [c for c in term if is_kanji(c) and c not in {u["kanji"] for u in usages}]
+        word_id = f"{w['jlptLevel'].lower()}_{entry['seq'] if entry else 'x' + str(len(results))}"
+        # 표기 변형(在る/有る, あちら/あっち)은 JMdict 항목을 공유하므로 두 번째부터 번호를 붙여 ID 중복 방지
+        if word_id in used_ids:
+            suffix = 2
+            while f"{word_id}_{suffix}" in used_ids:
+                suffix += 1
+            word_id = f"{word_id}_{suffix}"
+        used_ids.add(word_id)
         results.append({
-            "id": f"{w['jlptLevel'].lower()}_{entry['seq'] if entry else 'x' + str(len(results))}",
+            "id": word_id,
             "jmdictSeq": entry["seq"] if entry else None,
             "term": term,
             "reading": w["reading"],

@@ -836,21 +836,31 @@ final class HareruCoreTests: XCTestCase {
     // MARK: - 데이터 파이프라인: 시험 배치(Tools/build/pilot)가 앱 무결성 검사를 통과하는지
 
     func testPilotCatalogExportPassesAppValidation() throws {
-        let pilotDirectory = URL(fileURLWithPath: #filePath)
+        // Tools/build 아래 words.json + kanji.json이 있는 모든 내보내기 묶음(pilot, n5 …)을 검사
+        let buildDirectory = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-            .appendingPathComponent("Tools/build/pilot")
-        let wordsURL = pilotDirectory.appendingPathComponent("words.json")
-        let kanjiURL = pilotDirectory.appendingPathComponent("kanji.json")
-        guard FileManager.default.fileExists(atPath: wordsURL.path) else {
-            throw XCTSkip("Tools/build/pilot 내보내기 결과가 없음 (export_catalog.py 실행 전)")
+            .appendingPathComponent("Tools/build")
+        let exportDirectories = ((try? FileManager.default.contentsOfDirectory(
+            at: buildDirectory, includingPropertiesForKeys: nil)) ?? [])
+            .filter { FileManager.default.fileExists(atPath: $0.appendingPathComponent("words.json").path) }
+        guard !exportDirectories.isEmpty else {
+            throw XCTSkip("Tools/build 내보내기 결과가 없음 (export_catalog.py 실행 전)")
         }
+        for directory in exportDirectories {
+            try assertExportPassesAppValidation(directory)
+        }
+    }
 
+    private func assertExportPassesAppValidation(_ directory: URL) throws {
+        let wordsURL = directory.appendingPathComponent("words.json")
+        let kanjiURL = directory.appendingPathComponent("kanji.json")
         let decoder = JSONDecoder()
         let words = try decoder.decode([Word].self, from: Data(contentsOf: wordsURL))
         let kanji = try decoder.decode([KanjiInfo].self, from: Data(contentsOf: kanjiURL))
         let repo = CatalogRepository(words: words, kanjiEntries: kanji)
 
-        XCTAssertTrue(repo.validationIssues().isEmpty, "Issues: \(repo.validationIssues())")
+        XCTAssertTrue(repo.validationIssues().isEmpty, "\(directory.lastPathComponent) Issues: \(repo.validationIssues())")
+        XCTAssertEqual(Set(words.map(\.id)).count, words.count, "\(directory.lastPathComponent) 중복 ID")
 
         for word in words {
             // 표제어 루비를 이어 붙이면 단어 읽기가 복원되어야 함

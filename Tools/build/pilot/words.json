@@ -18,7 +18,7 @@
      "answer": "만납니다",
      "after": "."
     },
-    "voiceId": "tokyo_senpai",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1198180_s1_example"
    }
   ],
@@ -50,7 +50,7 @@
      "answer": "더우니까",
      "after": " 물을 많이 마셔라."
     },
-    "voiceId": "expedition_captain",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1343460_s1_example"
    }
   ],
@@ -82,7 +82,7 @@
      "answer": "비",
      "after": "가 그칠 때까지 여기서 쉬자."
     },
-    "voiceId": "expedition_captain",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1171900_s1_example"
    }
   ],
@@ -114,7 +114,7 @@
      "answer": "가자",
      "after": "."
     },
-    "voiceId": "buchou",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1578850_s1_example"
    }
   ],
@@ -146,7 +146,7 @@
      "answer": "어른",
      "after": "이네요."
     },
-    "voiceId": "kyoto_grandma",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1414170_s1_example"
    }
   ],
@@ -164,15 +164,15 @@
   ]
  },
  {
-  "id": "n5_1207610",
+  "id": "n5_1207610_2",
   "jlptLevel": "N5",
   "category": "행동·요구",
   "term": "かける",
   "reading": "かける",
-  "termAudioFile": "n5_1207610_term",
+  "termAudioFile": "n5_1207610_2_term",
   "senses": [
    {
-    "id": "n5_1207610_s1",
+    "id": "n5_1207610_2_s1",
     "senseNumber": 1,
     "partOfSpeech": "동사",
     "meaning": "걸다, 매달다",
@@ -182,11 +182,11 @@
      "answer": "걸어",
      "after": " 둬라."
     },
-    "voiceId": "knight_commander",
-    "exampleAudioFile": "n5_1207610_s1_example"
+    "voiceId": "unassigned",
+    "exampleAudioFile": "n5_1207610_2_s1_example"
    },
    {
-    "id": "n5_1207610_s2",
+    "id": "n5_1207610_2_s2",
     "senseNumber": 2,
     "partOfSpeech": "동사",
     "meaning": "(안경을) 쓰다",
@@ -196,8 +196,8 @@
      "answer": "쓴",
      "after": " 남자를 찾아라."
     },
-    "voiceId": "modulated_detective",
-    "exampleAudioFile": "n5_1207610_s2_example"
+    "voiceId": "unassigned",
+    "exampleAudioFile": "n5_1207610_2_s2_example"
    }
   ],
   "kanjiUsages": [],
@@ -225,7 +225,7 @@
      "answer": "우산",
      "after": "을 가져가렴."
     },
-    "voiceId": "kyoto_grandma",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1301940_s1_example"
    }
   ],
@@ -257,7 +257,7 @@
      "answer": "학교",
      "after": " 끝나고 오는 길에 케이크 사러 와요."
     },
-    "voiceId": "cafe_staff",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1206730_s1_example"
    }
   ],
@@ -295,7 +295,7 @@
      "answer": "여기",
      "after": "에 있다."
     },
-    "voiceId": "modulated_detective",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1288810_s1_example"
    }
   ],
@@ -324,7 +324,7 @@
      "answer": "조용하네요",
      "after": "."
     },
-    "voiceId": "kyoto_grandma",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1381820_s1_example"
    }
   ],
@@ -356,7 +356,7 @@
      "answer": "높구나",
      "after": "."
     },
-    "voiceId": "expedition_captain",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1283190_s1_example"
    },
    {
@@ -370,7 +370,7 @@
      "answer": "비싸요",
      "after": "."
     },
-    "voiceId": "alchemy_merchant",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1283190_s2_example"
    }
   ],
@@ -402,7 +402,7 @@
      "answer": "먹어",
      "after": " 줘!"
     },
-    "voiceId": "tenchou",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1358280_s1_example"
    }
   ],
@@ -434,7 +434,7 @@
      "answer": "날씨",
      "after": "네요!"
     },
-    "voiceId": "konbini_clerk",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1438690_s1_example"
    }
   ],
@@ -472,7 +472,7 @@
      "answer": "전철",
      "after": "이 늦어지고 있으니 조금 기다립시다."
     },
-    "voiceId": "tokyo_senpai",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1443530_s1_example"
    }
   ],
@@ -510,7 +510,7 @@
      "answer": "시계",
      "after": ", 5분 늦네."
     },
-    "voiceId": "modulated_detective",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1316140_s1_example"
    }
   ],
@@ -546,7 +546,7 @@
      "answer": "친구",
      "after": "와 함께 도시락을 먹었어요."
     },
-    "voiceId": "konbini_clerk",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1540170_s1_example"
    }
   ],
@@ -584,7 +584,7 @@
      "answer": "한 분",
      "after": "이신가요?"
     },
-    "voiceId": "alchemy_merchant",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1576150_s1_example"
    }
   ],
@@ -620,7 +620,7 @@
      "answer": "봐",
      "after": " 주세요."
     },
-    "voiceId": "tokyo_senpai",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1259290_s1_example"
    }
   ],
@@ -652,7 +652,7 @@
      "answer": "벌써",
      "after": " 9시인가. 슬슬 돌아가자."
     },
-    "voiceId": "buchou",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1012480_s1_example"
    },
    {
@@ -666,7 +666,7 @@
      "answer": "더",
      "after": " 어때?"
     },
-    "voiceId": "buchou",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1012480_s2_example"
    }
   ],
@@ -695,7 +695,7 @@
      "answer": "커피",
      "after": "와 함께 케이크는 어떠세요?"
     },
-    "voiceId": "cafe_staff",
+    "voiceId": "unassigned",
     "exampleAudioFile": "n5_1049180_s1_example"
    }
   ],
