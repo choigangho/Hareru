@@ -78,7 +78,7 @@
   - 한 문장, 너무 길지 않게 (카드 한 화면 안).
 - **3분할 해석**: `answer`는 표제어에 해당하는 한국어 부분만, 앞뒤는 `before`/`after`. 어순상 앞이 비면 `before`는 빈 문자열.
 - **가나만 쓰는 단어**: `nonKanjiNote` 필수 — 외래어는 원어, 고유어는 보통 가나로 쓰는 이유·한자 표기.
-- **음성 캐릭터 배정**: 보류 — 게임 인물(주연·조연·기타 인물)이 확정되면 배정. 그 전에는 `voiceId` 없이(null) 작성.
+- **음성 캐릭터 배정**: 게임 음성 캐릭터 10인(`Docs/GAME_DESIGN.md` §2.2, `VoiceProfile.gameCast`)의 담당 어휘 영역에 맞춰 배정. 단, 예문 재작성은 게임 설계 후(§4) — 그 전 초안은 `voiceId` null.
 - **검사**: `export_catalog.py` → `swift test` (`testPilotCatalogExportPassesAppValidation`) 통과해야 앱 반영.
 
 ## 4. 진행 순서 (2026-11-01 변경: 게임 먼저, 예문은 그다음)

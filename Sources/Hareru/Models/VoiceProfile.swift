@@ -39,6 +39,88 @@ public struct VoiceProfile: Codable, Identifiable, Equatable, Hashable, Sendable
 
     public var isAssigned: Bool { id != Self.unassigned.id }
 
+    // MARK: - 연구소(NJL) 게임 음성 캐릭터 10인 (Docs/GAME_DESIGN.md §2.2)
+    // 단어·예문 음성은 이 인물들이 맡음. 카드 별명 태그에는 label이 표시되므로,
+    // 가이드 연구원은 이름 읽기 비밀 설정(§6.1)에 따라 직함만 씀.
+
+    public static let guideResearcher = VoiceProfile(
+        id: "guide_researcher",
+        label: "가이드 연구원",
+        tagline: "한자를 전부 아는 최후의 1인. 좋아하는 어원이 나오면 말이 빨라짐",
+        accentHex: "#4F6D8F"
+    )
+
+    public static let aiKuro = VoiceProfile(
+        id: "ai_kuro",
+        label: "KURO",
+        archetype: .modulated,
+        tagline: "수리된 구형 언어 기록 안드로이드 NJL-09. 담담한 보고체",
+        accentHex: "#3F4A56"
+    )
+
+    public static let masterGen = VoiceProfile(
+        id: "master_gen",
+        label: "미나모토 겐",
+        tagline: "연구소 1층 찻집 겸 식당 마스터. 아날로그 요리를 고집하는 아저씨",
+        accentHex: "#8A5A3C"
+    )
+
+    public static let courierRin = VoiceProfile(
+        id: "courier_rin",
+        label: "카자마 린",
+        tagline: "폐허 서점가에서 종이책을 찾아오는 스쿠터 배달원",
+        accentHex: "#E07A3F"
+    )
+
+    public static let rivalReina = VoiceProfile(
+        id: "rival_reina",
+        label: "칸자키 레이나",
+        tagline: "NeuroLex 언어압축부 수석 이사. 한자를 레거시 데이터로 보는 완벽주의자",
+        accentHex: "#5B4B8A"
+    )
+
+    public static let inspectorRen = VoiceProfile(
+        id: "inspector_ren",
+        label: "타치바나 렌",
+        tagline: "연구소 예산을 쥔 감사관. 회의적인 척하지만 은근히 돕는다",
+        accentHex: "#2F6F73"
+    )
+
+    public static let elderTsuru = VoiceProfile(
+        id: "elder_tsuru",
+        label: "시라이시 츠루",
+        tagline: "종이 시대를 기억하는 최고령 기증자",
+        accentHex: "#9C6B7A"
+    )
+
+    public static let citizenMio = VoiceProfile(
+        id: "citizen_mio",
+        label: "미오",
+        tagline: "손글씨에 호기심이 생긴 뉴럴링크 세대 고등학생",
+        accentHex: "#D9668A"
+    )
+
+    public static let craftsmanJin = VoiceProfile(
+        id: "craftsman_jin",
+        label: "진",
+        tagline: "복원된 한자로 도시의 간판을 고치는 장인",
+        accentHex: "#B5893A"
+    )
+
+    public static let announcerAI = VoiceProfile(
+        id: "announcer_ai",
+        label: "원내 방송",
+        archetype: .modulated,
+        tagline: "연구소 안내 방송 겸 도시 기상·뉴스 속보 AI",
+        accentHex: "#4A7FB5"
+    )
+
+    public static let gameCast: [VoiceProfile] = [
+        .guideResearcher, .aiKuro,
+        .masterGen, .courierRin, .rivalReina, .inspectorRen, .elderTsuru,
+        .citizenMio, .craftsmanJin, .announcerAI
+    ]
+
     // MARK: - 기존 시그니처 성우 라인업 (SPEC.md §4)
     // ⚠️ 게임 인물 확정 전의 임시 라인업. 이미 번들된 30단어·녹음 오디오가 참조하고 있어 남겨 둠.
 
@@ -139,7 +221,7 @@ public struct VoiceProfile: Codable, Identifiable, Equatable, Hashable, Sendable
         if id == unassigned.id {
             return unassigned
         }
-        if let found = allPresets.first(where: { $0.id == id }) {
+        if let found = (gameCast + allPresets).first(where: { $0.id == id }) {
             return found
         }
         return VoiceProfile(id: id, label: id)

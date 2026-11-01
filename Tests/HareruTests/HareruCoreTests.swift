@@ -881,4 +881,20 @@ final class HareruCoreTests: XCTestCase {
             }
         }
     }
+
+    // MARK: - 게임 음성 캐릭터 10인
+
+    func testGameCastIsTenUniqueResolvableVoices() {
+        let cast = VoiceProfile.gameCast
+        XCTAssertEqual(cast.count, 10)
+        XCTAssertEqual(Set(cast.map(\.id)).count, 10)
+        for voice in cast {
+            XCTAssertTrue(voice.isAssigned)
+            XCTAssertEqual(VoiceProfile.preset(forId: voice.id), voice)
+            XCTAssertFalse(voice.id.contains(" "), "voiceId에 공백: '\(voice.id)'")
+        }
+        // 가이드 연구원은 이름 읽기를 엔딩까지 숨기므로 표시 이름에 이름이 들어가면 안 됨
+        XCTAssertEqual(VoiceProfile.guideResearcher.label, "가이드 연구원")
+        XCTAssertEqual(VoiceProfile.preset(forId: "unassigned"), .unassigned)
+    }
 }
