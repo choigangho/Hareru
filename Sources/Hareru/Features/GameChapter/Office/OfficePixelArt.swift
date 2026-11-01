@@ -1,4 +1,5 @@
 import CoreGraphics
+import ImageIO
 import SpriteKit
 
 // MARK: - 연구소 픽셀 아트 텍스처 공장 (M1 임시 아트 — 코드로 그린 픽셀)
@@ -230,7 +231,7 @@ enum OfficePixelArt {
         })
     }
 
-    // MARK: - 가이드 연구원 (단발 · 안경 · 흰 가운) 8×14, 걷기 두 장
+    // MARK: - 주임 연구원 (단발 · 안경 · 흰 가운) 8×14, 걷기 두 장
 
     static let guideSprites: [[String]] = [
         [ "..hhhh..", ".hhhhhh.", ".hssssh.", ".gegeg..", ".hssssh.", "..ssss..", "..cccc..",
@@ -261,8 +262,47 @@ enum OfficePixelArt {
         texture(makeSprite(guideSprites[frame % guideSprites.count], palette: guidePalette))
     }
 
-    /// HUD 초상화용 (얼굴 위쪽 8줄)
+    /// HUD 초상화용 — 64×64 초상화 에셋, 없으면 코드 스프라이트의 얼굴 위쪽 8줄
     static func guidePortrait() -> CGImage? {
-        makeSprite(Array(guideSprites[0].prefix(8)), palette: guidePalette)
+        bundledImage("chief_researcher_portrait") ?? makeSprite(Array(guideSprites[0].prefix(8)), palette: guidePalette)
+    }
+
+    // MARK: - 캐릭터 스프라이트 에셋 (Resources/Art/Characters, 48×48 · 발 기준 하단 정렬)
+    // 원본·제작 기록: Docs/Art/Characters. 남동(앞) · 북서(뒤) 두 방향만 있고 나머지는 좌우 반전.
+
+    struct CharacterFrames {
+        let idleFront: SKTexture
+        let walkFront: [SKTexture]
+        let back: SKTexture
+        let artSize: CGSize
+    }
+
+    static let characterArtSize = 48
+    /// 캐릭터 픽셀 1칸 = 방 픽셀 0.5칸. 48px 그대로면 벽(40px)보다 커서, 키를 방 기준 24px로 맞춤
+    static let characterPixelRatio: CGFloat = 0.5
+
+    static func characterFrames(_ role: ResearcherAgent.Role) -> CharacterFrames {
+        let name = role == .chief ? "chief_researcher" : "newcomer"
+        let images = ["idle_se", "walk_se_a", "walk_se_b", "idle_nw"].map { bundledImage("\(name)_\($0)") }
+        if images.allSatisfy({ $0 != nil }) {
+            let t = images.map { texture($0) }
+            let side = CGFloat(characterArtSize)
+            return CharacterFrames(idleFront: t[0], walkFront: [t[1], t[2]], back: t[3], artSize: CGSize(width: side, height: side))
+        }
+        // 에셋을 못 찾으면 코드로 그린 임시 스프라이트 (두 사람 모두)
+        let walk = [makeGuide(frame: 0), makeGuide(frame: 1)]
+        return CharacterFrames(idleFront: walk[0], walkFront: walk, back: walk[0], artSize: CGSize(width: 16, height: 28))
+    }
+
+    static func bundledImage(_ name: String) -> CGImage? {
+        for bundle in [Bundle.module, Bundle.main] {
+            for sub in [nil, "Art/Characters", "Resources/Art/Characters"] as [String?] {
+                guard let url = bundle.url(forResource: name, withExtension: "png", subdirectory: sub),
+                      let source = CGImageSourceCreateWithURL(url as CFURL, nil),
+                      let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { continue }
+                return image
+            }
+        }
+        return nil
     }
 }

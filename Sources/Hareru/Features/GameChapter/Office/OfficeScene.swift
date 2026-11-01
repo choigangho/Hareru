@@ -19,6 +19,7 @@ final class OfficeScene: SKScene {
     private let roomNode = SKSpriteNode()
     private let selectionNode = SKShapeNode()
     private let agentNode = SKSpriteNode()
+    private let newcomerNode = SKSpriteNode()
     private let gaugeNode = SKNode()
     private let gaugeLabel = SKLabelNode(fontNamed: "HiraMinProN-W6")
     private let gaugeTrack = SKSpriteNode(color: .white, size: .zero)
@@ -27,7 +28,8 @@ final class OfficeScene: SKScene {
     private var bubbleNodes: [UUID: SKNode] = [:]
 
     private var textureCache: [String: SKTexture] = [:]
-    private lazy var guideFrames = [OfficePixelArt.makeGuide(frame: 0), OfficePixelArt.makeGuide(frame: 1)]
+    private lazy var chiefFrames = OfficePixelArt.characterFrames(.chief)
+    private lazy var newcomerFrames = OfficePixelArt.characterFrames(.newcomer)
 
     init(runtime: OfficeSimulationRuntime) {
         self.runtime = runtime
@@ -44,8 +46,10 @@ final class OfficeScene: SKScene {
         selectionNode.isHidden = true
         addChild(selectionNode)
 
-        agentNode.anchorPoint = CGPoint(x: 0.5, y: 0)
-        addChild(agentNode)
+        for node in [agentNode, newcomerNode] {
+            node.anchorPoint = CGPoint(x: 0.5, y: 0)
+            addChild(node)
+        }
 
         gaugeLabel.fontColor = .white
         gaugeLabel.verticalAlignmentMode = .bottom
@@ -90,8 +94,11 @@ final class OfficeScene: SKScene {
     var facilityNodeCount: Int { facilityNodes.count }
     func zPosition(ofFacility id: String) -> CGFloat? { facilityNodes[id]?.zPosition }
     var agentZPosition: CGFloat { agentNode.zPosition }
+    var newcomerZPosition: CGFloat { newcomerNode.zPosition }
     /// 화면에 실제로 그려지는 연구원 크기 (배율 이중 적용 회귀 방지용)
     var agentRenderedSize: CGSize { CGSize(width: abs(agentNode.frame.width), height: abs(agentNode.frame.height)) }
+    var newcomerRenderedSize: CGSize { CGSize(width: abs(newcomerNode.frame.width), height: abs(newcomerNode.frame.height)) }
+    var isNewcomerVisible: Bool { newcomerNode.parent != nil && !newcomerNode.isHidden && newcomerNode.texture != nil }
     func facilityRenderedSize(_ id: String) -> CGSize? { facilityNodes[id].map { $0.frame.size } }
 
     // MARK: - 배치
@@ -199,7 +206,8 @@ final class OfficeScene: SKScene {
         runtime.update(time: time, facilities: state.facilities)
         let blinkFrame = Int(time * 2) % 2
         updateFacilityAnimations(time: time, frame: blinkFrame)
-        updateAgent(time: time)
+        draw(runtime.agent, frames: chiefFrames, on: agentNode, time: time, tieBreak: 1)
+        draw(runtime.newcomer, frames: newcomerFrames, on: newcomerNode, time: time, tieBreak: 2)
         updateGauge(time: time)
         updateBubbles(time: time)
     }
@@ -221,20 +229,25 @@ final class OfficeScene: SKScene {
         }
     }
 
-    private func updateAgent(time: Double) {
-        let agent = runtime.agent
+    /// 연구원 한 명 그리기: 앞(남동·남서) / 뒤(북서·북동) 스프라이트 + 좌우 반전, 캐릭터 픽셀은 방 픽셀의 절반 크기
+    private func draw(_ agent: ResearcherAgent, frames: OfficePixelArt.CharacterFrames, on node: SKSpriteNode, time: Double, tieBreak: CGFloat) {
         let position = agent.visualPosition
-        let walkFrame = agent.isWalking ? Int(time * 8) % 2 : 0
-        agentNode.texture = guideFrames[walkFrame]
-        agentNode.size = CGSize(width: 8 * pixelScale, height: 14 * pixelScale)
-        agentNode.xScale = agent.facingRight ? 1 : -1
+        let step = Int(time * 8) % 2
+        if agent.heading.showsFront {
+            node.texture = agent.isWalking ? frames.walkFront[step] : frames.idleFront
+        } else {
+            node.texture = frames.back
+        }
+        let ratio = OfficePixelArt.characterPixelRatio
+        node.size = CGSize(width: frames.artSize.width * ratio * pixelScale, height: frames.artSize.height * ratio * pixelScale)
+        node.xScale = agent.heading.isMirrored ? -1 : 1
         var point = snappedScenePoint(column: position.column, row: position.row)
         point.y -= 2 * pixelScale
-        // 서 있을 때는 천천히 숨쉬기, 걸을 때는 통통
-        let bob = agent.isWalking ? (Int(time * 8) % 2 == 0 ? 0 : 1) : (Int(time * 1.5) % 2)
+        // 서 있을 때는 천천히 숨쉬기, 걸을 때는 통통 (뒷모습은 걷기 프레임이 없어 통통만)
+        let bob = agent.isWalking ? (step == 0 ? 0 : 1) : (Int(time * 1.5 + tieBreak * 0.5) % 2)
         point.y += CGFloat(bob) * pixelScale
-        agentNode.position = point
-        agentNode.zPosition = depthZ(position.column + position.row) + 1
+        node.position = point
+        node.zPosition = depthZ(position.column + position.row) + tieBreak
     }
 
     private func updateGauge(time: Double) {

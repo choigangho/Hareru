@@ -475,7 +475,7 @@ public struct InstituteView: View {
         .hareruGlass(in: RoundedRectangle(cornerRadius: 12, style: .continuous), tint: palette.glassTintColor)
     }
 
-    // MARK: - 아래 가장자리: 비서 팝업 (가이드 연구원)
+    // MARK: - 아래 가장자리: 비서 팝업 (주임 연구원)
 
     private var secretaryPopup: some View {
         Button(action: advanceIntro) {
@@ -512,7 +512,7 @@ public struct InstituteView: View {
         }
         .buttonStyle(.plain)
         .allowsHitTesting(introIndex != nil)   // disabled는 글씨를 흐리게 해서 쓰지 않음
-        .accessibilityLabel("가이드 연구원: \(guideLine)")
+        .accessibilityLabel("주임 연구원: \(guideLine)")
     }
 
     // MARK: - 아래 가장자리: 명령 도크
@@ -638,7 +638,7 @@ public struct InstituteView: View {
     }
 }
 
-// MARK: - 가이드 연구원 픽셀 초상화 (장면 스프라이트와 같은 픽셀 데이터, 최근접 확대)
+// MARK: - 주임 연구원 픽셀 초상화 (장면 스프라이트와 같은 픽셀 데이터, 최근접 확대)
 private struct GuidePortrait: View {
     private static let image = OfficePixelArt.guidePortrait()
 

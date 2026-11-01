@@ -145,4 +145,29 @@ final class OfficeSimulationTests: XCTestCase {
         runtime.update(time: 10, facilities: InstituteState().facilities)
         XCTAssertTrue(runtime.bubbles.isEmpty)
     }
+
+    func testHeadingFollowsIsometricScreenDirections() {
+        let o = GridPosition(column: 2, row: 2)
+        XCTAssertEqual(ResearcherAgent.Heading(from: o, to: GridPosition(column: 3, row: 2)), .southeast)
+        XCTAssertEqual(ResearcherAgent.Heading(from: o, to: GridPosition(column: 1, row: 2)), .northwest)
+        XCTAssertEqual(ResearcherAgent.Heading(from: o, to: GridPosition(column: 2, row: 3)), .southwest)
+        XCTAssertEqual(ResearcherAgent.Heading(from: o, to: GridPosition(column: 2, row: 1)), .northeast)
+        // 스프라이트는 남동(앞)·북서(뒤) 두 장 → 남서·북동만 반전
+        XCTAssertTrue(ResearcherAgent.Heading.southwest.showsFront && ResearcherAgent.Heading.southwest.isMirrored)
+        XCTAssertTrue(!ResearcherAgent.Heading.northeast.showsFront && ResearcherAgent.Heading.northeast.isMirrored)
+    }
+
+    func testNewcomerHasOwnHomeSpotEvenWhenPreferredIsBlocked() {
+        let desk = InstituteState.deskPosition
+        let base = [PlacedFacility(kind: .researcherDesk, position: desk)]
+        let chief = OfficePathfinder.homeSpot(for: .chief, facilities: base)
+        let newcomer = OfficePathfinder.homeSpot(for: .newcomer, facilities: base)
+        XCTAssertEqual(newcomer, GridPosition(column: desk.column + 1, row: desk.row))
+        XCTAssertNotEqual(chief, newcomer)
+
+        let blocked = base + [PlacedFacility(kind: .serverRack, position: GridPosition(column: desk.column + 1, row: desk.row))]
+        let fallback = OfficePathfinder.homeSpot(for: .newcomer, facilities: blocked)
+        XCTAssertNotNil(fallback)
+        XCTAssertNotEqual(fallback, OfficePathfinder.homeSpot(for: .chief, facilities: blocked))
+    }
 }

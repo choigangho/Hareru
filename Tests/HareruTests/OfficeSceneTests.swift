@@ -23,6 +23,17 @@ final class OfficeSceneTests: XCTestCase {
             XCTAssertEqual(texture.size(), CGSize(width: expected.width, height: expected.height))
         }
         XCTAssertEqual(OfficePixelArt.makeGuide(frame: 1).size(), CGSize(width: 8, height: 14))
+
+        // 두 사람의 캐릭터 에셋이 번들에 들어 있고, 48×48 아트 해상도 + 최근접 필터링
+        for role in [ResearcherAgent.Role.chief, .newcomer] {
+            let frames = OfficePixelArt.characterFrames(role)
+            XCTAssertEqual(frames.artSize, CGSize(width: 48, height: 48), "\(role) 에셋을 번들에서 못 찾음")
+            for texture in [frames.idleFront, frames.back] + frames.walkFront {
+                XCTAssertEqual(texture.size(), CGSize(width: 48, height: 48))
+                XCTAssertEqual(texture.filteringMode, .nearest)
+            }
+        }
+        XCTAssertEqual(OfficePixelArt.guidePortrait()?.width, 64, "대화 초상화는 64×64 에셋")
     }
 
     func testLayoutUsesIntegerScaleAndTapsMapToCells() throws {
@@ -67,6 +78,18 @@ final class OfficeSceneTests: XCTestCase {
         XCTAssertGreaterThan(scene.agentZPosition, scene.zPosition(ofFacility: desk.id)!)
     }
 
+    func testInstituteStartsWithTwoPeopleAtSeparateSpots() {
+        let state = InstituteState()
+        let scene = makeScene(facilities: state.facilities)
+        scene.apply(state: state, comboMemberIDs: [], selectedCell: nil, isPlacing: false)
+        scene.update(0)
+        XCTAssertTrue(scene.isNewcomerVisible, "신입(플레이어)도 처음부터 사무실에 있어야 함")
+        XCTAssertNotEqual(scene.runtime.agent.tile, scene.runtime.newcomer.tile, "두 사람은 다른 칸에서 시작")
+        XCTAssertEqual(scene.runtime.newcomer.role, .newcomer)
+        let desk = state.facilities.first { $0.kind == .researcherDesk }!
+        XCTAssertGreaterThan(scene.newcomerZPosition, scene.zPosition(ofFacility: desk.id)!)
+    }
+
     func testInWorldCalendarKeepsYearSecret() {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(secondsFromGMT: 9 * 3600)!
@@ -81,7 +104,8 @@ final class OfficeSceneTests: XCTestCase {
                              PlacedFacility(kind: .serverRack, position: GridPosition(column: 5, row: 0))]
         let scene = makeScene(facilities: state.facilities)
         scene.apply(state: state, comboMemberIDs: [], selectedCell: nil, isPlacing: false)
-        let expectedAgent = CGSize(width: 8 * scene.pixelScale, height: 14 * scene.pixelScale)
+        let side = 48 * OfficePixelArt.characterPixelRatio * scene.pixelScale
+        let expectedAgent = CGSize(width: side, height: side)
 
         // 실제 시간으로 흐르는 런타임을 앞당기기 위해 프레임마다 잠깐씩 기다리는 대신, 런타임을 직접 진행
         var facings = Set<Bool>()
@@ -91,6 +115,7 @@ final class OfficeSceneTests: XCTestCase {
             scene.update(0)
             facings.insert(scene.runtime.agent.facingRight)
             XCTAssertEqual(scene.agentRenderedSize, expectedAgent)
+            XCTAssertEqual(scene.newcomerRenderedSize, expectedAgent)
         }
         XCTAssertEqual(facings, [true, false], "좌우 반전이 실제로 일어나야 의미 있는 검사")
         let desk = state.facilities[0]

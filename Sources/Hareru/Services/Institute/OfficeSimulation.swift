@@ -50,6 +50,16 @@ public enum OfficePathfinder {
         return standingSpots(beside: desk, facilities: facilities).first
     }
 
+    /// 인물별 돌아올 자리 — 주임 연구원은 책상 앞, 신입은 책상 오른편 (주임과 다른 칸을 우선)
+    public static func homeSpot(for role: ResearcherAgent.Role, facilities: [PlacedFacility]) -> GridPosition? {
+        let chief = deskSpot(facilities: facilities)
+        guard role == .newcomer else { return chief }
+        let desk = InstituteState.deskPosition
+        let preferred = GridPosition(column: desk.column + 1, row: desk.row)
+        if isWalkable(preferred, facilities: facilities), preferred != chief { return preferred }
+        return standingSpots(beside: desk, facilities: facilities).first { $0 != chief } ?? chief
+    }
+
     /// start에서 goals 중 가장 가까운 칸까지의 경로 (start 제외, 도착 칸 포함). 이미 도착해 있으면 []. 길이 없으면 nil
     public static func path(
         from start: GridPosition,
@@ -85,24 +95,49 @@ public enum OfficePathfinder {
     }
 }
 
-// MARK: - 가이드 연구원 자율 행동 (책상 ↔ 시설 왕복)
+// MARK: - 연구원 자율 행동 (자기 자리 ↔ 시설 왕복) — 주임 연구원 · 신입(플레이어) 2명
 public struct ResearcherAgent: Equatable, Sendable {
+    public enum Role: Equatable, Sendable {
+        case chief, newcomer
+    }
+
     public enum Activity: Equatable, Sendable {
         case idle(remaining: Double)
-        case walking(path: [GridPosition], progress: Double, toward: FacilityKind?)   // nil = 책상으로 복귀
+        case walking(path: [GridPosition], progress: Double, toward: FacilityKind?)   // nil = 자기 자리로 복귀
         case working(facility: FacilityKind, remaining: Double)
+    }
+
+    /// 아이소메트릭 화면 방향. 열이 늘면 오른쪽 아래(남동), 행이 늘면 왼쪽 아래(남서)
+    public enum Heading: Equatable, Sendable {
+        case southeast, southwest, northeast, northwest
+
+        init(from: GridPosition, to: GridPosition) {
+            if to.column > from.column { self = .southeast }
+            else if to.column < from.column { self = .northwest }
+            else if to.row > from.row { self = .southwest }
+            else { self = .northeast }
+        }
+
+        /// 얼굴이 보이는 방향 (남동·남서). 아니면 뒷모습
+        public var showsFront: Bool { self == .southeast || self == .southwest }
+        /// 스프라이트는 남동(앞) · 북서(뒤) 두 장 — 남서 · 북동은 좌우 반전
+        public var isMirrored: Bool { self == .southwest || self == .northeast }
     }
 
     public static let secondsPerTile = 0.35
     public static let workSeconds = 2.0
 
+    public let role: Role
     public private(set) var tile: GridPosition
     public private(set) var activity: Activity
-    public private(set) var facingRight = true
+    public private(set) var heading = Heading.southeast
+    /// 화면에서 오른쪽을 보고 있는지 (남동 · 북동)
+    public var facingRight: Bool { heading == .southeast || heading == .northeast }
     /// 복원 연출 중에는 쉬는 시간을 줄여 바쁘게 오감
     public var isBusy = false
 
-    public init(tile: GridPosition, idleSeconds: Double = 2.0) {
+    public init(tile: GridPosition, role: Role = .chief, idleSeconds: Double = 2.0) {
+        self.role = role
         self.tile = tile
         self.activity = .idle(remaining: idleSeconds)
     }
@@ -122,10 +157,10 @@ public struct ResearcherAgent: Equatable, Sendable {
         return false
     }
 
-    /// 시설이 치워지거나 옮겨져 현재 칸이 막혔을 때 책상 자리로 되돌림
+    /// 시설이 치워지거나 옮겨져 현재 칸이 막혔을 때 자기 자리로 되돌림
     public mutating func recover(facilities: [PlacedFacility]) {
         guard !OfficePathfinder.isWalkable(tile, facilities: facilities),
-              let spot = OfficePathfinder.deskSpot(facilities: facilities) else { return }
+              let spot = OfficePathfinder.homeSpot(for: role, facilities: facilities) else { return }
         tile = spot
         activity = .idle(remaining: 1.0)
     }
@@ -164,14 +199,12 @@ public struct ResearcherAgent: Equatable, Sendable {
             progress += dt / Self.secondsPerTile
             while progress >= 1, !path.isEmpty {
                 let next = path.removeFirst()
-                if next.column != tile.column {
-                    facingRight = next.column > tile.column
-                }
+                heading = Heading(from: tile, to: next)
                 tile = next
                 progress -= 1
             }
-            if let next = path.first, next.column != tile.column {
-                facingRight = next.column > tile.column
+            if let next = path.first {
+                heading = Heading(from: tile, to: next)
             }
             guard path.isEmpty else {
                 activity = .walking(path: path, progress: progress, toward: toward)
@@ -190,8 +223,8 @@ public struct ResearcherAgent: Equatable, Sendable {
                 activity = .working(facility: facility, remaining: left)
                 return nil
             }
-            if let desk = OfficePathfinder.deskSpot(facilities: facilities),
-               let route = OfficePathfinder.path(from: tile, toAnyOf: [desk], facilities: facilities),
+            if let home = OfficePathfinder.homeSpot(for: role, facilities: facilities),
+               let route = OfficePathfinder.path(from: tile, toAnyOf: [home], facilities: facilities),
                !route.isEmpty {
                 activity = .walking(path: route, progress: 0, toward: nil)
             } else {
@@ -294,21 +327,29 @@ public final class OfficeSimulationRuntime {
         }
     }
 
+    /// 주임 연구원 — 복원 · 정산 버블은 이 사람 머리 위에서
     public private(set) var agent: ResearcherAgent
+    /// 신입 연구원 (= 플레이어). 시작 인원 2명 중 한 명, 자기 자리에서 시설을 오가며 일을 배움
+    public private(set) var newcomer: ResearcherAgent
     public private(set) var bubbles: [FloatingBubble] = []
     public private(set) var restoration: RestorationShow?
     public private(set) var dropStarts: [String: Double] = [:]
     public var reduceMotion = false
     private var lastTime: Double?
     private var rng: SeededRandom
+    /// 신입은 따로 굴려서 주임 연구원의 동선(같은 seed면 같은 동선)이 바뀌지 않게 함
+    private var newcomerRng: SeededRandom
 
     public static let maxBubbles = 24
     public static let bubbleInterval = 0.7
 
     public init(facilities: [PlacedFacility], seed: UInt64 = UInt64(Date().timeIntervalSince1970)) {
         rng = SeededRandom(seed: seed)
-        let start = OfficePathfinder.deskSpot(facilities: facilities) ?? InstituteState.deskPosition
+        newcomerRng = SeededRandom(seed: seed ^ 0xA5A5_5A5A_C3C3_3C3C)
+        let start = OfficePathfinder.homeSpot(for: .chief, facilities: facilities) ?? InstituteState.deskPosition
         agent = ResearcherAgent(tile: start)
+        let newcomerStart = OfficePathfinder.homeSpot(for: .newcomer, facilities: facilities) ?? start
+        newcomer = ResearcherAgent(tile: newcomerStart, role: .newcomer, idleSeconds: 4.5)
     }
 
     /// 매 프레임 호출. dt는 최대 0.1초로 잘라서 백그라운드 복귀 시 순간이동을 막음
@@ -321,6 +362,11 @@ public final class OfficeSimulationRuntime {
         agent.isBusy = restoration != nil
         if !reduceMotion, let startedWork = agent.step(dt: dt, facilities: facilities, rng: &rng) {
             emit(Self.emote(for: startedWork), style: .emote, at: agent.visualPosition, time: time, lifetime: 1.0)
+        }
+        newcomer.recover(facilities: facilities)
+        newcomer.isBusy = restoration != nil
+        if !reduceMotion {
+            newcomer.step(dt: dt, facilities: facilities, rng: &newcomerRng)
         }
 
         guard var show = restoration else { return }

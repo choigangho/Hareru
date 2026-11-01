@@ -22,7 +22,7 @@ public enum FacilityKind: String, Codable, CaseIterable, Identifiable, Sendable 
 
     public var summary: String {
         switch self {
-        case .researcherDesk: return "연구소의 시작점. 가이드 연구원이 머무는 자리"
+        case .researcherDesk: return "연구소의 시작점. 주임 연구원이 머무는 자리"
         case .kanjiArchive: return "복원한 한자를 보관 · 연구 포인트 +5%"
         case .copyRoom: return "획순과 부수를 옮겨 적는 방 · 복원 비용 -10%"
         case .recordingBooth: return "말로 하는 일본어를 기록 · 연구 포인트 +5%"

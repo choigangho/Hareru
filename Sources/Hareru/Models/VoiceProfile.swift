@@ -41,11 +41,11 @@ public struct VoiceProfile: Codable, Identifiable, Equatable, Hashable, Sendable
 
     // MARK: - 연구소(NJL) 게임 음성 캐릭터 10인 (Docs/GAME_DESIGN.md §2.2)
     // 단어·예문 음성은 이 인물들이 맡음. 카드 별명 태그에는 label이 표시되므로,
-    // 가이드 연구원은 이름 읽기 비밀 설정(§6.1)에 따라 직함만 씀.
+    // 주임 연구원은 이름 읽기 비밀 설정(§6.1)에 따라 직함만 씀.
 
     public static let guideResearcher = VoiceProfile(
         id: "guide_researcher",
-        label: "가이드 연구원",
+        label: "주임 연구원",
         tagline: "한자를 전부 아는 최후의 1인. 좋아하는 어원이 나오면 말이 빨라짐",
         accentHex: "#4F6D8F"
     )
