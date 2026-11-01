@@ -25,6 +25,8 @@ final class OfficeScene: SKScene {
     private let gaugeTrack = SKSpriteNode(color: .white, size: .zero)
     private let gaugeFill = SKSpriteNode(color: .white, size: .zero)
     private var facilityNodes: [String: SKSpriteNode] = [:]
+    /// 벽가 장식 소품 (OfficePixelArt.decorPlacements 순서, 에셋이 없으면 비어 있음)
+    private var decorNodes: [(node: SKSpriteNode, cell: GridPosition, artSize: CGSize)] = []
     private var bubbleNodes: [UUID: SKNode] = [:]
 
     private var textureCache: [String: SKTexture] = [:]
@@ -41,6 +43,17 @@ final class OfficeScene: SKScene {
         roomNode.texture = OfficePixelArt.makeRoom()
         roomNode.zPosition = 0
         addChild(roomNode)
+
+        for decor in OfficePixelArt.decorPlacements {
+            guard let image = OfficePixelArt.bundledImage(decor.asset) else { continue }
+            let node = SKSpriteNode(texture: OfficePixelArt.texture(image))
+            let density = CGFloat(OfficePixelArt.assetDensity)
+            let artSize = CGSize(width: CGFloat(image.width) / density, height: CGFloat(image.height) / density)
+            // 소품 바닥이 타일 중심보다 4px 아래 → 벽에 붙어 서 있는 느낌
+            node.anchorPoint = CGPoint(x: 0.5, y: 4 / artSize.height)
+            addChild(node)
+            decorNodes.append((node, decor.cell, artSize))
+        }
 
         selectionNode.zPosition = 5
         selectionNode.isHidden = true
@@ -77,6 +90,7 @@ final class OfficeScene: SKScene {
         self.selectedCell = selectedCell
         self.isPlacing = isPlacing
         syncFacilities(frame: 0)
+        syncDecor()
         syncSelection()
     }
 
@@ -125,6 +139,7 @@ final class OfficeScene: SKScene {
 
         // 크기는 항상 '아트 크기 × 픽셀 배율' 포인트로 직접 지정 (노드 배율은 좌우 반전 ±1에만 사용)
         syncFacilities(frame: 0)
+        syncDecor()
         syncSelection()
     }
 
@@ -176,6 +191,20 @@ final class OfficeScene: SKScene {
             node.zPosition = depthZ(CGFloat(facility.position.column + facility.position.row))
         }
     }
+
+    private func syncDecor() {
+        let occupied = Set(state.facilities.map(\.position))
+        for decor in decorNodes {
+            decor.node.isHidden = occupied.contains(decor.cell)
+            decor.node.size = CGSize(width: decor.artSize.width * pixelScale, height: decor.artSize.height * pixelScale)
+            decor.node.position = snappedScenePoint(column: CGFloat(decor.cell.column), row: CGFloat(decor.cell.row))
+            // 같은 칸의 연구원(+1, +2)·시설(+0)보다 뒤
+            decor.node.zPosition = depthZ(CGFloat(decor.cell.column + decor.cell.row)) - 1
+        }
+    }
+
+    /// 테스트·디버그용: 보이는 장식 소품 칸
+    var visibleDecorCells: [GridPosition] { decorNodes.filter { !$0.node.isHidden }.map(\.cell) }
 
     private func syncSelection() {
         guard let grid, let cell = selectedCell else {

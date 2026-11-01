@@ -14,13 +14,17 @@ final class OfficeSceneTests: XCTestCase {
     func testTexturesArePixelCrispAtArtResolution() {
         let room = OfficePixelArt.makeRoom()
         XCTAssertEqual(room.filteringMode, .nearest)
-        XCTAssertEqual(room.size(), CGSize(width: OfficePixelArt.roomSize.width, height: OfficePixelArt.roomSize.height))
+        // 방·시설 텍스처는 에셋 밀도(방 픽셀 1칸 = 2칸)로 그림
+        let density = CGFloat(OfficePixelArt.assetDensity)
+        XCTAssertEqual(room.size(), CGSize(width: CGFloat(OfficePixelArt.roomSize.width) * density,
+                                           height: CGFloat(OfficePixelArt.roomSize.height) * density))
 
         for kind in FacilityKind.allCases {
             let texture = OfficePixelArt.makeFacility(kind, highlighted: true)
             let expected = OfficePixelArt.facilitySize(kind)
             XCTAssertEqual(texture.filteringMode, .nearest)
-            XCTAssertEqual(texture.size(), CGSize(width: expected.width, height: expected.height))
+            XCTAssertEqual(texture.size(), CGSize(width: CGFloat(expected.width) * density, height: CGFloat(expected.height) * density),
+                           "\(kind) 시설 에셋을 번들에서 못 찾았거나 크기가 어긋남")
         }
         XCTAssertEqual(OfficePixelArt.makeGuide(frame: 1).size(), CGSize(width: 8, height: 14))
 
@@ -88,6 +92,17 @@ final class OfficeSceneTests: XCTestCase {
         XCTAssertEqual(scene.runtime.newcomer.role, .newcomer)
         let desk = state.facilities.first { $0.kind == .researcherDesk }!
         XCTAssertGreaterThan(scene.newcomerZPosition, scene.zPosition(ofFacility: desk.id)!)
+    }
+
+    func testDecorPropsHideUnderPlacedFacilities() {
+        var state = InstituteState()
+        let scene = makeScene(facilities: state.facilities)
+        scene.apply(state: state, comboMemberIDs: [], selectedCell: nil, isPlacing: false)
+        XCTAssertEqual(scene.visibleDecorCells.count, OfficePixelArt.decorPlacements.count, "소품 에셋 5종이 번들에 있어야 함")
+        let spot = OfficePixelArt.decorPlacements[0].cell
+        state.facilities.append(PlacedFacility(kind: .kanjiArchive, position: spot))
+        scene.apply(state: state, comboMemberIDs: [], selectedCell: nil, isPlacing: false)
+        XCTAssertFalse(scene.visibleDecorCells.contains(spot), "시설이 놓인 칸의 소품은 숨김")
     }
 
     func testInWorldCalendarKeepsYearSecret() {
