@@ -37,7 +37,7 @@ public struct HareruSettingsView: View {
             .navigationTitle("설정")
         }
         .sheet(isPresented: $showGoalResetOnboarding) {
-            OnboardingFlowView(engine: sessionEngine) { _ in
+            OnboardingFlowView(engine: sessionEngine, initialStep: .targetGoal) { _ in
                 showGoalResetOnboarding = false
             }
         }

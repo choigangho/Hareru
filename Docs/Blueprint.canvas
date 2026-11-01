@@ -1,567 +1,88 @@
 {
-	"nodes": [
-		{
-			"id": "g_tabs",
-			"type": "group",
-			"label": "01 · 앱 3탭 구조 & 단어·한자 학습 (Study & Insights)",
-			"x": 0,
-			"y": 0,
-			"width": 1640,
-			"height": 900,
-			"color": "6"
-		},
-		{
-			"id": "g_game",
-			"type": "group",
-			"label": "02 · 게임 시스템 그룹 (SMS 미션 & 미니게임 확장 모듈)",
-			"x": 0,
-			"y": 980,
-			"width": 1640,
-			"height": 840,
-			"color": "1"
-		},
-		{
-			"id": "g_ui",
-			"type": "group",
-			"label": "03 · 그라데이션 인터랙션 & 어절 묶음 후리가나 조판 (SwiftUI)",
-			"x": 0,
-			"y": 1900,
-			"width": 1640,
-			"height": 1100,
-			"color": "5"
-		},
-		{
-			"id": "g_roadmap",
-			"type": "group",
-			"label": "06 · 단계별 개발 로드맵",
-			"x": 1720,
-			"y": 0,
-			"width": 880,
-			"height": 980,
-			"color": "3"
-		},
-		{
-			"id": "g_open",
-			"type": "group",
-			"label": "07 · 미결정 설계 이슈 & 자유 확장 슬롯",
-			"x": 1720,
-			"y": 1820,
-			"width": 880,
-			"height": 1180,
-			"color": "3"
-		},
-		{
-			"id": "g_srs",
-			"type": "group",
-			"label": "04 · FSRS 기억 알고리즘 & 세션 큐 엔진",
-			"x": 2680,
-			"y": 0,
-			"width": 1640,
-			"height": 1340,
-			"color": "4"
-		},
-		{
-			"id": "g_data",
-			"type": "group",
-			"label": "05 · 도메인 모델 · 256kbps 성우 오디오 · AivisSpeech 공장",
-			"x": 2680,
-			"y": 1440,
-			"width": 1640,
-			"height": 1560,
-			"color": "2"
-		},
-
-		{
-			"id": "core",
-			"type": "text",
-			"text": "# 🌤️ Hareru (晴れる) — Core Blueprint\n**컨셉**: 흐릿하던 기억(10초 블러)과 반복된 실패(먹구름 침식)가 걷히고 **기억이 선명하게 개는 일본어 단어장**\n\n- **핵심 철학**: 당일 세션에서는 감점 걱정 없이 마음껏 실패하고, 힌트 없이 **단 한 번 자력으로 떠올리면 즉시 졸업**\n- **디자인 원칙**: 배경 3색 테마, 10초 3단 파도, 0.25초 정답 해금, 실패 침식·정화까지 **모든 상태 변화를 그라데이션으로 통일**\n- **학습 완결 루프**: `탭 1(단어 암기·졸업)` ➜ `탭 2(게임 그룹 · 졸업 단어 캐릭터와 SMS 미션)` ➜ `탭 3(FSRS 통계·도감·처방 노트)`\n- **기술 기반**: iOS 17+ · SwiftUI · SwiftData · AVFoundation · 로컬 AivisSpeech (`256kbps` 고음질 전용)",
-			"x": 1760,
-			"y": 1140,
-			"width": 800,
-			"height": 520,
-			"color": "6"
-		},
-
-		{
-			"id": "t_overview",
-			"type": "text",
-			"text": "## 3탭 순환 구조\n복잡한 서브 메뉴 없이 **탭 1(단어 학습) → 탭 2(게임) → 탭 3(통계·노트)** 3개 영역이 유기적으로 순환",
-			"x": 40,
-			"y": 70,
-			"width": 460,
-			"height": 200,
-			"color": "6"
-		},
-		{
-			"id": "t_tab1",
-			"type": "text",
-			"text": "### 탭 1 · 단어 학습 (`Features/Study`)\n- 10초 등속 그라데이션 카드 학습\n- 정답 공개 후 모르는 한자 터치 탐색\n- 4등급('앎') 이상 졸업 시 **탭 2 게임 티켓 획득**",
-			"x": 40,
-			"y": 310,
-			"width": 460,
-			"height": 240,
-			"color": "6"
-		},
-		{
-			"id": "t_tab3",
-			"type": "text",
-			"text": "### 탭 3 · 통계 & 처방 노트 (`Features/Insights`)\n- FSRS 기억 유지율 그래프 및 역전 성공 기록\n- 친밀도를 채운 **성우 캐릭터 도감 & 에피소드 보관함**\n- 반복 실패 단어 전용 **오프라인 손글씨 처방 노트**",
-			"x": 40,
-			"y": 590,
-			"width": 460,
-			"height": 250,
-			"color": "6"
-		},
-		{
-			"id": "t_kanji",
-			"type": "text",
-			"text": "### 한자 2단계 탐색 플로우\n- **1단계 (말풍선 팝오버)**: 화면 이탈 없이 대표 뜻·음과 현재 단어에서의 발음 즉시 확인\n- **2단계 (상세 시트)**: `[자세히]` 선택 시 음독·훈독·획수·동일 한자 연관 단어 열람 (쓸어내려 복귀)",
-			"x": 580,
-			"y": 120,
-			"width": 480,
-			"height": 260,
-			"color": "6"
-		},
-		{
-			"id": "t_kanji_rule",
-			"type": "text",
-			"text": "### 한자 터치 세부 규칙\n1. **정답 전 터치 잠금** (힌트 중 스포일러 차단)\n2. **한자 글자만 분리 터치** (`承る`에서 `承`만 반응)\n3. **현재 단어 발음 하이라이트** (여러 음훈 중 해당 소리 강조)\n4. **비한자 단어 예외 처리** (가타카나 외래어는 원어 표기)",
-			"x": 1120,
-			"y": 120,
-			"width": 480,
-			"height": 260,
-			"color": "6"
-		},
-		{
-			"id": "t_note",
-			"type": "text",
-			"text": "### 오프라인 손글씨 처방 코칭\n눈으로만 봐서는 뇌에서 계속 미끄러지는 단어(타 일자 3회 누적 보류)를 별도 수집하여, **종이 노트에 한자와 예문을 직접 3번 써보도록** 오프라인 학습 행동 유도",
-			"x": 580,
-			"y": 580,
-			"width": 1020,
-			"height": 240,
-			"color": "6"
-		},
-
-		{
-			"id": "gm_hub",
-			"type": "text",
-			"text": "## 탭 2 · 게임 모듈 (`Features/Game`)\n단어장에서 외운 어휘를 실전 맥락에서 즉시 인출하는 **독립 게임 그룹**. 첫 핵심 모드로 **가상 일본인 SMS 미션 게임**을 탑재하고 추후 미니게임 확장 가능",
-			"x": 40,
-			"y": 1060,
-			"width": 460,
-			"height": 260,
-			"color": "1"
-		},
-		{
-			"id": "gm_stage",
-			"type": "text",
-			"text": "### 3~4턴 단기 결판 SMS 미션 스테이지\n- 무제한 자유 잡담을 배제하고 **3~4턴 안에 승부가 나는 스테이지 구조**로 AI 토큰 비용 통제 및 텐션 유지\n- 미션 가이드: *\"오늘 졸업한 단어 [とりあえず], [ビール]와 [~ましょう] 문법을 사용해 답장하세요!\"*",
-			"x": 580,
-			"y": 1050,
-			"width": 500,
-			"height": 260,
-			"color": "1"
-		},
-		{
-			"id": "gm_ux",
-			"type": "text",
-			"text": "### 메신저 게임 연출 디테일\n- 상대방 `'입력 중•••'` 모션 + **`256kbps` 성우 보이스 메시지** 수신\n- 답장 정확도에 따른 **실시간 기분(호감도) 게이지 & 감정 스탬프(👍/💦/💢)**\n- 내 말풍선 바로 아래 **1줄 문법·뉘앙스 코칭 배지** 표시",
-			"x": 1120,
-			"y": 1050,
-			"width": 480,
-			"height": 260,
-			"color": "1"
-		},
-		{
-			"id": "gm_hangul",
-			"type": "text",
-			"text": "### 한글 발음 → 일본어 자동 변환 입력기 (용량 0MB)\n- 아이폰 일본어 키보드 설정 없이 평소 쓰는 한글 자판으로 즉시 플레이\n- `토리아에즈 비루데 칸파이 시마쇼` 입력 시 실시간 일본어 변환\n- **유사 발음 보정**: `간파이/칸파이`, `비루/비-루`, `시마쇼/시마쇼우` 모두 정답 매칭",
-			"x": 580,
-			"y": 1350,
-			"width": 500,
-			"height": 260,
-			"color": "1"
-		},
-		{
-			"id": "gm_reward",
-			"type": "text",
-			"text": "### 티켓 루프 & 에피소드 해금 보상\n- 탭 1에서 단어 졸업 → SMS 답장 티켓 획득 → 미션 클리어 시 캐릭터 친밀도 상승 → 새 스토리 에피소드 및 성우 보이스 도감 해금",
-			"x": 1120,
-			"y": 1350,
-			"width": 480,
-			"height": 260,
-			"color": "1"
-		},
-		{
-			"id": "gm_future",
-			"type": "text",
-			"text": "### 🕹️ 향후 추가 미니게임 확장 슬롯\n- SMS 미션 외에 추가할 서브 미니게임 아이디어 공간",
-			"x": 40,
-			"y": 1360,
-			"width": 460,
-			"height": 250,
-			"color": "1"
-		},
-
-		{
-			"id": "u_wave",
-			"type": "text",
-			"text": "## 10초 3단 등속 파도\n요소마다 선명해지는 속도가 다르면 시각적 일관성이 깨지므로, 모든 힌트가 **동일하게 Δ6.0초** 동안 선명해지며 2초 간격으로 출발",
-			"x": 40,
-			"y": 1970,
-			"width": 460,
-			"height": 220,
-			"color": "5"
-		},
-		{
-			"id": "u_lock",
-			"type": "text",
-			"text": "## 정답 보호 & 0.25초 해금\n- **단어 발음(후리가나) · 뜻 · 정답 조각 · 스피커 버튼**은 10초가 지나도 열리지 않음\n- `정답 보기` 클릭 시 동일한 `0.25s easeOut` 호흡으로 동시 해금",
-			"x": 40,
-			"y": 2220,
-			"width": 460,
-			"height": 230,
-			"color": "5"
-		},
-		{
-			"id": "u_corrupt",
-			"type": "text",
-			"text": "## 실패 침식 & 졸업 정화\n- 실패 횟수가 쌓일수록 단어 배경색이 칠흑+검붉은 색으로 침식\n- '앎' 이상 달성 시 먹구름이 걷히듯 본래 퍼스널 컬러로 복원",
-			"x": 40,
-			"y": 2480,
-			"width": 460,
-			"height": 220,
-			"color": "5"
-		},
-		{
-			"id": "u_ruby",
-			"type": "text",
-			"text": "## 어절 묶음 후리가나 조판\n긴 후리가나가 붙어도 뒷글자가 밀리지 않도록 어절 박스로 묶어 본문 아래에 연한 색으로 배치",
-			"x": 40,
-			"y": 2730,
-			"width": 460,
-			"height": 210,
-			"color": "5"
-		},
-		{
-			"id": "u_timeline",
-			"type": "text",
-			"text": "### 초 단위 노출 타임라인\n- `0.0s`: 상단 메인 단어 (항상 100% 선명)\n- `0.0 ~ 3.0s`: 캐릭터 이름 태그 선공개 (음성 잠김)\n- `0.0 ~ 6.0s`: **파도 1** — 일본어 예문 본문 (한자 독해 유도)\n- `2.0 ~ 8.0s`: **파도 2** — 예문 하단 후리가나\n- `4.0 ~ 10.0s`: **파도 3** — 한국어 앞/뒤 문맥 해석",
-			"x": 580,
-			"y": 1970,
-			"width": 500,
-			"height": 270,
-			"color": "5"
-		},
-		{
-			"id": "u_curve",
-			"type": "text",
-			"text": "### 비선형 블러 커브 & 레이아웃 고정\n- 가우시안 블러 특성상 4~5초에 글자가 일찍 읽히는 현상을 막기 위해 초반 농도를 깊게 유지하는 비선형 커브 적용\n- 스피커 버튼은 숨김 상태에서도 레이아웃 공간을 유지해 정답 공개 시 카드 크기 흔들림 방지",
-			"x": 1120,
-			"y": 1970,
-			"width": 480,
-			"height": 270,
-			"color": "5"
-		},
-		{
-			"id": "u_color_rule",
-			"type": "text",
-			"text": "### 침식 컬러 보간 기준\n원래 테마색이 붉은 계열인 단어(`ラーメン` 등)와도 명확히 구분되도록, 원색 빨강이 아닌 **채도를 뺀 차콜 블랙(`#0B0B0F`) + 딥 크림슨(`#4A0A12`)**으로 보간",
-			"x": 580,
-			"y": 2440,
-			"width": 1020,
-			"height": 210,
-			"color": "5"
-		},
-		{
-			"id": "u_ruby_detail",
-			"type": "text",
-			"text": "### '어절 박스 묶음' 후리가나 밀림 방지 원리\n- `承` 1글자만 단독으로 묶으면 5글자 후리가나(`うけたまわ`) 폭 때문에 좌우 글자가 흉하게 벌어짐\n- 뒤따르는 히라가나 어미를 합쳐 **`[承ります]` 4글자 전체를 하나의 VStack 박스**로 묶으면, 큰 본문 4글자 폭(`~75px`)이 작은 후리가나 5글자 폭(`~45px`)보다 넓어 **뒷글자 밀림이 0%**가 됨",
-			"x": 580,
-			"y": 2680,
-			"width": 1020,
-			"height": 260,
-			"color": "5"
-		},
-
-		{
-			"id": "s_fsrs",
-			"type": "text",
-			"text": "## 기반 모델: FSRS (`S · D · R`)\n- **S (Stability)**: 기억이 유지되는 기간(일)\n- **D (Difficulty)**: 단어 자체의 암기 난이도(1~10)\n- **R (Retrievability)**: 현재 시점 기억 인출 확률",
-			"x": 2720,
-			"y": 80,
-			"width": 480,
-			"height": 250,
-			"color": "4"
-		},
-		{
-			"id": "s_judge",
-			"type": "text",
-			"text": "## 4버튼 × 반응속도 교차 판정\n사용자의 직관적인 4버튼(`어려움/애매함/앎/쉬움`)은 그대로 존중하되, `ContinuousClock` 경과 시간을 교차해 **6단계 히든 등급**으로 정밀 보정",
-			"x": 2720,
-			"y": 380,
-			"width": 480,
-			"height": 260,
-			"color": "4"
-		},
-		{
-			"id": "s_queue",
-			"type": "text",
-			"text": "## 순환 큐 & Ease Hell 방지\n- 당일 세션 내 실패는 기억 갈고리를 만드는 예열로 간주하여 **장기 난이도(D) 페널티 면제**\n- 최종 졸업 결과 1건만 FSRS 스케줄러에 기록",
-			"x": 2720,
-			"y": 690,
-			"width": 480,
-			"height": 250,
-			"color": "4"
-		},
-		{
-			"id": "s_leech",
-			"type": "text",
-			"text": "## 당일 8회 조우 캡 (Leech 관리)\n오늘 8번 마주쳐도 안 외워지는 카드는 억지로 붙잡지 않고 당일 세션을 종료해 수면 공고화 유도",
-			"x": 2720,
-			"y": 990,
-			"width": 480,
-			"height": 240,
-			"color": "4"
-		},
-		{
-			"id": "s_tier_retry",
-			"type": "text",
-			"text": "### 미졸업 구간 (당일 세션 내 재투입 · 1~3등급)\n- **1. 어려움**: `어려움` 클릭 또는 10초 이후 `애매함` → 큐 뒤쪽 재투입 + 컬러 침식도 증가\n- **2. [히든 1 · 힌트의존]**: 6~10초 구간에서 힌트 노출 후 `애매함/앎` → 세션 말미 가벼운 재확인 1회\n- **3. 애매함**: 0~6초 내 떠올렸으나 확신 부족으로 `애매함` 클릭 → 세션 내 재확인",
-			"x": 3280,
-			"y": 110,
-			"width": 980,
-			"height": 290,
-			"color": "4"
-		},
-		{
-			"id": "s_tier_grad",
-			"type": "text",
-			"text": "### 🎓 즉시 졸업 구간 (컬러 정화 & FSRS 스케줄링 · 4~6등급)\n- **4. 앎 (졸업 기준선)**: 적정 시간 내 `앎` 클릭 (늦은 시간 `쉬움` 클릭도 억울한 강등 없이 여기로 완충) → **즉시 졸업 · 약 1일 주기**\n- **5. [히든 2 · 준-쉬움]**: 0~2.5초 번개 반응 `앎` 또는 4~7초 중반 `쉬움` → **즉시 졸업 · 약 2일 우대 주기**\n- **6. 쉬움**: 0~3.5초 빠른 반응 + `쉬움` 일치 → **즉시 졸업 · 4일 이상 장기 점프**",
-			"x": 3280,
-			"y": 450,
-			"width": 980,
-			"height": 320,
-			"color": "4"
-		},
-		{
-			"id": "s_leech_flow",
-			"type": "text",
-			"text": "### 난공불락 단어(Leech) 2단계 케어 흐름\n1. **1차 안전밸브 (당일 8회 실패)**: 피로 누적을 막기 위해 *\"오늘은 눈도장 완료! 내일 맑은 뇌로 다시 만나요\"* 안내 후 세션 통과 처리\n2. **2차 오프라인 처방 (타 일자 세션 3회 누적 보류)**: 시각 암기만으로 정체된 단어이므로 탭 3 처방 노트로 분류해 직접 손글씨 작성 유도",
-			"x": 3280,
-			"y": 820,
-			"width": 980,
-			"height": 340,
-			"color": "4"
-		},
-
-		{
-			"id": "d_model",
-			"type": "text",
-			"text": "## 1단어 1카드 & 다의어 모델\n- 고정 문자열 ID(`food_beer`) 사용\n- **대표 의미(뜻 1)**: 카드 메인 3색 배경 + 앞면 10초 힌트 예문 담당\n- **서브 의미(뜻 2~4)**: 정답 공개 후 각 의미별 전담 캐릭터·예문 노출",
-			"x": 2720,
-			"y": 1520,
-			"width": 480,
-			"height": 280,
-			"color": "2"
-		},
-		{
-			"id": "d_audio",
-			"type": "text",
-			"text": "## 256kbps 전용 재생 (TTS 폴백 없음)\n- 사전 제작된 **`256kbps` 고음질 성우 오디오만 재생** (기계음 기본 TTS 폴백 제거, 미수신 시 미재생)\n- 정답 클릭 → `0.5s` 단어 음성 → `0.45s` 예문 음성\n- 카드 전환 시 예약된 비동기 `Task` 즉시 취소",
-			"x": 2720,
-			"y": 1850,
-			"width": 480,
-			"height": 290,
-			"color": "2"
-		},
-		{
-			"id": "d_factory",
-			"type": "text",
-			"text": "## AivisSpeech 로컬 무인 공장\n- 유료 클라우드 과금 없이 맥북 로컬 `AivisSpeech`(`127.0.0.1:10101`) 활용\n- 대본 투입 시 밤새 무인 합성 및 **`256kbps` 고음질 `.m4a` 인코딩**",
-			"x": 2720,
-			"y": 2190,
-			"width": 480,
-			"height": 260,
-			"color": "2"
-		},
-		{
-			"id": "d_delivery",
-			"type": "text",
-			"text": "## 스타터 내장 & 백그라운드 청크 패치\n- 전 단어·한자 텍스트 DB(`~4MB`) + 급수별 초반 스타터 오디오 내장\n- 학습 진입 급수부터 `100단어 청크` 단위로 백그라운드 다운로드",
-			"x": 2720,
-			"y": 2500,
-			"width": 480,
-			"height": 260,
-			"color": "2"
-		},
-		{
-			"id": "d_roster",
-			"type": "text",
-			"text": "### 성우 캐릭터 라인업 (`VoiceProfile`)\n- **현실 캐릭터**: 이자카야 부장님, 라멘집 사장님, 편의점 알바생, 도쿄 오피스 선배, 교토 할머니, 신입/후배\n- **서브컬처 오마주 캐릭터**: 벽 외 조사단장, 왕국 기사단장, 연금술 상인, 음성변조 명탐정(듀얼 피치·밴드패스 필터 적용)\n- 다의어의 각 의미 뉘앙스에 맞춰 서로 다른 캐릭터를 배정해 일화 기억(장면 연상) 극대화",
-			"x": 3280,
-			"y": 1520,
-			"width": 980,
-			"height": 300,
-			"color": "2"
-		},
-		{
-			"id": "d_pipeline_steps",
-			"type": "text",
-			"text": "### 오프라인 콘텐츠 자동 생산 4단계 (`Tools/`)\n1. **사전 매핑**: `JMdict` + `KANJIDIC2`(상용한자 2,136자) + 한국 한자 대표 훈음 자동 인덱싱\n2. **LLM 대본 & 자동 검증**: 다의어 분리 · 캐릭터 예문 · 3색 Hex · `앞/정답/뒤` 3분할 번역 생성 후 정답 조각 누락 여부 코드 자동 검사\n3. **AivisSpeech 256kbps 배치 녹음**: AivisHub 상업 이용 가능 보이스 + 감정 스타일 적용 일괄 합성\n4. **스페이스바 고속 검수**: 스페이스바로 연속 청취 후 어색한 억양만 `R` 키로 재합성 큐 전송",
-			"x": 3280,
-			"y": 1870,
-			"width": 980,
-			"height": 340,
-			"color": "2"
-		},
-		{
-			"id": "d_chunk_spec",
-			"type": "text",
-			"text": "### Zero-Wait 고음질 리소스 배포 규격\n- **번들 기본 내장**: N5~N1 전 단어·한자 텍스트 DB(`~4MB`) 100% 내장 + 급수별 초반 스타터 오디오(`256kbps .m4a`)\n- **백그라운드 프리페치**: 유저가 선택한 급수(예: N3) 진입 즉시 `N3_pack_02.zip`(`100단어 묶음`)부터 순차 다운로드 (미수신 시 재생 생략)",
-			"x": 3280,
-			"y": 2260,
-			"width": 980,
-			"height": 300,
-			"color": "2"
-		},
-
-		{
-			"id": "r_p1",
-			"type": "text",
-			"text": "### Phase 1 · 30단어 풀옵션 코어 개통 (최우선)\n처음부터 8,000단어를 채우지 않고 **'이자카야 & 라멘집 테마 30단어'**로 탭 1(그라데이션·한자 팝오버) + 탭 2(SMS 미션 게임·한글 변환) + 탭 3(통계·노트) 전체 루프를 먼저 100% 완성해 실기기 손맛 검증",
-			"x": 1760,
-			"y": 70,
-			"width": 800,
-			"height": 200,
-			"color": "3"
-		},
-		{
-			"id": "r_p2",
-			"type": "text",
-			"text": "### Phase 2 · 콘텐츠 자동화 공장 구축 (`Tools/`)\nLLM 대본·3분할 번역 검증 스크립트 + 맥북 AivisSpeech `256kbps` 자동 합성기 + 스페이스바 고속 검수기 완성",
-			"x": 1760,
-			"y": 300,
-			"width": 800,
-			"height": 180,
-			"color": "3"
-		},
-		{
-			"id": "r_p3",
-			"type": "text",
-			"text": "### Phase 3 · JLPT N5 → N1 순차 확장 & 청크 배포\n급수별 데이터 공장 가동 및 클라우드 스토리지(R2/S3) 백그라운드 청크 다운로드 연동",
-			"x": 1760,
-			"y": 510,
-			"width": 800,
-			"height": 180,
-			"color": "3"
-		},
-		{
-			"id": "r_p4",
-			"type": "text",
-			"text": "### Phase 4 · 출시 직전 패키징\n무로그인 로컬 저장 위에 **Apple로 로그인(버튼 1개)** 연결, 시작 급수 온보딩, 캐릭터 SMS풍 복습 푸시 알림, 오픈소스 사전 라이선스 고지",
-			"x": 1760,
-			"y": 720,
-			"width": 800,
-			"height": 200,
-			"color": "3"
-		},
-
-		{
-			"id": "o_poly",
-			"type": "text",
-			"text": "### ❓ 미결정 1 · 다의어 뒷면(뜻 2~4) 컬러 표현 방식\n- **후보 A (서브 컬러 칩)**: 메인 배경은 뜻 1 컬러로 유지, 뜻 2·3 블록에 각 캐릭터 고유 색 보더·칩 부여\n- **후보 B (탭 배경 전환)**: 뜻 2·3을 탭하면 카드 전체 배경 그라데이션이 해당 캐릭터 색으로 전환\n- **후보 C (접이식 서랍)**: 대표 의미에 집중하고 `[다른 의미 펼치기]` 선택 시 하단 확장",
-			"x": 1760,
-			"y": 1900,
-			"width": 800,
-			"height": 240,
-			"color": "3"
-		},
-		{
-			"id": "o_pitch",
-			"type": "text",
-			"text": "### ❓ 미결정 2 · 피치 악센트 표시\nAivisSpeech 합성 시 추출되는 높낮이 억양 선을 정답 화면 단어 아래에 함께 표시할지 여부",
-			"x": 1760,
-			"y": 2180,
-			"width": 385,
-			"height": 200,
-			"color": "3"
-		},
-		{
-			"id": "o_ticket",
-			"type": "text",
-			"text": "### ❓ 미결정 3 · SMS 게임 티켓 밸런스\n단어 몇 개 졸업 시 SMS 에피소드 1개를 열지(예: 5단어 = 1티켓) 및 친밀도 해금 보상 설계",
-			"x": 2175,
-			"y": 2180,
-			"width": 385,
-			"height": 200,
-			"color": "3"
-		},
-		{
-			"id": "o_memo1",
-			"type": "text",
-			"text": "### 📝 확장 메모 슬롯 1\n- \n- ",
-			"x": 1760,
-			"y": 2420,
-			"width": 385,
-			"height": 220
-		},
-		{
-			"id": "o_memo2",
-			"type": "text",
-			"text": "### 📝 확장 메모 슬롯 2\n- \n- ",
-			"x": 2175,
-			"y": 2420,
-			"width": 385,
-			"height": 220
-		},
-		{
-			"id": "o_memo3",
-			"type": "text",
-			"text": "### 📝 보류 · 실험 아이디어 백로그\n- ",
-			"x": 1760,
-			"y": 2680,
-			"width": 800,
-			"height": 240
-		}
+	"nodes":[
+		{"id":"g_data","type":"group","x":2680,"y":1440,"width":1640,"height":1560,"color":"2","label":"05 · 도메인 모델 · 256kbps 성우 오디오 · AivisSpeech 공장"},
+		{"id":"g_srs","type":"group","x":2680,"y":0,"width":1640,"height":1340,"color":"4","label":"04 · FSRS 기억 알고리즘 & 세션 큐 엔진"},
+		{"id":"g_ui","type":"group","x":0,"y":1900,"width":1640,"height":1100,"color":"5","label":"03 · 그라데이션 인터랙션 & 어절 묶음 후리가나 조판 (SwiftUI)"},
+		{"id":"g_tabs","type":"group","x":0,"y":0,"width":1640,"height":900,"color":"6","label":"01 · 앱 3탭 구조 & 단어·한자 학습 (Study & Insights)"},
+		{"id":"g_game","type":"group","x":0,"y":980,"width":1640,"height":840,"color":"1","label":"02 · 게임 시스템 그룹 (SMS 미션 & 미니게임 확장 모듈)"},
+		{"id":"g_open","type":"group","x":1720,"y":1820,"width":880,"height":1180,"color":"3","label":"07 · 미결정 설계 이슈 & 자유 확장 슬롯"},
+		{"id":"g_roadmap","type":"group","x":1720,"y":0,"width":880,"height":980,"color":"3","label":"06 · 단계별 개발 로드맵"},
+		{"id":"core","type":"text","text":"# 🌤️ Hareru (晴れる) — Core Blueprint\n**컨셉**: 흐릿하던 기억(10초 블러)과 반복된 실패(먹구름 침식)가 걷히고 **기억이 선명하게 개는 일본어 단어장**\n\n- **핵심 철학**: 당일 세션에서는 감점 걱정 없이 마음껏 실패하고, 힌트 없이 **단 한 번 자력으로 떠올리면 즉시 졸업**\n- **디자인 원칙**: 배경 3색 테마, 10초 3단 파도, 0.25초 정답 해금, 실패 침식·정화까지 **모든 상태 변화를 그라데이션으로 통일**\n- **학습 완결 루프**: `탭 1(단어 암기·졸업)` ➜ `탭 2(게임 그룹 · 졸업 단어 캐릭터와 SMS 미션)` ➜ `탭 3(FSRS 통계·도감·처방 노트)`\n- **기술 기반**: iOS 17+ · SwiftUI · SwiftData · AVFoundation · 로컬 AivisSpeech (`256kbps` 고음질 전용)","x":1760,"y":1140,"width":800,"height":520,"color":"6"},
+		{"id":"t_overview","type":"text","text":"## 4탭 \n복잡한 서브 메뉴 없이 **탭 1(학습) - 탭 2(게임(임시)) - 탭 3(통계) - 탭4(설정)** 4개 영역이 유기적으로 순환","x":40,"y":70,"width":460,"height":200,"color":"6"},
+		{"id":"t_tab1","type":"text","text":"### 탭 1 · 단어 학습 (`Features/Study`)\n- 10초 등속 그라데이션 카드 학습\n- 정답 공개 후 모르는 한자 터치 탐색\n- ","x":40,"y":310,"width":460,"height":240,"color":"6"},
+		{"id":"t_tab3","type":"text","text":"### 탭 3 · 통계 & 처방 노트 (`Features/Insights`)\n- FSRS 기억 유지율 그래프 및 역전 성공 기록\n- 친밀도를 채운 **성우 캐릭터 도감 & 에피소드 보관함**\n- 반복 실패 단어 전용 **오프라인 손글씨 처방 노트**","x":40,"y":590,"width":460,"height":250,"color":"6"},
+		{"id":"t_kanji","type":"text","text":"### 한자 2단계 탐색 플로우\n- **1단계 (말풍선 팝오버)**: 화면 이탈 없이 대표 뜻·음과 현재 단어에서의 발음 즉시 확인\n- **2단계 (상세 시트)**: `[자세히]` 선택 시 음독·훈독·획수·동일 한자 연관 단어 열람 (쓸어내려 복귀)","x":580,"y":120,"width":480,"height":260,"color":"6"},
+		{"id":"t_kanji_rule","type":"text","text":"### 한자 터치 세부 규칙\n1. **정답 전 터치 잠금** (힌트 중 스포일러 차단)\n2. **한자 글자만 분리 터치** (`承る`에서 `承`만 반응)\n3. **현재 단어 발음 하이라이트** (여러 음훈 중 해당 소리 강조)\n4. **비한자 단어 예외 처리** (가타카나 외래어는 원어 표기)","x":1120,"y":120,"width":480,"height":260,"color":"6"},
+		{"id":"t_note","type":"text","text":"### 오프라인 손글씨 처방 코칭\n눈으로만 봐서는 뇌에서 계속 미끄러지는 단어(타 일자 3회 누적 보류)를 별도 수집하여, **종이 노트에 한자와 예문을 직접 3번 써보도록** 오프라인 학습 행동 유도","x":580,"y":580,"width":1020,"height":240,"color":"6"},
+		{"id":"gm_hub","type":"text","text":"## 탭 2 · 게임 모듈 (`Features/Game`)\n단어장에서 외운 어휘를 실전 맥락에서 즉시 인출하는 **독립 게임 그룹**. 첫 핵심 모드로 **가상 일본인 SMS 미션 게임**을 탑재하고 추후 미니게임 확장 가능","x":40,"y":1060,"width":460,"height":260,"color":"1"},
+		{"id":"gm_stage","type":"text","text":"### 3~4턴 단기 결판 SMS 미션 스테이지\n- 무제한 자유 잡담을 배제하고 **3~4턴 안에 승부가 나는 스테이지 구조**로 AI 토큰 비용 통제 및 텐션 유지\n- 미션 가이드: *\"오늘 졸업한 단어 [とりあえず], [ビール]와 [~ましょう] 문법을 사용해 답장하세요!\"*","x":580,"y":1050,"width":500,"height":260,"color":"1"},
+		{"id":"gm_ux","type":"text","text":"### 메신저 게임 연출 디테일\n- 상대방 `'입력 중•••'` 모션 + **`256kbps` 성우 보이스 메시지** 수신\n- 답장 정확도에 따른 **실시간 기분(호감도) 게이지 & 감정 스탬프(👍/💦/💢)**\n- 내 말풍선 바로 아래 **1줄 문법·뉘앙스 코칭 배지** 표시","x":1120,"y":1050,"width":480,"height":260,"color":"1"},
+		{"id":"gm_hangul","type":"text","text":"### 한글 발음 → 일본어 자동 변환 입력기 (용량 0MB)\n- 아이폰 일본어 키보드 설정 없이 평소 쓰는 한글 자판으로 즉시 플레이\n- `토리아에즈 비루데 칸파이 시마쇼` 입력 시 실시간 일본어 변환\n- **유사 발음 보정**: `간파이/칸파이`, `비루/비-루`, `시마쇼/시마쇼우` 모두 정답 매칭","x":580,"y":1350,"width":500,"height":260,"color":"1"},
+		{"id":"gm_reward","type":"text","text":"### 티켓 루프 & 에피소드 해금 보상\n- 탭 1에서 단어 졸업 → SMS 답장 티켓 획득 → 미션 클리어 시 캐릭터 친밀도 상승 → 새 스토리 에피소드 및 성우 보이스 도감 해금","x":1120,"y":1350,"width":480,"height":260,"color":"1"},
+		{"id":"gm_future","type":"text","text":"### 🕹️ 향후 추가 미니게임 확장 슬롯\n- SMS 미션 외에 추가할 서브 미니게임 아이디어 공간","x":40,"y":1360,"width":460,"height":250,"color":"1"},
+		{"id":"u_wave","type":"text","text":"## 10초 3단 등속 파도\n요소마다 선명해지는 속도가 다르면 시각적 일관성이 깨지므로, 모든 힌트가 **동일하게 Δ6.0초** 동안 선명해지며 2초 간격으로 출발","x":40,"y":1970,"width":460,"height":220,"color":"5"},
+		{"id":"u_lock","type":"text","text":"## 정답 보호 & 0.25초 해금\n- **단어 발음(후리가나) · 뜻 · 정답 조각 · 스피커 버튼**은 10초가 지나도 열리지 않음\n- `정답 보기` 클릭 시 동일한 `0.25s easeOut` 호흡으로 동시 해금","x":40,"y":2220,"width":460,"height":230,"color":"5"},
+		{"id":"u_corrupt","type":"text","text":"## 실패 침식 & 졸업 정화\n- 실패 횟수가 쌓일수록 단어 배경색이 칠흑+검붉은 색으로 침식\n- '앎' 이상 달성 시 먹구름이 걷히듯 본래 퍼스널 컬러로 복원","x":40,"y":2480,"width":460,"height":220,"color":"5"},
+		{"id":"u_ruby","type":"text","text":"## 어절 묶음 후리가나 조판\n긴 후리가나가 붙어도 뒷글자가 밀리지 않도록 어절 박스로 묶어 본문 아래에 연한 색으로 배치","x":40,"y":2730,"width":460,"height":210,"color":"5"},
+		{"id":"u_timeline","type":"text","text":"### 초 단위 노출 타임라인\n- `0.0s`: 상단 메인 단어 (항상 100% 선명)\n- `0.0 ~ 3.0s`: 캐릭터 이름 태그 선공개 (음성 잠김)\n- `0.0 ~ 6.0s`: **파도 1** — 일본어 예문 본문 (한자 독해 유도)\n- `2.0 ~ 8.0s`: **파도 2** — 예문 하단 후리가나\n- `4.0 ~ 10.0s`: **파도 3** — 한국어 앞/뒤 문맥 해석","x":580,"y":1970,"width":500,"height":270,"color":"5"},
+		{"id":"u_curve","type":"text","text":"### 비선형 블러 커브 & 레이아웃 고정\n- 가우시안 블러 특성상 4~5초에 글자가 일찍 읽히는 현상을 막기 위해 초반 농도를 깊게 유지하는 비선형 커브 적용\n- 스피커 버튼은 숨김 상태에서도 레이아웃 공간을 유지해 정답 공개 시 카드 크기 흔들림 방지","x":1120,"y":1970,"width":480,"height":270,"color":"5"},
+		{"id":"u_color_rule","type":"text","text":"### 침식 컬러 보간 기준\n원래 테마색이 붉은 계열인 단어(`ラーメン` 등)와도 명확히 구분되도록, 원색 빨강이 아닌 **채도를 뺀 차콜 블랙(`#0B0B0F`) + 딥 크림슨(`#4A0A12`)**으로 보간","x":580,"y":2440,"width":1020,"height":210,"color":"5"},
+		{"id":"u_ruby_detail","type":"text","text":"### '어절 박스 묶음' 후리가나 밀림 방지 원리\n- `承` 1글자만 단독으로 묶으면 5글자 후리가나(`うけたまわ`) 폭 때문에 좌우 글자가 흉하게 벌어짐\n- 뒤따르는 히라가나 어미를 합쳐 **`[承ります]` 4글자 전체를 하나의 VStack 박스**로 묶으면, 큰 본문 4글자 폭(`~75px`)이 작은 후리가나 5글자 폭(`~45px`)보다 넓어 **뒷글자 밀림이 0%**가 됨","x":580,"y":2680,"width":1020,"height":260,"color":"5"},
+		{"id":"s_fsrs","type":"text","text":"## 기반 모델: FSRS (`S · D · R`)\n- **S (Stability)**: 기억이 유지되는 기간(일)\n- **D (Difficulty)**: 단어 자체의 암기 난이도(1~10)\n- **R (Retrievability)**: 현재 시점 기억 인출 확률","x":2720,"y":80,"width":480,"height":250,"color":"4"},
+		{"id":"s_judge","type":"text","text":"## 4버튼 × 반응속도 교차 판정\n사용자의 직관적인 4버튼(`어려움/애매함/앎/쉬움`)은 그대로 존중하되, `ContinuousClock` 경과 시간을 교차해 **6단계 히든 등급**으로 정밀 보정","x":2720,"y":380,"width":480,"height":260,"color":"4"},
+		{"id":"s_queue","type":"text","text":"## 순환 큐 & Ease Hell 방지\n- 당일 세션 내 실패는 기억 갈고리를 만드는 예열로 간주하여 **장기 난이도(D) 페널티 면제**\n- 최종 졸업 결과 1건만 FSRS 스케줄러에 기록","x":2720,"y":690,"width":480,"height":250,"color":"4"},
+		{"id":"s_leech","type":"text","text":"## 당일 8회 조우 캡 (Leech 관리)\n오늘 8번 마주쳐도 안 외워지는 카드는 억지로 붙잡지 않고 당일 세션을 종료해 수면 공고화 유도","x":2720,"y":990,"width":480,"height":240,"color":"4"},
+		{"id":"s_tier_retry","type":"text","text":"### 미졸업 구간 (당일 세션 내 재투입 · 1~3등급)\n- **1. 어려움**: `어려움` 클릭 또는 10초 이후 `애매함` → 큐 뒤쪽 재투입 + 컬러 침식도 증가\n- **2. [히든 1 · 힌트의존]**: 6~10초 구간에서 힌트 노출 후 `애매함/앎` → 세션 말미 가벼운 재확인 1회\n- **3. 애매함**: 0~6초 내 떠올렸으나 확신 부족으로 `애매함` 클릭 → 세션 내 재확인","x":3280,"y":110,"width":980,"height":290,"color":"4"},
+		{"id":"s_tier_grad","type":"text","text":"### 🎓 즉시 졸업 구간 (컬러 정화 & FSRS 스케줄링 · 4~6등급)\n- **4. 앎 (졸업 기준선)**: 적정 시간 내 `앎` 클릭 (늦은 시간 `쉬움` 클릭도 억울한 강등 없이 여기로 완충) → **즉시 졸업 · 약 1일 주기**\n- **5. [히든 2 · 준-쉬움]**: 0~2.5초 번개 반응 `앎` 또는 4~7초 중반 `쉬움` → **즉시 졸업 · 약 2일 우대 주기**\n- **6. 쉬움**: 0~3.5초 빠른 반응 + `쉬움` 일치 → **즉시 졸업 · 4일 이상 장기 점프**","x":3280,"y":450,"width":980,"height":320,"color":"4"},
+		{"id":"s_leech_flow","type":"text","text":"### 난공불락 단어(Leech) 2단계 케어 흐름\n1. **1차 안전밸브 (당일 8회 실패)**: 피로 누적을 막기 위해 *\"오늘은 눈도장 완료! 내일 맑은 뇌로 다시 만나요\"* 안내 후 세션 통과 처리\n2. **2차 오프라인 처방 (타 일자 세션 3회 누적 보류)**: 시각 암기만으로 정체된 단어이므로 탭 3 처방 노트로 분류해 직접 손글씨 작성 유도","x":3280,"y":820,"width":980,"height":340,"color":"4"},
+		{"id":"d_model","type":"text","text":"## 1단어 1카드 & 다의어 모델\n- 고정 문자열 ID(`food_beer`) 사용\n- **대표 의미(뜻 1)**: 카드 메인 3색 배경 + 앞면 10초 힌트 예문 담당\n- **서브 의미(뜻 2~4)**: 정답 공개 후 각 의미별 전담 캐릭터·예문 노출","x":2720,"y":1520,"width":480,"height":280,"color":"2"},
+		{"id":"d_audio","type":"text","text":"## 256kbps 전용 재생 (TTS 폴백 없음)\n- 사전 제작된 **`256kbps` 고음질 성우 오디오만 재생** (기계음 기본 TTS 폴백 제거, 미수신 시 미재생)\n- 정답 클릭 → `0.5s` 단어 음성 → `0.45s` 예문 음성\n- 카드 전환 시 예약된 비동기 `Task` 즉시 취소","x":2720,"y":1850,"width":480,"height":290,"color":"2"},
+		{"id":"d_factory","type":"text","text":"## AivisSpeech 로컬 무인 공장\n- 유료 클라우드 과금 없이 맥북 로컬 `AivisSpeech`(`127.0.0.1:10101`) 활용\n- 대본 투입 시 밤새 무인 합성 및 **`256kbps` 고음질 `.m4a` 인코딩**","x":2720,"y":2190,"width":480,"height":260,"color":"2"},
+		{"id":"d_delivery","type":"text","text":"## 스타터 내장 & 백그라운드 청크 패치\n- 전 단어·한자 텍스트 DB(`~4MB`) + 급수별 초반 스타터 오디오 내장\n- 학습 진입 급수부터 `100단어 청크` 단위로 백그라운드 다운로드","x":2720,"y":2500,"width":480,"height":260,"color":"2"},
+		{"id":"d_roster","type":"text","text":"### 성우 캐릭터 라인업 (`VoiceProfile`)\n- **현실 캐릭터**: 이자카야 부장님, 라멘집 사장님, 편의점 알바생, 도쿄 오피스 선배, 교토 할머니, 신입/후배\n- **서브컬처 오마주 캐릭터**: 벽 외 조사단장, 왕국 기사단장, 연금술 상인, 음성변조 명탐정(듀얼 피치·밴드패스 필터 적용)\n- 다의어의 각 의미 뉘앙스에 맞춰 서로 다른 캐릭터를 배정해 일화 기억(장면 연상) 극대화","x":3280,"y":1520,"width":980,"height":300,"color":"2"},
+		{"id":"d_pipeline_steps","type":"text","text":"### 오프라인 콘텐츠 자동 생산 4단계 (`Tools/`)\n1. **사전 매핑**: `JMdict` + `KANJIDIC2`(상용한자 2,136자) + 한국 한자 대표 훈음 자동 인덱싱\n2. **LLM 대본 & 자동 검증**: 다의어 분리 · 캐릭터 예문 · 3색 Hex · `앞/정답/뒤` 3분할 번역 생성 후 정답 조각 누락 여부 코드 자동 검사\n3. **AivisSpeech 256kbps 배치 녹음**: AivisHub 상업 이용 가능 보이스 + 감정 스타일 적용 일괄 합성\n4. **스페이스바 고속 검수**: 스페이스바로 연속 청취 후 어색한 억양만 `R` 키로 재합성 큐 전송","x":3280,"y":1870,"width":980,"height":340,"color":"2"},
+		{"id":"d_chunk_spec","type":"text","text":"### Zero-Wait 고음질 리소스 배포 규격\n- **번들 기본 내장**: N5~N1 전 단어·한자 텍스트 DB(`~4MB`) 100% 내장 + 급수별 초반 스타터 오디오(`256kbps .m4a`)\n- **백그라운드 프리페치**: 유저가 선택한 급수(예: N3) 진입 즉시 `N3_pack_02.zip`(`100단어 묶음`)부터 순차 다운로드 (미수신 시 재생 생략)","x":3280,"y":2260,"width":980,"height":300,"color":"2"},
+		{"id":"r_p1","type":"text","text":"### Phase 1 · 30단어 풀옵션 코어 개통 (최우선)\n처음부터 8,000단어를 채우지 않고 **'이자카야 & 라멘집 테마 30단어'**로 탭 1(그라데이션·한자 팝오버) + 탭 2(SMS 미션 게임·한글 변환) + 탭 3(통계·노트) 전체 루프를 먼저 100% 완성해 실기기 손맛 검증","x":1760,"y":70,"width":800,"height":200,"color":"3"},
+		{"id":"r_p2","type":"text","text":"### Phase 2 · 콘텐츠 자동화 공장 구축 (`Tools/`)\nLLM 대본·3분할 번역 검증 스크립트 + 맥북 AivisSpeech `256kbps` 자동 합성기 + 스페이스바 고속 검수기 완성","x":1760,"y":300,"width":800,"height":180,"color":"3"},
+		{"id":"r_p3","type":"text","text":"### Phase 3 · JLPT N5 → N1 순차 확장 & 청크 배포\n급수별 데이터 공장 가동 및 클라우드 스토리지(R2/S3) 백그라운드 청크 다운로드 연동","x":1760,"y":510,"width":800,"height":180,"color":"3"},
+		{"id":"r_p4","type":"text","text":"### Phase 4 · 출시 직전 패키징\n무로그인 로컬 저장 위에 **Apple로 로그인(버튼 1개)** 연결, 시작 급수 온보딩, 캐릭터 SMS풍 복습 푸시 알림, 오픈소스 사전 라이선스 고지","x":1760,"y":720,"width":800,"height":200,"color":"3"},
+		{"id":"o_poly","type":"text","text":"### ❓ 미결정 1 · 다의어 뒷면(뜻 2~4) 컬러 표현 방식\n- **후보 A (서브 컬러 칩)**: 메인 배경은 뜻 1 컬러로 유지, 뜻 2·3 블록에 각 캐릭터 고유 색 보더·칩 부여\n- **후보 B (탭 배경 전환)**: 뜻 2·3을 탭하면 카드 전체 배경 그라데이션이 해당 캐릭터 색으로 전환\n- **후보 C (접이식 서랍)**: 대표 의미에 집중하고 `[다른 의미 펼치기]` 선택 시 하단 확장","x":1760,"y":1900,"width":800,"height":240,"color":"3"},
+		{"id":"o_pitch","type":"text","text":"### ❓ 미결정 2 · 피치 악센트 표시\nAivisSpeech 합성 시 추출되는 높낮이 억양 선을 정답 화면 단어 아래에 함께 표시할지 여부","x":1760,"y":2180,"width":385,"height":200,"color":"3"},
+		{"id":"o_ticket","type":"text","text":"### ❓ 미결정 3 · SMS 게임 티켓 밸런스\n단어 몇 개 졸업 시 SMS 에피소드 1개를 열지(예: 5단어 = 1티켓) 및 친밀도 해금 보상 설계","x":2175,"y":2180,"width":385,"height":200,"color":"3"},
+		{"id":"o_memo1","type":"text","text":"### 📝 확장 메모 슬롯 1\n- 사용자 위치 정보 받고 해당 위치 날씨에 따른 날씨 UI. \n- ","x":1760,"y":2420,"width":385,"height":220},
+		{"id":"o_memo2","type":"text","text":"### 📝 확장 메모 슬롯 2\n- \n- ","x":2175,"y":2420,"width":385,"height":220},
+		{"id":"o_memo3","type":"text","text":"### 📝 보류 · 실험 아이디어 백로그\n- ","x":1760,"y":2680,"width":800,"height":240}
 	],
-	"edges": [
-		{ "id": "e-core-tabs", "fromNode": "core", "fromSide": "left", "toNode": "t_tab1", "toSide": "right", "color": "6" },
-		{ "id": "e-core-game", "fromNode": "core", "fromSide": "left", "toNode": "gm_ux", "toSide": "right", "color": "1" },
-		{ "id": "e-core-ui", "fromNode": "core", "fromSide": "left", "toNode": "u_timeline", "toSide": "right", "color": "5" },
-		{ "id": "e-core-srs", "fromNode": "core", "fromSide": "right", "toNode": "s_judge", "toSide": "left", "color": "4" },
-		{ "id": "e-core-data", "fromNode": "core", "fromSide": "right", "toNode": "d_model", "toSide": "left", "color": "2" },
-		{ "id": "e-core-road", "fromNode": "core", "fromSide": "top", "toNode": "r_p4", "toSide": "bottom", "color": "3" },
-		{ "id": "e-core-open", "fromNode": "core", "fromSide": "bottom", "toNode": "o_poly", "toSide": "top", "color": "3" },
-
-		{ "id": "e-t1-kanji", "fromNode": "t_tab1", "fromSide": "right", "toNode": "t_kanji", "toSide": "left" },
-		{ "id": "e-kanji-rule", "fromNode": "t_kanji", "fromSide": "right", "toNode": "t_kanji_rule", "toSide": "left" },
-		{ "id": "e-t3-note", "fromNode": "t_tab3", "fromSide": "right", "toNode": "t_note", "toSide": "left" },
-		{ "id": "e-t1-gm", "fromNode": "t_tab1", "fromSide": "bottom", "toNode": "gm_hub", "toSide": "top", "label": "졸업 시 게임 티켓 지급" },
-
-		{ "id": "e-gm-stage", "fromNode": "gm_hub", "fromSide": "right", "toNode": "gm_stage", "toSide": "left" },
-		{ "id": "e-gm-ux", "fromNode": "gm_stage", "fromSide": "right", "toNode": "gm_ux", "toSide": "left" },
-		{ "id": "e-gm-hangul", "fromNode": "gm_hub", "fromSide": "right", "toNode": "gm_hangul", "toSide": "left" },
-		{ "id": "e-gm-reward", "fromNode": "gm_hangul", "fromSide": "right", "toNode": "gm_reward", "toSide": "left" },
-		{ "id": "e-gm-future", "fromNode": "gm_hub", "fromSide": "bottom", "toNode": "gm_future", "toSide": "top" },
-
-		{ "id": "e-uw-time", "fromNode": "u_wave", "fromSide": "right", "toNode": "u_timeline", "toSide": "left" },
-		{ "id": "e-time-curve", "fromNode": "u_timeline", "fromSide": "right", "toNode": "u_curve", "toSide": "left" },
-		{ "id": "e-uc-rule", "fromNode": "u_corrupt", "fromSide": "right", "toNode": "u_color_rule", "toSide": "left" },
-		{ "id": "e-ur-det", "fromNode": "u_ruby", "fromSide": "right", "toNode": "u_ruby_detail", "toSide": "left" },
-
-		{ "id": "e-sj-retry", "fromNode": "s_judge", "fromSide": "right", "toNode": "s_tier_retry", "toSide": "left" },
-		{ "id": "e-sj-grad", "fromNode": "s_judge", "fromSide": "right", "toNode": "s_tier_grad", "toSide": "left" },
-		{ "id": "e-sl-flow", "fromNode": "s_leech", "fromSide": "right", "toNode": "s_leech_flow", "toSide": "left" },
-		{ "id": "e-fsrs-judge", "fromNode": "s_fsrs", "fromSide": "bottom", "toNode": "s_judge", "toSide": "top" },
-
-		{ "id": "e-dm-roster", "fromNode": "d_model", "fromSide": "right", "toNode": "d_roster", "toSide": "left" },
-		{ "id": "e-df-steps", "fromNode": "d_factory", "fromSide": "right", "toNode": "d_pipeline_steps", "toSide": "left" },
-		{ "id": "e-dd-chunk", "fromNode": "d_delivery", "fromSide": "right", "toNode": "d_chunk_spec", "toSide": "left" },
-
-		{ "id": "e-rp1-2", "fromNode": "r_p1", "fromSide": "bottom", "toNode": "r_p2", "toSide": "top" },
-		{ "id": "e-rp2-3", "fromNode": "r_p2", "fromSide": "bottom", "toNode": "r_p3", "toSide": "top" },
-		{ "id": "e-rp3-4", "fromNode": "r_p3", "fromSide": "bottom", "toNode": "r_p4", "toSide": "top" }
+	"edges":[
+		{"id":"e-core-tabs","fromNode":"core","fromSide":"left","toNode":"t_tab1","toSide":"right","color":"6"},
+		{"id":"e-core-game","fromNode":"core","fromSide":"left","toNode":"gm_ux","toSide":"right","color":"1"},
+		{"id":"e-core-ui","fromNode":"core","fromSide":"left","toNode":"u_timeline","toSide":"right","color":"5"},
+		{"id":"e-core-srs","fromNode":"core","fromSide":"right","toNode":"s_judge","toSide":"left","color":"4"},
+		{"id":"e-core-data","fromNode":"core","fromSide":"right","toNode":"d_model","toSide":"left","color":"2"},
+		{"id":"e-core-road","fromNode":"core","fromSide":"top","toNode":"r_p4","toSide":"bottom","color":"3"},
+		{"id":"e-core-open","fromNode":"core","fromSide":"bottom","toNode":"o_poly","toSide":"top","color":"3"},
+		{"id":"e-t1-kanji","fromNode":"t_tab1","fromSide":"right","toNode":"t_kanji","toSide":"left"},
+		{"id":"e-kanji-rule","fromNode":"t_kanji","fromSide":"right","toNode":"t_kanji_rule","toSide":"left"},
+		{"id":"e-t3-note","fromNode":"t_tab3","fromSide":"right","toNode":"t_note","toSide":"left"},
+		{"id":"e-t1-gm","fromNode":"t_tab1","fromSide":"bottom","toNode":"gm_hub","toSide":"top","label":"졸업 시 게임 티켓 지급"},
+		{"id":"e-gm-stage","fromNode":"gm_hub","fromSide":"right","toNode":"gm_stage","toSide":"left"},
+		{"id":"e-gm-ux","fromNode":"gm_stage","fromSide":"right","toNode":"gm_ux","toSide":"left"},
+		{"id":"e-gm-hangul","fromNode":"gm_hub","fromSide":"right","toNode":"gm_hangul","toSide":"left"},
+		{"id":"e-gm-reward","fromNode":"gm_hangul","fromSide":"right","toNode":"gm_reward","toSide":"left"},
+		{"id":"e-gm-future","fromNode":"gm_hub","fromSide":"bottom","toNode":"gm_future","toSide":"top"},
+		{"id":"e-uw-time","fromNode":"u_wave","fromSide":"right","toNode":"u_timeline","toSide":"left"},
+		{"id":"e-time-curve","fromNode":"u_timeline","fromSide":"right","toNode":"u_curve","toSide":"left"},
+		{"id":"e-uc-rule","fromNode":"u_corrupt","fromSide":"right","toNode":"u_color_rule","toSide":"left"},
+		{"id":"e-ur-det","fromNode":"u_ruby","fromSide":"right","toNode":"u_ruby_detail","toSide":"left"},
+		{"id":"e-sj-retry","fromNode":"s_judge","fromSide":"right","toNode":"s_tier_retry","toSide":"left"},
+		{"id":"e-sj-grad","fromNode":"s_judge","fromSide":"right","toNode":"s_tier_grad","toSide":"left"},
+		{"id":"e-sl-flow","fromNode":"s_leech","fromSide":"right","toNode":"s_leech_flow","toSide":"left"},
+		{"id":"e-fsrs-judge","fromNode":"s_fsrs","fromSide":"bottom","toNode":"s_judge","toSide":"top"},
+		{"id":"e-dm-roster","fromNode":"d_model","fromSide":"right","toNode":"d_roster","toSide":"left"},
+		{"id":"e-df-steps","fromNode":"d_factory","fromSide":"right","toNode":"d_pipeline_steps","toSide":"left"},
+		{"id":"e-dd-chunk","fromNode":"d_delivery","fromSide":"right","toNode":"d_chunk_spec","toSide":"left"},
+		{"id":"e-rp1-2","fromNode":"r_p1","fromSide":"bottom","toNode":"r_p2","toSide":"top"},
+		{"id":"e-rp2-3","fromNode":"r_p2","fromSide":"bottom","toNode":"r_p3","toSide":"top"},
+		{"id":"e-rp3-4","fromNode":"r_p3","fromSide":"bottom","toNode":"r_p4","toSide":"top"}
 	]
 }

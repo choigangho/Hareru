@@ -54,11 +54,20 @@ public struct OnboardingFlowView: View {
     public init(
         engine: StudySessionEngine,
         weatherEngine: WeatherAtmosphereEngine = .shared,
+        initialStep: Step? = nil,
         onComplete: @escaping (UserStudyProfile) -> Void = { _ in }
     ) {
         self.sessionEngine = engine
         self.weatherEngine = weatherEngine
         self.onComplete = onComplete
+        let startStep = initialStep ?? (engine.userProfile == nil ? .accountAuth : .targetGoal)
+        _currentStep = State(initialValue: startStep)
+        if let existing = engine.userProfile {
+            _displayName = State(initialValue: existing.displayName)
+            _email = State(initialValue: existing.email)
+            _selectedProvider = State(initialValue: existing.authProvider)
+            _selectedLevel = State(initialValue: existing.targetLevel)
+        }
     }
 
     private var palette: WeatherSkyPalette {
@@ -711,11 +720,12 @@ public struct OnboardingFlowView: View {
             ? 4.0
             : answers.reduce(0.0) { $0 + $1.reactionSeconds } / Double(answers.count)
 
+        let existing = sessionEngine.userProfile
         let profile = UserStudyProfile(
-            email: email.isEmpty ? "learner@hareru.app" : email,
-            displayName: displayName.isEmpty ? "하레루 학습자" : displayName,
-            passwordHash: UserStudyProfile.hashPassword(password.isEmpty ? "hareru1234" : password),
-            authProvider: selectedProvider,
+            email: existing?.email ?? (email.isEmpty ? "learner@hareru.app" : email),
+            displayName: existing?.displayName ?? (displayName.isEmpty ? "하레루 학습자" : displayName),
+            passwordHash: existing?.passwordHash ?? UserStudyProfile.hashPassword(password.isEmpty ? "hareru1234" : password),
+            authProvider: existing?.authProvider ?? selectedProvider,
             targetLevel: selectedLevel,
             examDate: selectedExamSession.examDate,
             diagnosticTestedCount: questions.count,
