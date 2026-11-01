@@ -1,8 +1,9 @@
 import SwiftUI
 
-// MARK: - 메인 3탭 정의
+// MARK: - 메인 4탭 정의 (학습 · 게임 · 통계 · 설정)
 public enum HareruMainTab: String, CaseIterable, Identifiable, Sendable {
     case study
+    case game
     case insights
     case settings
 
@@ -11,6 +12,7 @@ public enum HareruMainTab: String, CaseIterable, Identifiable, Sendable {
     public var title: String {
         switch self {
         case .study: return "학습"
+        case .game: return "게임" // 임시 이름 (게임 컨셉 확정 후 변경)
         case .insights: return "통계"
         case .settings: return "설정"
         }
@@ -19,6 +21,7 @@ public enum HareruMainTab: String, CaseIterable, Identifiable, Sendable {
     public var systemImage: String {
         switch self {
         case .study: return "rectangle.stack.fill"
+        case .game: return "gamecontroller.fill"
         case .insights: return "chart.bar.fill"
         case .settings: return "gearshape.fill"
         }
@@ -56,7 +59,7 @@ public struct FloatingGlassTabBar: View {
                             .font(.caption2.weight(.bold))
                     }
                     .foregroundStyle(isActive ? palette.primaryTextColor : palette.secondaryTextColor)
-                    .frame(width: 76, height: 50)
+                    .frame(width: 70, height: 50)
                     .background {
                         if isActive {
                             activeIndicator

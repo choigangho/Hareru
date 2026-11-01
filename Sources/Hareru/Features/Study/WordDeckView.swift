@@ -44,18 +44,25 @@ public struct WordDeckView: View {
         return sessionEngine.currentItem?.todayErosionCount ?? 0
     }
 
+    private var skyCanvas: some View {
+        WeatherSkyCanvasView(
+            condition: weatherEngine.activeCondition,
+            timeOfDay: weatherEngine.activeTimeOfDay,
+            palette: palette,
+            failureCount: currentFailureCount,
+            isHareruCleared: weatherEngine.isHareruClearedToday
+        )
+    }
+
     public var body: some View {
         ZStack {
-            WeatherSkyCanvasView(
-                condition: weatherEngine.activeCondition,
-                timeOfDay: weatherEngine.activeTimeOfDay,
-                palette: palette,
-                failureCount: currentFailureCount,
-                isHareruCleared: weatherEngine.isHareruClearedToday
-            )
-            .animation(.easeInOut(duration: 0.45), value: cardPresentationId)
+            // 요약 화면은 NavigationStack이 자체 배경을 칠하므로 그 안쪽에서 하늘을 그림 (중복 캔버스 방지)
+            if isStudyingCards {
+                skyCanvas
+                    .animation(.easeInOut(duration: 0.45), value: cardPresentationId)
+            }
 
-            if showClearCelebration {
+            if showClearCelebration && isStudyingCards {
                 HareruClearCelebrationView(palette: palette)
                     .transition(.opacity)
             }
@@ -127,6 +134,14 @@ public struct WordDeckView: View {
                     )
                 }
                 .padding(18)
+            }
+            .background {
+                ZStack {
+                    skyCanvas
+                    if showClearCelebration {
+                        HareruClearCelebrationView(palette: palette)
+                    }
+                }
             }
             .navigationTitle("오늘의 단어 학습")
         }

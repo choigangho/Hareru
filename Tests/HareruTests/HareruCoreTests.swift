@@ -775,7 +775,7 @@ final class HareruCoreTests: XCTestCase {
 
     // MARK: - 4버튼 OKLCH 색상 세트
 
-    func testOKLCHConversionAndEvaluationButtonTintsShareLightness() {
+    func testOKLCHConversionAndSkyDerivedEvaluationButtonTints() {
         let white = RGBAColor.oklch(lightness: 1.0, chroma: 0, hueDegrees: 0)
         XCTAssertEqual(white.red, 1.0, accuracy: 0.002)
         XCTAssertEqual(white.green, 1.0, accuracy: 0.002)
@@ -789,12 +789,47 @@ final class HareruCoreTests: XCTestCase {
             let palette = WeatherSkyPalette.resolve(condition: isDarkCase.0, timeOfDay: isDarkCase.1)
             let tints = [palette.buttonAgainTint, palette.buttonHardTint, palette.buttonGoodTint, palette.buttonEasyTint]
             XCTAssertEqual(Set(tints).count, 4)
+
+            // 네 버튼은 하늘 색상각 주변(±30°)의 저채도 인접색이고, 모르겠음 → 쉬움으로 갈수록 밝아짐
+            let skyHue = palette.skyGradient[1].oklchComponents.hueDegrees
+            let components = tints.map(\.oklchComponents)
+            for c in components {
+                let diff = abs(((c.hueDegrees - skyHue) + 540).truncatingRemainder(dividingBy: 360) - 180)
+                XCTAssertLessThanOrEqual(diff, 30)
+                XCTAssertLessThan(c.chroma, 0.08)
+            }
+            XCTAssertEqual(components.map(\.lightness), components.map(\.lightness).sorted())
             // 흰 글씨가 읽히도록 네 버튼 모두 상대 휘도가 충분히 낮아야 함 (흰색 대비 3:1 이상)
             for tint in tints {
                 func linear(_ c: Double) -> Double { c <= 0.04045 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4) }
                 let luminance = 0.2126 * linear(tint.red) + 0.7152 * linear(tint.green) + 0.0722 * linear(tint.blue)
                 XCTAssertGreaterThanOrEqual(1.05 / (luminance + 0.05), 3.0)
             }
+        }
+    }
+
+    // MARK: - 표제어 루비: 한자별 / 숙자훈 묶음 배치
+
+    func testTermRubyRunsPlaceReadingOverEachKanjiOrJukujikunGroup() throws {
+        let repo = try CatalogRepository.loadBundled()
+        func runs(_ term: String) throws -> [(String, String?)] {
+            let word = try XCTUnwrap(repo.words.first { $0.term == term }, term)
+            return word.termRubyRuns.map { ($0.text, $0.reading) }
+        }
+
+        // 한자별 발음이 단어 읽기와 맞으면 한자마다 따로
+        XCTAssertEqual(try runs("現実").map(\.0), ["現", "実"])
+        XCTAssertEqual(try runs("現実").map(\.1), ["げん", "じつ"])
+        // 오쿠리가나는 루비 없이 뒤에 이어 붙음
+        XCTAssertEqual(try runs("甘い").map(\.1), ["あま", nil])
+        // 숙자훈(美味 = おい)은 두 한자 묶음 위에 한 번에
+        XCTAssertEqual(try runs("美味しい").map(\.0), ["美味", "しい"])
+        XCTAssertEqual(try runs("美味しい").map(\.1), ["おい", nil])
+
+        // 모든 단어에서 루비를 이어 붙이면(가나는 그대로) 단어 읽기가 복원되어야 함
+        for word in repo.words {
+            let rebuilt = word.termRubyRuns.map { $0.reading ?? JapaneseScript.toHiragana($0.text) }.joined()
+            XCTAssertEqual(rebuilt, JapaneseScript.toHiragana(word.reading), word.term)
         }
     }
 }

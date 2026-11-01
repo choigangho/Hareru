@@ -23,7 +23,7 @@ public struct KanjiQuickPopoverView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .center, spacing: 12) {
                 Text(kanjiInfo.character)
-                    .font(.system(size: 36, weight: .bold))
+                    .jlptTermFont(size: 40)
                     .frame(width: 52, height: 52)
                     .background(accentColor.opacity(0.14), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
 
@@ -138,7 +138,7 @@ public struct KanjiDetailSheetView: View {
                     // 1) 상단 대표 한자 & 획수/부수 메타데이터
                     HStack(spacing: 16) {
                         Text(kanjiInfo.character)
-                            .font(.system(size: 56, weight: .bold))
+                            .jlptTermFont(size: 60)
                             .frame(width: 84, height: 84)
                             .background(accentColor.opacity(0.14), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
 
@@ -185,7 +185,7 @@ public struct KanjiDetailSheetView: View {
                                     VStack(alignment: .leading, spacing: 2) {
                                         HStack(spacing: 6) {
                                             Text(related.term)
-                                                .font(.body.weight(.bold))
+                                                .jlptTermFont(size: 18)
                                             Text("(\(related.reading))")
                                                 .font(.subheadline)
                                                 .foregroundStyle(.secondary)

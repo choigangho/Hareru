@@ -32,7 +32,7 @@ public struct HareruMainTabView: View {
         } else {
             ZStack {
                 // 학습 탭은 카드 진행 상태가 유지되도록 항상 띄워두고 노출만 전환,
-                // 통계·설정은 선택될 때만 만들어 60fps 하늘 캔버스가 중복으로 돌지 않게 함
+                // 게임·통계·설정은 선택될 때만 만들어 60fps 하늘 캔버스가 중복으로 돌지 않게 함
                 tabContent(for: .study)
                     .opacity(selectedTab == .study ? 1 : 0)
                     .allowsHitTesting(selectedTab == .study)
@@ -48,7 +48,8 @@ public struct HareruMainTabView: View {
                     .padding(.bottom, 6)
             }
             // 하늘 명도에 맞춰 시스템 재질·보조 텍스트 대비를 함께 맞춤
-            .environment(\.colorScheme, palette.isDarkSky ? .dark : .light)
+            // environment만 바꾸면 팝오버·시트의 시스템 배경은 라이트로 남아 흰 바탕에 흰 글씨가 되므로 창 전체에 적용
+            .preferredColorScheme(palette.isDarkSky ? .dark : .light)
             .transition(.opacity)
         }
     }
@@ -58,6 +59,8 @@ public struct HareruMainTabView: View {
         switch tab {
         case .study:
             WordDeckView(engine: sessionEngine, weatherEngine: weatherEngine, isTabActive: selectedTab == .study)
+        case .game:
+            GameChapterPlaceholderView(weatherEngine: weatherEngine)
         case .insights:
             InsightsHubView(engine: sessionEngine, weatherEngine: weatherEngine)
         case .settings:

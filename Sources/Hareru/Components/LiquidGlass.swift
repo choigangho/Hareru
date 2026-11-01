@@ -74,6 +74,44 @@ public extension View {
     }
 }
 
+// MARK: - 렌즈 굴곡 글라스 (카드 액션 버튼 공용)
+// 투명한 Liquid Glass 위에 볼록 렌즈처럼 빛이 맺히는 질감을 더합니다.
+// - 위쪽 가장자리: 빛을 받아 밝은 반사광(스펙큘러)
+// - 아래쪽 가장자리: 렌즈 두께로 살짝 어두워지는 림
+// - 가운데: 색을 칠하지 않아 뒤의 하늘이 그대로 비침
+public extension View {
+    func lensGlass<S: InsettableShape>(in shape: S, tint: Color? = nil) -> some View {
+        self
+            .hareruGlass(in: shape, tint: tint, interactive: true)
+            .overlay {
+                ZStack {
+                    shape.fill(
+                        LinearGradient(
+                            stops: [
+                                .init(color: .white.opacity(0.28), location: 0.0),
+                                .init(color: .white.opacity(0.06), location: 0.42),
+                                .init(color: .clear, location: 0.6),
+                                .init(color: .black.opacity(0.10), location: 1.0)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    shape.strokeBorder(
+                        LinearGradient(
+                            colors: [.white.opacity(0.75), .white.opacity(0.12), .white.opacity(0.32)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ),
+                        lineWidth: 1
+                    )
+                }
+                .allowsHitTesting(false)
+            }
+            .shadow(color: .black.opacity(0.14), radius: 10, y: 5)
+    }
+}
+
 // MARK: - 인접 글래스 요소 병합 컨테이너 (iOS 26: GlassEffectContainer)
 public struct HareruGlassGroup<Content: View>: View {
     private let spacing: CGFloat

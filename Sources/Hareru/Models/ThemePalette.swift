@@ -85,6 +85,26 @@ public extension RGBAColor {
             alpha: alpha
         )
     }
+
+    /// sRGB → OKLCH 역변환 (하늘 색의 색상각을 읽어 버튼 배색의 기준으로 삼을 때 사용)
+    var oklchComponents: (lightness: Double, chroma: Double, hueDegrees: Double) {
+        func linearized(_ value: Double) -> Double {
+            value <= 0.04045 ? value / 12.92 : pow((value + 0.055) / 1.055, 2.4)
+        }
+        let r = linearized(red), g = linearized(green), b = linearized(blue)
+
+        let l = cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
+        let m = cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
+        let s = cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
+
+        let lightness = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s
+        let a = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s
+        let bAxis = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s
+
+        var hue = atan2(bAxis, a) * 180.0 / .pi
+        if hue < 0 { hue += 360 }
+        return (lightness, sqrt(a * a + bAxis * bAxis), hue)
+    }
 }
 
 // MARK: - 카테고리별 차분한 테마 컬러 그룹 (단어마다 중구난방으로 바뀌지 않도록 카테고리 단위로 통일)

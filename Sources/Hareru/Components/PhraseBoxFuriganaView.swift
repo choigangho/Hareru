@@ -87,7 +87,7 @@ public struct PhraseFlowLayout: Layout {
     }
 }
 
-// MARK: - 어절 박스 묶음 하단 후리가나 뷰 (SPEC.md §2.1)
+// MARK: - 어절 박스 묶음 상단 루비(후리가나) 뷰 (SPEC.md §2.1)
 /// - 파도 1(`exampleProgress`): 일본어 예문 본문 노출 (0~6초)
 /// - 파도 2(`furiganaProgress`): 주변 문맥 후리가나만 하단에 노출 (2~8초)
 /// - 표제어 보호(`segment.isTargetWord == true`): 정답 보기(`isRevealed == true`) 전까지 후리가나 잠금 유지!
@@ -109,34 +109,52 @@ public struct PhraseBoxFuriganaView: View {
         self.isRevealed = isRevealed
     }
 
+    private static let bodySize: CGFloat = 18
+    private static let rubySize: CGFloat = 10
+
     public var body: some View {
-        PhraseFlowLayout(horizontalSpacing: 0, verticalSpacing: 6) {
+        PhraseFlowLayout(horizontalSpacing: 0, verticalSpacing: 4) {
             ForEach(segments) { segment in
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(segment.surfaceText)
-                        .jlptExampleFont(size: 17, weight: .medium)
-                        .foregroundStyle(.primary)
-                        .fixedSize()
-                        .hintBlur(isRevealed ? 1.0 : exampleProgress)
-
-                    if let reading = segment.reading {
-                        let effectiveFuriganaProgress: CGFloat = isRevealed
-                            ? 1.0
-                            : (segment.isTargetWord ? 0.0 : furiganaProgress)
-
-                        Text(reading)
-                            .jlptExampleFont(size: 10.5, weight: .medium)
-                            .foregroundStyle(.secondary)
+                // 표준 루비 배치: 후리가나는 '한자 부분(baseText)' 바로 위 가운데에만 얹고,
+                // 오쿠리가나·조사는 후리가나 없이 한자 오른쪽에 같은 기준선으로 이어 붙임
+                HStack(alignment: .bottom, spacing: 0) {
+                    VStack(spacing: 0) {
+                        rubyText(for: segment)
+                        Text(segment.baseText)
+                            .jlptExampleFont(size: Self.bodySize)
+                            .foregroundStyle(.primary)
                             .fixedSize()
-                            .furiganaBlur(effectiveFuriganaProgress)
-                    } else {
-                        // 후리가나가 없는 평문 어절도 동일한 수직 베이스라인을 유지
-                        Text(" ")
-                            .jlptExampleFont(size: 10.5)
-                            .opacity(0)
+                    }
+
+                    if !segment.okurigana.isEmpty {
+                        Text(segment.okurigana)
+                            .jlptExampleFont(size: Self.bodySize)
+                            .foregroundStyle(.primary)
+                            .fixedSize()
                     }
                 }
+                .hintBlur(isRevealed ? 1.0 : exampleProgress)
             }
+        }
+    }
+
+    /// 후리가나가 없는 어절도 같은 높이의 빈 루비 줄을 두어 모든 어절의 기준선을 맞춤
+    @ViewBuilder
+    private func rubyText(for segment: FuriganaSegment) -> some View {
+        if let reading = segment.reading {
+            let effectiveFuriganaProgress: CGFloat = isRevealed
+                ? 1.0
+                : (segment.isTargetWord ? 0.0 : furiganaProgress)
+
+            Text(reading)
+                .jlptFuriganaFont(size: Self.rubySize)
+                .foregroundStyle(.secondary)
+                .fixedSize()
+                .furiganaBlur(effectiveFuriganaProgress)
+        } else {
+            Text(" ")
+                .jlptFuriganaFont(size: Self.rubySize)
+                .opacity(0)
         }
     }
 }

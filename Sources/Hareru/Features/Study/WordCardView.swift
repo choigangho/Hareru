@@ -141,12 +141,9 @@ public struct WordCardView: View {
             tappableTermGlyphs
 
             if isRevealed {
+                // 읽기는 표제어 위 루비로 올라갔으므로 이 줄에는 스피커(와 어원 배지)만 둠
                 HStack(spacing: 8) {
-                    Text(word.reading)
-                        .jlptExampleFont(size: 18, weight: .medium)
-                        .foregroundStyle(palette.secondaryTextColor)
-
-                    Button {
+                    SpeakerHitButton(accessibilityLabel: "단어 발음 듣기") {
                         speaker.playSingle(fileName: word.termAudioFile, voice: quizzedSense.voice)
                     } label: {
                         Image(systemName: "speaker.wave.2.fill")
@@ -154,7 +151,6 @@ public struct WordCardView: View {
                             .padding(7)
                             .background(.white.opacity(0.16), in: Circle())
                     }
-                    .buttonStyle(.plain)
 
                     if !word.hasKanji, let note = word.nonKanjiNote {
                         Button {
@@ -192,45 +188,62 @@ public struct WordCardView: View {
             .accessibilityLabel("음성 캐릭터 \(quizzedSense.voice.label)")
     }
 
-    /// 정답 공개 후 한자 글자만 개별 터치 가능하게 분리 렌더링
+    /// 정답 공개 후 각 한자(또는 숙자훈 묶음) 바로 위 가운데에 후리가나를 얹고, 한자 글자만 개별 터치 가능
+    /// 루비 줄 높이는 앞면에서도 미리 확보해 정답 공개 순간 표제어가 위아래로 튀지 않게 함
     private var tappableTermGlyphs: some View {
-        HStack(spacing: 2) {
-            ForEach(word.termGlyphs) { glyph in
-                let canTapKanji = isRevealed && glyph.isKanji && catalog.kanjiInfo(for: glyph.character) != nil
-                Button {
-                    guard canTapKanji else { return }
-                    activeKanjiPopoverIndex = glyph.index
-                } label: {
-                    VStack(spacing: 3) {
-                        Text(glyph.character)
-                            .jlptTermFont(size: 50, weight: .bold)
-                        Capsule()
-                            .fill(canTapKanji ? accentColor.opacity(0.8) : Color.clear)
-                            .frame(width: 18, height: 3)
-                    }
-                }
-                .buttonStyle(.plain)
-                .allowsHitTesting(canTapKanji)
-                .popover(
-                    isPresented: Binding(
-                        get: { activeKanjiPopoverIndex == glyph.index },
-                        set: { if !$0 { activeKanjiPopoverIndex = nil } }
-                    )
-                ) {
-                    if let info = catalog.kanjiInfo(for: glyph.character) {
-                        let usage = word.kanjiUsage(for: glyph.character)
-                        KanjiQuickPopoverView(
-                            kanjiInfo: info,
-                            usage: usage,
-                            accentColor: accentColor
-                        ) {
-                            activeKanjiPopoverIndex = nil
-                            detailSheetUsage = usage
-                            detailSheetKanji = info
+        HStack(alignment: .bottom, spacing: 2) {
+            ForEach(word.termRubyRuns) { run in
+                VStack(spacing: 0) {
+                    Text(run.reading ?? " ")
+                        .jlptFuriganaFont(size: 15)
+                        .foregroundStyle(palette.secondaryTextColor)
+                        .fixedSize()
+                        .opacity(isRevealed && run.reading != nil ? 1 : 0)
+
+                    HStack(spacing: 2) {
+                        ForEach(run.glyphs) { glyph in
+                            termGlyphButton(glyph)
                         }
-                        .presentationCompactAdaptation(.popover)
                     }
                 }
+            }
+        }
+    }
+
+    private func termGlyphButton(_ glyph: TermGlyph) -> some View {
+        let canTapKanji = isRevealed && glyph.isKanji && catalog.kanjiInfo(for: glyph.character) != nil
+        return Button {
+            guard canTapKanji else { return }
+            activeKanjiPopoverIndex = glyph.index
+        } label: {
+            VStack(spacing: 3) {
+                Text(glyph.character)
+                    .jlptTermFont(size: 50, weight: .bold)
+                Capsule()
+                    .fill(canTapKanji ? accentColor.opacity(0.8) : Color.clear)
+                    .frame(width: 18, height: 3)
+            }
+        }
+        .buttonStyle(.plain)
+        .allowsHitTesting(canTapKanji)
+        .popover(
+            isPresented: Binding(
+                get: { activeKanjiPopoverIndex == glyph.index },
+                set: { if !$0 { activeKanjiPopoverIndex = nil } }
+            )
+        ) {
+            if let info = catalog.kanjiInfo(for: glyph.character) {
+                let usage = word.kanjiUsage(for: glyph.character)
+                KanjiQuickPopoverView(
+                    kanjiInfo: info,
+                    usage: usage,
+                    accentColor: accentColor
+                ) {
+                    activeKanjiPopoverIndex = nil
+                    detailSheetUsage = usage
+                    detailSheetKanji = info
+                }
+                .presentationCompactAdaptation(.popover)
             }
         }
     }
@@ -255,34 +268,35 @@ public struct WordCardView: View {
     private var exampleBlock: some View {
         VStack(spacing: 12) {
             if isRevealed {
-                HStack(alignment: .top, spacing: 8) {
-                    PhraseBoxFuriganaView(
-                        segments: word.segments(for: quizzedSense),
-                        exampleProgress: 1.0,
-                        furiganaProgress: 1.0,
-                        isRevealed: true
-                    )
+                // 예문은 카드 폭 전체를 쓰고(스피커가 옆에서 줄 배치를 밀지 않도록), 스피커는 해석 줄 오른쪽에 둠
+                PhraseBoxFuriganaView(
+                    segments: word.segments(for: quizzedSense),
+                    exampleProgress: 1.0,
+                    furiganaProgress: 1.0,
+                    isRevealed: true
+                )
 
-                    Button {
+                HStack(alignment: .center, spacing: 6) {
+                    SplitText(
+                        before: quizzedSense.translation.before,
+                        answer: quizzedSense.translation.answer,
+                        after: quizzedSense.translation.after,
+                        otherProgress: 1.0,
+                        answerProgress: 1.0,
+                        accentColor: accentColor
+                    )
+                    .font(.callout)
+                    .foregroundStyle(palette.secondaryTextColor)
+                    .frame(maxWidth: .infinity)
+
+                    SpeakerHitButton(accessibilityLabel: "예문 듣기") {
                         speaker.playSingle(fileName: quizzedSense.exampleAudioFile, voice: quizzedSense.voice)
                     } label: {
                         Image(systemName: "speaker.wave.2.circle.fill")
-                            .font(.title3)
+                            .font(.title2)
                             .foregroundStyle(accentColor)
                     }
-                    .buttonStyle(.plain)
                 }
-
-                SplitText(
-                    before: quizzedSense.translation.before,
-                    answer: quizzedSense.translation.answer,
-                    after: quizzedSense.translation.after,
-                    otherProgress: 1.0,
-                    answerProgress: 1.0,
-                    accentColor: accentColor
-                )
-                .font(.callout)
-                .foregroundStyle(palette.secondaryTextColor)
                 .transition(.opacity)
             } else {
                 Text(quizzedSense.example)
@@ -318,14 +332,13 @@ public struct WordCardView: View {
 
                         Spacer()
 
-                        Button {
+                        SpeakerHitButton(accessibilityLabel: "뜻 \(sense.senseNumber) 예문 듣기") {
                             speaker.playSingle(fileName: sense.exampleAudioFile, voice: sense.voice)
                         } label: {
                             Image(systemName: "speaker.wave.2.fill")
-                                .font(.caption)
+                                .font(.subheadline)
                                 .foregroundStyle(palette.secondaryTextColor)
                         }
-                        .buttonStyle(.plain)
                     }
 
                     Text(sense.example)
@@ -356,64 +369,52 @@ public struct WordCardView: View {
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                     .buttonStyle(.plain)
-                    .foregroundStyle(palette.isDarkSky ? Color.black.opacity(0.82) : Color.white)
-                    .background(accentColor, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .foregroundStyle(palette.primaryTextColor)
+                    .lensGlass(in: RoundedRectangle(cornerRadius: 20, style: .continuous), tint: palette.glassTintColor)
                     .matchedGeometryEffect(id: "slot.good", in: actionSlotNamespace)
                     .transition(.opacity)
                 } else {
-                    evaluationButton(.again, icon: "xmark")
-                    evaluationButton(.hard, icon: "questionmark")
-                    evaluationButton(.good, icon: "checkmark")
+                    evaluationButton(.again, icon: .symbol("xmark"))
+                    evaluationButton(.hard, icon: .symbol("questionmark"))
+                    evaluationButton(.good, icon: .symbol("checkmark"))
                         .matchedGeometryEffect(id: "slot.good", in: actionSlotNamespace)
-                    evaluationButton(.easy, icon: "bolt.fill")
+                    evaluationButton(.easy, icon: .emoji("😎"))
                 }
             }
         }
     }
 
-    private func evaluationButton(_ button: ReviewButton, icon: String) -> some View {
+    private enum GradeIcon {
+        case symbol(String)
+        case emoji(String)
+    }
+
+    /// '정답 보기'와 같은 렌즈 유리·같은 색. '모르겠음'이 부정적으로 느껴지지 않도록 네 버튼 모두 색 차이 없이
+    /// 아이콘과 글자로만 구분합니다.
+    private func evaluationButton(_ button: ReviewButton, icon: GradeIcon) -> some View {
         Button {
             speaker.stop()
             onEvaluate?(button)
         } label: {
             VStack(spacing: 3) {
-                Image(systemName: icon)
-                    .font(.subheadline.weight(.bold))
+                switch icon {
+                case .symbol(let name):
+                    Image(systemName: name)
+                        .font(.subheadline.weight(.bold))
+                case .emoji(let emoji):
+                    Text(emoji)
+                        .font(.subheadline)
+                }
                 Text(button.koreanTitle)
                     .font(.caption.weight(.bold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .foregroundStyle(.white)
+            .foregroundStyle(palette.primaryTextColor)
         }
         .buttonStyle(.plain)
-        .background {
-            let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
-            ZStack {
-                shape.fill(palette.buttonColor(for: button).opacity(0.92))
-                // 위에서 빛을 받는 유리 광택 (색 자체는 건드리지 않고 질감만 더함)
-                shape.fill(
-                    LinearGradient(
-                        colors: [.white.opacity(0.20), .white.opacity(0.0)],
-                        startPoint: .top,
-                        endPoint: .center
-                    )
-                )
-            }
-        }
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .strokeBorder(
-                    LinearGradient(
-                        colors: [.white.opacity(0.38), .white.opacity(0.06)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    ),
-                    lineWidth: 0.8
-                )
-        )
-        .shadow(color: palette.buttonColor(for: button).opacity(0.35), radius: 8, y: 4)
+        .lensGlass(in: RoundedRectangle(cornerRadius: 20, style: .continuous), tint: palette.glassTintColor)
         .transition(.scale(scale: 0.4).combined(with: .opacity))
     }
 
@@ -440,5 +441,24 @@ public struct WordCardView: View {
         WordCardView(word: .amai, palette: palette)
             .padding(.horizontal, 16)
             .padding(.vertical, 60)
+    }
+}
+
+// MARK: - 아이콘은 작게 두되 주변 44pt 원형 반경까지 터치로 인정하는 스피커 버튼
+struct SpeakerHitButton<Label: View>: View {
+    private static var hitDiameter: CGFloat { 44 }
+
+    let accessibilityLabel: String
+    let action: () -> Void
+    @ViewBuilder let label: () -> Label
+
+    var body: some View {
+        Button(action: action) {
+            label()
+                .frame(minWidth: Self.hitDiameter, minHeight: Self.hitDiameter)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabel)
     }
 }

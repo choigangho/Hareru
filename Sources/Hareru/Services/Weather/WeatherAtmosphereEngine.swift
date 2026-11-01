@@ -266,16 +266,25 @@ public struct WeatherSkyPalette: Equatable, Sendable {
             accent = RGBAColor(hex: "#2563EB")!
         }
 
-        // 4단계 평가 버튼: OKLCH에서 명도·채도를 똑같이 맞추고 색상각만 달리한 한 세트
-        // - 모르겠음/애매함은 따뜻한 인접색(로즈 22° · 앰버 72°), 알고있음/쉬움은 차가운 인접색(애저 238° · 제이드 172°)
-        //   → 따뜻함↔차가움 대비로 '아직 ↔ 앎'을 직관적으로 나누고, 같은 명도라 어느 버튼도 튀지 않음
-        // - 흰 글씨 대비(약 3.5:1 이상)를 위해 밝은 하늘에서는 명도를 조금 더 낮춤
-        let buttonLightness = isDark ? 0.62 : 0.56
-        let buttonChroma = 0.10
-        let againTint = RGBAColor.oklch(lightness: buttonLightness, chroma: buttonChroma, hueDegrees: 22)
-        let hardTint  = RGBAColor.oklch(lightness: buttonLightness, chroma: buttonChroma, hueDegrees: 72)
-        let goodTint  = RGBAColor.oklch(lightness: buttonLightness, chroma: buttonChroma, hueDegrees: 238)
-        let easyTint  = RGBAColor.oklch(lightness: buttonLightness, chroma: buttonChroma, hueDegrees: 172)
+        // 4단계 평가 버튼: 고정 원색 대신 '지금 하늘'에서 파생한 인접색(Analogous) 한 세트
+        // - 색상각: 하늘 중단 색의 색상각을 중심으로 ±24° 안에서만 움직여 어떤 날씨·카테고리 색과도 같은 계열로 어울림
+        // - 채도: 낮게 고정해 알록달록하지 않게 (회색 하늘이면 차분한 블루 슬레이트 계열로)
+        // - 명도: 모르겠음(가장 짙음) → 쉬움(가장 밝음) 순으로 단계를 둬 색이 비슷해도 순서가 읽히게 함
+        // - 흰 글씨 대비 3:1 이상을 지키도록 밝은 하늘에서는 전체 명도를 낮춤
+        let skyTone = sky[1].oklchComponents
+        let anchorHue = skyTone.chroma < 0.02 ? 250.0 : skyTone.hueDegrees
+        let baseLightness = isDark ? 0.50 : 0.45
+        func gradeTint(step: Int, hueOffset: Double) -> RGBAColor {
+            RGBAColor.oklch(
+                lightness: baseLightness + Double(step) * 0.035,
+                chroma: 0.055,
+                hueDegrees: anchorHue + hueOffset
+            )
+        }
+        let againTint = gradeTint(step: 0, hueOffset: -24)
+        let hardTint  = gradeTint(step: 1, hueOffset: -8)
+        let goodTint  = gradeTint(step: 2, hueOffset: 8)
+        let easyTint  = gradeTint(step: 3, hueOffset: 24)
 
         return WeatherSkyPalette(
             skyGradient: sky,
