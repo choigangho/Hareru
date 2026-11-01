@@ -266,11 +266,16 @@ public struct WeatherSkyPalette: Equatable, Sendable {
             accent = RGBAColor(hex: "#2563EB")!
         }
 
-        // 4단계 평가 버튼 색상도 원색 대신 현재 하늘 테마에 어우러지는 세련된 4톤으로 구성
-        let againTint = isDark ? RGBAColor(hex: "#9F4C5C")! : RGBAColor(hex: "#B85668")!
-        let hardTint  = isDark ? RGBAColor(hex: "#A8763E")! : RGBAColor(hex: "#C0843F")!
-        let goodTint  = isDark ? RGBAColor(hex: "#3B76B5")! : RGBAColor(hex: "#366FA8")!
-        let easyTint  = isDark ? RGBAColor(hex: "#2D8A7E")! : RGBAColor(hex: "#287D72")!
+        // 4단계 평가 버튼: OKLCH에서 명도·채도를 똑같이 맞추고 색상각만 달리한 한 세트
+        // - 모르겠음/애매함은 따뜻한 인접색(로즈 22° · 앰버 72°), 알고있음/쉬움은 차가운 인접색(애저 238° · 제이드 172°)
+        //   → 따뜻함↔차가움 대비로 '아직 ↔ 앎'을 직관적으로 나누고, 같은 명도라 어느 버튼도 튀지 않음
+        // - 흰 글씨 대비(약 3.5:1 이상)를 위해 밝은 하늘에서는 명도를 조금 더 낮춤
+        let buttonLightness = isDark ? 0.62 : 0.56
+        let buttonChroma = 0.10
+        let againTint = RGBAColor.oklch(lightness: buttonLightness, chroma: buttonChroma, hueDegrees: 22)
+        let hardTint  = RGBAColor.oklch(lightness: buttonLightness, chroma: buttonChroma, hueDegrees: 72)
+        let goodTint  = RGBAColor.oklch(lightness: buttonLightness, chroma: buttonChroma, hueDegrees: 238)
+        let easyTint  = RGBAColor.oklch(lightness: buttonLightness, chroma: buttonChroma, hueDegrees: 172)
 
         return WeatherSkyPalette(
             skyGradient: sky,

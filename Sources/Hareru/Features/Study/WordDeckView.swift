@@ -12,10 +12,12 @@ public struct WordDeckView: View {
     @State private var showClearCelebration: Bool = false
     @Environment(\.scenePhase) private var scenePhase
     private let weatherEngine: WeatherAtmosphereEngine
+    private let isTabActive: Bool
 
     public init(
         engine: StudySessionEngine? = nil,
         weatherEngine: WeatherAtmosphereEngine = .shared,
+        isTabActive: Bool = true,
         startImmediatelyInDeck: Bool = false
     ) {
         if let engine {
@@ -31,6 +33,7 @@ public struct WordDeckView: View {
         }
         _isStudyingCards = State(initialValue: startImmediatelyInDeck)
         self.weatherEngine = weatherEngine
+        self.isTabActive = isTabActive
     }
 
     private var palette: WeatherSkyPalette { weatherEngine.activePalette }
@@ -69,7 +72,16 @@ public struct WordDeckView: View {
         }
         .onChange(of: scenePhase) { _, newPhase in
             guard isStudyingCards else { return }
-            if newPhase == .active {
+            if newPhase == .active && isTabActive {
+                sessionEngine.resumeReactionTimer()
+            } else {
+                sessionEngine.pauseReactionTimer()
+            }
+        }
+        // 통계·설정 탭을 보는 동안은 FSRS 반응 시간이 흐르지 않도록 정지
+        .onChange(of: isTabActive) { _, active in
+            guard isStudyingCards else { return }
+            if active {
                 sessionEngine.resumeReactionTimer()
             } else {
                 sessionEngine.pauseReactionTimer()
@@ -297,35 +309,38 @@ public struct WordDeckView: View {
             headerBar
                 .frame(maxWidth: 360)
 
-            if let banner = feedbackBanner {
-                Text(banner)
-                    .font(.caption.weight(.semibold))
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 6)
-                    .hareruGlass(in: Capsule())
-                    .transition(.move(edge: .top).combined(with: .opacity))
+            // 안내 문구 자리는 높이를 고정해 문구 유무에 따라 카드·버튼 위치가 흔들리지 않게 함
+            ZStack {
+                if let banner = feedbackBanner {
+                    Text(banner)
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .hareruGlass(in: Capsule())
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
             }
+            .frame(height: 30)
 
             Spacer(minLength: 0)
 
             if let activeItem = sessionEngine.currentItem {
-                ScrollView(.vertical, showsIndicators: false) {
-                    WordCardView(
-                        item: activeItem,
-                        catalog: sessionEngine.catalog,
-                        palette: palette,
-                        isRaining: weatherEngine.activeCondition.hasRaindropsOnGlass,
-                        onReveal: {
-                            sessionEngine.markAnswerRevealed()
-                        },
-                        onEvaluate: { button in
-                            handleEvaluation(button: button)
-                        }
-                    )
-                    .id(cardPresentationId)
-                    .padding(.vertical, 4)
-                }
-                .scrollBounceBehavior(.basedOnSize)
+                // 바깥 ScrollView 없이 남은 높이를 카드가 꽉 채워, 내용은 카드 안에서만 스크롤되고
+                // '정답 보기'와 4개 평가 버튼은 항상 같은 높이(카드 하단)에 고정됨
+                WordCardView(
+                    item: activeItem,
+                    catalog: sessionEngine.catalog,
+                    palette: palette,
+                    isRaining: weatherEngine.activeCondition.hasRaindropsOnGlass,
+                    onReveal: {
+                        sessionEngine.markAnswerRevealed()
+                    },
+                    onEvaluate: { button in
+                        handleEvaluation(button: button)
+                    }
+                )
+                .id(cardPresentationId)
+                .padding(.vertical, 4)
             } else {
                 sessionCompletedCard
             }

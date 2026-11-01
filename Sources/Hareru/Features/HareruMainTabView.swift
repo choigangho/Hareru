@@ -57,7 +57,7 @@ public struct HareruMainTabView: View {
     private func tabContent(for tab: HareruMainTab) -> some View {
         switch tab {
         case .study:
-            WordDeckView(engine: sessionEngine, weatherEngine: weatherEngine)
+            WordDeckView(engine: sessionEngine, weatherEngine: weatherEngine, isTabActive: selectedTab == .study)
         case .insights:
             InsightsHubView(engine: sessionEngine, weatherEngine: weatherEngine)
         case .settings:

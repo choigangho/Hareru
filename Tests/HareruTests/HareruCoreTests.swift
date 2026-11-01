@@ -145,13 +145,18 @@ final class HareruCoreTests: XCTestCase {
         XCTAssertEqual(timing.wave2Progress(at: 1.5), 0.0, accuracy: 1e-9)
         XCTAssertEqual(timing.wave3Progress(at: 1.5), 0.0, accuracy: 1e-9)
 
-        // t = 3.0초: 캐릭터 태그 완료(1.0), 파도 2 출발, 파도 3은 아직 0.0
-        XCTAssertEqual(timing.voiceTagProgress(at: 3.0), 1.0, accuracy: 1e-9)
+        // t = 3.0초: 파도 2 출발, 파도 3은 아직 0.0
         XCTAssertGreaterThan(timing.wave2Progress(at: 3.0), 0.0)
         XCTAssertEqual(timing.wave3Progress(at: 3.0), 0.0, accuracy: 1e-9)
 
-        // 각 파도는 정확히 출발 + 6.0초 시점에 1.0 도달
-        XCTAssertEqual(timing.wave1Progress(at: 6.0), 1.0, accuracy: 1e-9)
+        // 음성 캐릭터 별명은 6.5초, 앞면 예문은 그보다 느린 10.0초에 완전히 선명
+        XCTAssertLessThan(timing.voiceTagProgress(at: 6.0), 1.0)
+        XCTAssertEqual(timing.voiceTagProgress(at: 6.5), 1.0, accuracy: 1e-9)
+        XCTAssertLessThan(timing.wave1Progress(at: 9.0), 1.0)
+        XCTAssertEqual(timing.wave1Progress(at: 10.0), 1.0, accuracy: 1e-9)
+        XCTAssertEqual(timing.exampleFadeDuration, FSRSEngine().thresholds.hintWindowUpperBound, accuracy: 1e-9)
+
+        // 파도 2·3은 출발 + 6.0초 시점에 1.0 도달
         XCTAssertEqual(timing.wave2Progress(at: 8.0), 1.0, accuracy: 1e-9)
         XCTAssertEqual(timing.wave3Progress(at: 10.0), 1.0, accuracy: 1e-9)
     }
@@ -766,5 +771,30 @@ final class HareruCoreTests: XCTestCase {
         let distribution = StudyHeatmapCalculator.buttonDistribution(logs: logs)
         XCTAssertEqual(distribution.map(\.button), [.again, .hard, .good, .easy])
         XCTAssertEqual(distribution.map(\.count), [1, 0, 2, 1])
+    }
+
+    // MARK: - 4버튼 OKLCH 색상 세트
+
+    func testOKLCHConversionAndEvaluationButtonTintsShareLightness() {
+        let white = RGBAColor.oklch(lightness: 1.0, chroma: 0, hueDegrees: 0)
+        XCTAssertEqual(white.red, 1.0, accuracy: 0.002)
+        XCTAssertEqual(white.green, 1.0, accuracy: 0.002)
+        XCTAssertEqual(white.blue, 1.0, accuracy: 0.002)
+
+        let gray = RGBAColor.oklch(lightness: 0.6, chroma: 0, hueDegrees: 120)
+        XCTAssertEqual(gray.red, gray.green, accuracy: 0.002)
+        XCTAssertEqual(gray.green, gray.blue, accuracy: 0.002)
+
+        for isDarkCase in [(WeatherCondition.rain, SkyTimeOfDay.night), (.snow, .morning)] {
+            let palette = WeatherSkyPalette.resolve(condition: isDarkCase.0, timeOfDay: isDarkCase.1)
+            let tints = [palette.buttonAgainTint, palette.buttonHardTint, palette.buttonGoodTint, palette.buttonEasyTint]
+            XCTAssertEqual(Set(tints).count, 4)
+            // 흰 글씨가 읽히도록 네 버튼 모두 상대 휘도가 충분히 낮아야 함 (흰색 대비 3:1 이상)
+            for tint in tints {
+                func linear(_ c: Double) -> Double { c <= 0.04045 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4) }
+                let luminance = 0.2126 * linear(tint.red) + 0.7152 * linear(tint.green) + 0.0722 * linear(tint.blue)
+                XCTAssertGreaterThanOrEqual(1.05 / (luminance + 0.05), 3.0)
+            }
+        }
     }
 }

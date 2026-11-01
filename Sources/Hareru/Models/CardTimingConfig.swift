@@ -6,7 +6,8 @@ public struct CardTimingConfig: Codable, Equatable, Hashable, Sendable {
     public let totalSequenceDuration: Double         // 전체 힌트 시퀀스 길이 (기본 10.0초)
     public let waveRampDuration: Double              // 각 파도가 흐림(0.0)→선명(1.0)에 도달하는 일관 시간 (Δ6.0초)
     public let voiceTagStart: Double                 // 캐릭터 이름 태그 출발 시각 (0.0초)
-    public let voiceTagDuration: Double              // 캐릭터 이름 태그 선명화 시간 (3.0초)
+    public let voiceTagDuration: Double              // 음성 캐릭터 별명 태그 선명화 시간 (6.5초)
+    public let exampleFadeDuration: Double           // 앞면 순수 예문이 흐림→선명해지는 시간 (10.0초)
     public let wave1ExampleStart: Double             // 파도 1(일본어 예문) 출발 시각 (0.0초)
     public let wave2FuriganaStart: Double            // 파도 2(주변 문맥 후리가나) 출발 시각 (2.0초)
     public let wave3ContextStart: Double             // 파도 3(한국어 앞/뒤 문맥) 출발 시각 (4.0초)
@@ -19,7 +20,8 @@ public struct CardTimingConfig: Codable, Equatable, Hashable, Sendable {
         totalSequenceDuration: Double = 10.0,
         waveRampDuration: Double = 6.0,
         voiceTagStart: Double = 0.0,
-        voiceTagDuration: Double = 3.0,
+        voiceTagDuration: Double = 6.5,
+        exampleFadeDuration: Double = 10.0,
         wave1ExampleStart: Double = 0.0,
         wave2FuriganaStart: Double = 2.0,
         wave3ContextStart: Double = 4.0,
@@ -32,6 +34,7 @@ public struct CardTimingConfig: Codable, Equatable, Hashable, Sendable {
         self.waveRampDuration = max(0.1, waveRampDuration)
         self.voiceTagStart = max(0.0, voiceTagStart)
         self.voiceTagDuration = max(0.1, voiceTagDuration)
+        self.exampleFadeDuration = max(0.1, exampleFadeDuration)
         self.wave1ExampleStart = max(0.0, wave1ExampleStart)
         self.wave2FuriganaStart = max(0.0, wave2FuriganaStart)
         self.wave3ContextStart = max(0.0, wave3ContextStart)
@@ -49,9 +52,9 @@ public struct CardTimingConfig: Codable, Equatable, Hashable, Sendable {
         curvedProgress(elapsed: elapsedSeconds, start: voiceTagStart, duration: voiceTagDuration)
     }
 
-    /// 파도 1 · 일본어 예문 (0.0 ~ 6.0초)
+    /// 파도 1 · 일본어 예문 (0.0 ~ 10.0초, FSRS 힌트 창 `hintWindowUpperBound`와 같은 길이)
     public func wave1Progress(at elapsedSeconds: Double) -> Double {
-        curvedProgress(elapsed: elapsedSeconds, start: wave1ExampleStart, duration: waveRampDuration)
+        curvedProgress(elapsed: elapsedSeconds, start: wave1ExampleStart, duration: exampleFadeDuration)
     }
 
     /// 파도 2 · 주변 문맥 후리가나 (2.0 ~ 8.0초, 표제어 어절 제외)

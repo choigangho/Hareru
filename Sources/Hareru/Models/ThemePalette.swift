@@ -53,6 +53,40 @@ public struct RGBAColor: Codable, Equatable, Hashable, Sendable {
     }
 }
 
+// MARK: - OKLCH 지각 균일 색공간 → sRGB 변환
+// 명도(L)·채도(C)를 고정하고 색상각(h)만 바꾸면, 눈에 보이는 밝기와 선명도가 같은 '한 세트'의 색을 만들 수 있습니다.
+public extension RGBAColor {
+    /// - Parameters:
+    ///   - lightness: 0.0(검정) ~ 1.0(흰색) 지각 명도
+    ///   - chroma: 0.0(무채색) ~ 약 0.37 채도
+    ///   - hueDegrees: 색상각 (0 = 마젠타 레드, 70 = 앰버, 145 = 그린, 240 = 블루)
+    static func oklch(lightness: Double, chroma: Double, hueDegrees: Double, alpha: Double = 1.0) -> RGBAColor {
+        let hue = hueDegrees * .pi / 180.0
+        let a = chroma * cos(hue)
+        let b = chroma * sin(hue)
+
+        let l = pow(lightness + 0.3963377774 * a + 0.2158037573 * b, 3)
+        let m = pow(lightness - 0.1055613458 * a - 0.0638541728 * b, 3)
+        let s = pow(lightness - 0.0894841775 * a - 1.2914855480 * b, 3)
+
+        let linearRed = 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s
+        let linearGreen = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s
+        let linearBlue = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
+
+        func gammaEncoded(_ value: Double) -> Double {
+            let clamped = min(max(value, 0.0), 1.0)
+            return clamped <= 0.0031308 ? 12.92 * clamped : 1.055 * pow(clamped, 1.0 / 2.4) - 0.055
+        }
+
+        return RGBAColor(
+            red: gammaEncoded(linearRed),
+            green: gammaEncoded(linearGreen),
+            blue: gammaEncoded(linearBlue),
+            alpha: alpha
+        )
+    }
+}
+
 // MARK: - 카테고리별 차분한 테마 컬러 그룹 (단어마다 중구난방으로 바뀌지 않도록 카테고리 단위로 통일)
 public enum CategoryThemeGroup: String, Codable, CaseIterable, Hashable, Sendable {
     case foodAndDining = "식음료·매장"      // 음식, 디저트, 매장, 편의점 먹거리

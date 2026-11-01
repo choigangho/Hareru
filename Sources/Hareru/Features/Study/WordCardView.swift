@@ -14,6 +14,7 @@ public struct WordCardView: View {
 
     @State private var isRevealed: Bool = false
     @State private var exampleVisible: Bool = false
+    @State private var voiceNicknameVisible: Bool = false
 
     // 한자 1단계 말풍선 & 2단계 상세 시트 상태
     @State private var activeKanjiPopoverIndex: Int?
@@ -25,6 +26,7 @@ public struct WordCardView: View {
     @Namespace private var actionSlotNamespace
 
     private static let actionSlotHeight: CGFloat = 58
+    private static let timing = CardTimingConfig.standard
 
     public init(
         item: SessionQueueItem,
@@ -101,7 +103,12 @@ public struct WordCardView: View {
         .onAppear {
             isRevealed = false
             exampleVisible = false
-            withAnimation(.easeOut(duration: 0.9).delay(0.15)) {
+            voiceNicknameVisible = false
+            // 음성 캐릭터 별명(6.5초)이 먼저, 순수 예문(10초)이 더 천천히 선명해짐
+            withAnimation(Self.slowRevealCurve(duration: Self.timing.voiceTagDuration)) {
+                voiceNicknameVisible = true
+            }
+            withAnimation(Self.slowRevealCurve(duration: Self.timing.exampleFadeDuration)) {
                 exampleVisible = true
             }
         }
@@ -122,8 +129,15 @@ public struct WordCardView: View {
 
     // MARK: - 표제어 (JLPT 명조체) + 정답 공개 후에만 발음·음성 노출
 
+    /// 초반엔 윤곽만 아른거리다 끝에서 또렷해지는 easeOut 곡선 (`CardTimingConfig.waveCurveExponent` 근사)
+    private static func slowRevealCurve(duration: Double) -> Animation {
+        .timingCurve(0.3, 0.55, 0.55, 1.0, duration: duration)
+    }
+
     private var termHeader: some View {
         VStack(spacing: 10) {
+            voiceNicknameTag
+
             tappableTermGlyphs
 
             if isRevealed {
@@ -162,6 +176,20 @@ public struct WordCardView: View {
                 .transition(.opacity)
             }
         }
+    }
+
+    /// 이 뜻의 음성을 맡은 캐릭터 별명 (앞면에서 6.5초에 걸쳐 서서히 등장)
+    private var voiceNicknameTag: some View {
+        let isShown = isRevealed || voiceNicknameVisible
+        return Label(quizzedSense.voice.label, systemImage: "mic.fill")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(palette.secondaryTextColor)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(.white.opacity(0.12), in: Capsule())
+            .opacity(isShown ? 1 : 0)
+            .blur(radius: isShown ? 0 : 4)
+            .accessibilityLabel("음성 캐릭터 \(quizzedSense.voice.label)")
     }
 
     /// 정답 공개 후 한자 글자만 개별 터치 가능하게 분리 렌더링
@@ -262,7 +290,7 @@ public struct WordCardView: View {
                     .multilineTextAlignment(.center)
                     .lineSpacing(6)
                     .opacity(exampleVisible ? 1 : 0)
-                    .blur(radius: exampleVisible ? 0 : 6)
+                    .blur(radius: exampleVisible ? 0 : 8)
             }
         }
         .padding(16)
@@ -360,11 +388,32 @@ public struct WordCardView: View {
             .foregroundStyle(.white)
         }
         .buttonStyle(.plain)
-        .background(palette.buttonColor(for: button).opacity(0.88), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .background {
+            let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
+            ZStack {
+                shape.fill(palette.buttonColor(for: button).opacity(0.92))
+                // 위에서 빛을 받는 유리 광택 (색 자체는 건드리지 않고 질감만 더함)
+                shape.fill(
+                    LinearGradient(
+                        colors: [.white.opacity(0.20), .white.opacity(0.0)],
+                        startPoint: .top,
+                        endPoint: .center
+                    )
+                )
+            }
+        }
         .overlay(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .strokeBorder(.white.opacity(0.22), lineWidth: 0.8)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [.white.opacity(0.38), .white.opacity(0.06)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ),
+                    lineWidth: 0.8
+                )
         )
+        .shadow(color: palette.buttonColor(for: button).opacity(0.35), radius: 8, y: 4)
         .transition(.scale(scale: 0.4).combined(with: .opacity))
     }
 
