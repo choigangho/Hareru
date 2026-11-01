@@ -5,6 +5,8 @@ import SwiftUI
 public struct HareruMainTabView: View {
     @State private var sessionEngine: StudySessionEngine
     @State private var selectedTab: HareruMainTab = .study
+    // 연구소 상태는 학습 기록과 별도 파일(Application Support/Hareru/institute.json)에 저장
+    @State private var instituteEngine = InstituteEngine(store: JSONFileInstituteStore())
     private let weatherEngine: WeatherAtmosphereEngine
 
     public init(sessionEngine: StudySessionEngine? = nil, weatherEngine: WeatherAtmosphereEngine = .shared) {
@@ -60,7 +62,7 @@ public struct HareruMainTabView: View {
         case .study:
             WordDeckView(engine: sessionEngine, weatherEngine: weatherEngine, isTabActive: selectedTab == .study)
         case .game:
-            GameChapterPlaceholderView(weatherEngine: weatherEngine)
+            InstituteView(sessionEngine: sessionEngine, instituteEngine: instituteEngine, weatherEngine: weatherEngine)
         case .insights:
             InsightsHubView(engine: sessionEngine, weatherEngine: weatherEngine)
         case .settings:
