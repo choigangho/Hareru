@@ -114,7 +114,7 @@ public struct PhraseBoxFuriganaView: View {
             ForEach(segments) { segment in
                 VStack(alignment: .leading, spacing: 1) {
                     Text(segment.surfaceText)
-                        .font(.body.weight(.medium))
+                        .jlptExampleFont(size: 17, weight: .medium)
                         .foregroundStyle(.primary)
                         .fixedSize()
                         .hintBlur(isRevealed ? 1.0 : exampleProgress)
@@ -125,14 +125,14 @@ public struct PhraseBoxFuriganaView: View {
                             : (segment.isTargetWord ? 0.0 : furiganaProgress)
 
                         Text(reading)
-                            .font(.system(size: 10.5, weight: .medium))
+                            .jlptExampleFont(size: 10.5, weight: .medium)
                             .foregroundStyle(.secondary)
                             .fixedSize()
                             .furiganaBlur(effectiveFuriganaProgress)
                     } else {
                         // 후리가나가 없는 평문 어절도 동일한 수직 베이스라인을 유지
                         Text(" ")
-                            .font(.system(size: 10.5))
+                            .jlptExampleFont(size: 10.5)
                             .opacity(0)
                     }
                 }

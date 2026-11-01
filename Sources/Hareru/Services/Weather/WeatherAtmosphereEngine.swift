@@ -352,66 +352,84 @@ public final class WeatherAtmosphereEngine: NSObject, CLLocationManagerDelegate 
 
     /// 현재 시각과 위치(위경도 시드 기반 기상 추정)를 바탕으로 날씨·기온·시간대를 갱신합니다.
     public func refreshAtmosphere(for date: Date = Date(), coordinate: CLLocationCoordinate2D? = nil) {
-        let cal = Calendar.current
-        detectedTimeOfDay = SkyTimeOfDay.from(date: date, calendar: cal)
+        if let coordinate {
+            lastCoordinate = coordinate
+        }
+        detectedTimeOfDay = SkyTimeOfDay.from(date: date, calendar: Calendar.current)
+        let estimate = Self.estimatedWeather(for: date, coordinate: lastCoordinate)
+        detectedCondition = estimate.condition
+        temperatureCelsius = estimate.temperature
+    }
 
-        let month = cal.component(.month, from: date)
-        let day = cal.component(.day, from: date)
-        let hour = cal.component(.hour, from: date)
+    private var lastCoordinate: CLLocationCoordinate2D?
+
+    /// 특정 날짜·위치의 계절감 있는 기상 상태와 기온을 결정적으로 추정합니다. (과거 잔디 말풍선의 '그날의 날씨'에도 사용)
+    public static func estimatedWeather(
+        for date: Date,
+        coordinate: CLLocationCoordinate2D? = nil,
+        calendar: Calendar = .current
+    ) -> (condition: WeatherCondition, temperature: Int) {
+        let month = calendar.component(.month, from: date)
+        let day = calendar.component(.day, from: date)
+        let hour = calendar.component(.hour, from: date)
+        let timeOfDay = SkyTimeOfDay.from(date: date, calendar: calendar)
 
         let latSeed = Int(((coordinate?.latitude ?? 37.5665) * 10).rounded())
         let lonSeed = Int(((coordinate?.longitude ?? 126.9780) * 10).rounded())
-        let weatherHash = abs(month * 37 + day * 13 + hour * 7 + latSeed + lonSeed) % 100
+        let weatherHash = abs(month * 37 + day * 13 + (hour / 6) * 7 + latSeed + lonSeed) % 100
 
-        // 계절(월)과 시간대 특성을 반영한 자연스러운 실시간 기상 상태 및 기온 산출
+        var condition: WeatherCondition
+        var temperature: Int
+
         if month == 7 || month == 8 {
             if weatherHash < 32 {
-                detectedCondition = .heatwave
-                temperatureCelsius = 33 + (weatherHash % 4)
+                condition = .heatwave
+                temperature = 33 + (weatherHash % 4)
             } else if weatherHash < 55 {
-                detectedCondition = .rain
-                temperatureCelsius = 25 + (weatherHash % 4)
+                condition = .rain
+                temperature = 25 + (weatherHash % 4)
             } else if weatherHash < 68 {
-                detectedCondition = .typhoon
-                temperatureCelsius = 24 + (weatherHash % 3)
+                condition = .typhoon
+                temperature = 24 + (weatherHash % 3)
             } else {
-                detectedCondition = .clear
-                temperatureCelsius = 29 + (weatherHash % 4)
+                condition = .clear
+                temperature = 29 + (weatherHash % 4)
             }
         } else if month == 12 || month == 1 || month == 2 {
             if weatherHash < 28 {
-                detectedCondition = .snow
-                temperatureCelsius = -3 + (weatherHash % 4)
+                condition = .snow
+                temperature = -3 + (weatherHash % 4)
             } else if weatherHash < 52 {
-                detectedCondition = .cloudy
-                temperatureCelsius = 1 + (weatherHash % 5)
+                condition = .cloudy
+                temperature = 1 + (weatherHash % 5)
             } else if weatherHash < 65 {
-                detectedCondition = .fog
-                temperatureCelsius = 0 + (weatherHash % 3)
+                condition = .fog
+                temperature = 0 + (weatherHash % 3)
             } else {
-                detectedCondition = .clear
-                temperatureCelsius = 2 + (weatherHash % 5)
+                condition = .clear
+                temperature = 2 + (weatherHash % 5)
             }
         } else {
             switch weatherHash {
             case 0..<42:
-                detectedCondition = .clear
-                temperatureCelsius = 16 + (weatherHash % 7)
+                condition = .clear
+                temperature = 16 + (weatherHash % 7)
             case 42..<68:
-                detectedCondition = .cloudy
-                temperatureCelsius = 14 + (weatherHash % 6)
+                condition = .cloudy
+                temperature = 14 + (weatherHash % 6)
             case 68..<86:
-                detectedCondition = .rain
-                temperatureCelsius = 12 + (weatherHash % 5)
+                condition = .rain
+                temperature = 12 + (weatherHash % 5)
             default:
-                detectedCondition = .fog
-                temperatureCelsius = 11 + (weatherHash % 4)
+                condition = .fog
+                temperature = 11 + (weatherHash % 4)
             }
         }
 
-        if detectedTimeOfDay == .night || detectedTimeOfDay == .dawn {
-            temperatureCelsius -= 4
+        if timeOfDay == .night || timeOfDay == .dawn {
+            temperature -= 4
         }
+        return (condition, temperature)
     }
 
     // MARK: - CLLocationManagerDelegate

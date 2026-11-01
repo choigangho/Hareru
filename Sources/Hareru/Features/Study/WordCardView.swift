@@ -1,223 +1,171 @@
 import SwiftUI
 
-// MARK: - 단일 단어 카드 뷰
-// - 전면(정답 공개 전): 후리가나, 한국어 해석, 발음 힌트 일절 없음! 순수 한자/단어 + 순수 예문만 제시.
-// - 정답 보기 클릭 시: 카드 하단 동일 위치에서 4버튼(모르겠음 / 애매함 / 알고있음 / 쉬움)으로 부드럽게 제자리 모핑.
-// - 다의어가 많아도 하단 버튼 영역은 고정되며 내용 영역만 스크롤.
-// - 비/태풍 날씨일 경우 유리창 빗방울 오버레이 및 정답 공개 시 빗방울 흘러내림 연출.
+// MARK: - 단일 단어 카드 (앞면: 표제어 + 후리가나 없는 예문만 / 뒷면: 발음·뜻·후리가나·해석·다의어·한자)
+// - 하단 액션 슬롯은 카드 내부에 위치·크기가 고정되어 있고,
+//   '정답 보기' 한 개 버튼이 같은 자리에서 '모르겠음 · 애매함 · 알고있음 · 쉬움' 4개로 갈라지며 변합니다.
+// - 다의어처럼 내용이 길어져도 스크롤은 상단 콘텐츠 영역에서만 일어나고 버튼은 움직이지 않습니다.
 public struct WordCardView: View {
     public let item: SessionQueueItem
-    public let timing: CardTimingConfig
     public let catalog: CatalogRepository
+    public let palette: WeatherSkyPalette
+    public let isRaining: Bool
     public var onReveal: (() -> Void)?
     public var onEvaluate: ((ReviewButton) -> Void)?
 
     @State private var isRevealed: Bool = false
-    @State private var revealProgress: CGFloat = 0.0
+    @State private var exampleVisible: Bool = false
 
-    // 한자 터치 팝오버 및 상세 시트
+    // 한자 1단계 말풍선 & 2단계 상세 시트 상태
     @State private var activeKanjiPopoverIndex: Int?
     @State private var showNonKanjiPopover: Bool = false
     @State private var detailSheetKanji: KanjiInfo?
     @State private var detailSheetUsage: WordKanjiUsage?
 
     @State private var speaker = SpeechPlayer()
-    @Environment(\.scenePhase) private var scenePhase
+    @Namespace private var actionSlotNamespace
 
-    private var weatherEngine = WeatherAtmosphereEngine.shared
+    private static let actionSlotHeight: CGFloat = 58
 
     public init(
         item: SessionQueueItem,
-        timing: CardTimingConfig = .standard,
         catalog: CatalogRepository = .shared,
+        palette: WeatherSkyPalette = WeatherSkyPalette.resolve(condition: .clear, timeOfDay: .midday),
+        isRaining: Bool = false,
         onReveal: (() -> Void)? = nil,
         onEvaluate: ((ReviewButton) -> Void)? = nil
     ) {
         self.item = item
-        self.timing = timing
         self.catalog = catalog
+        self.palette = palette
+        self.isRaining = isRaining
         self.onReveal = onReveal
         self.onEvaluate = onEvaluate
     }
 
-    /// 프리뷰 및 테스트용
-    public init(word: Word, timing: CardTimingConfig = .standard) {
+    /// 단독 프리뷰 및 간편 테스트용 생성자
+    public init(word: Word, palette: WeatherSkyPalette = WeatherSkyPalette.resolve(condition: .rain, timeOfDay: .night)) {
         self.init(
             item: SessionQueueItem(word: word, snapshot: WordMemorySnapshot(wordId: word.id)),
-            timing: timing,
-            catalog: .shared
+            catalog: .shared,
+            palette: palette,
+            isRaining: true
         )
     }
 
     private var word: Word { item.word }
     private var quizzedSense: WordSense { item.presentedSense }
-    private var palette: WeatherSkyPalette { weatherEngine.activePalette }
+    private var accentColor: Color { palette.accentColor }
 
     public var body: some View {
         VStack(spacing: 0) {
-            // A. 상단 카드 콘텐츠 (다의어일 때만 스크롤 가능, 하단 액션 영역은 항상 제자리 고정)
+            // 1) 콘텐츠 영역 (내용이 길면 이 영역 안에서만 스크롤)
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 20) {
-                    // 1. 메인 표제어 (JLPT 시험지 인쇄 명조 서체 적용)
-                    tappableTermHeader
-
-                    // 2. 단어 발음: 앞면에서는 완전 비공개(스포일러 방지) -> 정답 보기 시에만 노출
+                    termHeader
                     if isRevealed {
-                        HStack(spacing: 8) {
-                            Text(word.reading)
-                                .jlptExampleFont(size: 20, weight: .semibold)
-                                .foregroundStyle(palette.secondaryTextColor)
-
-                            // 발음 오디오 재생 버튼
-                            Button {
-                                speaker.playSingle(fileName: word.termAudioFile, voice: quizzedSense.voice)
-                            } label: {
-                                Image(systemName: "speaker.wave.2.circle.fill")
-                                    .font(.title3)
-                                    .foregroundStyle(palette.accentColor)
-                            }
-                            .buttonStyle(.plain)
-
-                            if !word.hasKanji, let note = word.nonKanjiNote {
-                                Button {
-                                    showNonKanjiPopover = true
-                                } label: {
-                                    Text(note.kind == .loanword ? "외래어" : "어원")
-                                        .font(.caption2.weight(.bold))
-                                        .padding(.horizontal, 7)
-                                        .padding(.vertical, 2)
-                                        .background(.white.opacity(0.18), in: Capsule())
-                                }
-                                .buttonStyle(.plain)
-                                .popover(isPresented: $showNonKanjiPopover) {
-                                    NonKanjiOriginPopoverView(term: word.term, note: note)
-                                        .presentationCompactAdaptation(.popover)
-                                }
-                            }
-                        }
-                        .transition(.opacity.combined(with: .scale(scale: 0.96)))
+                        revealedMeaningBlock
+                            .transition(.opacity.combined(with: .move(edge: .bottom)))
                     }
-
-                    Divider()
-                        .background(palette.secondaryTextColor.opacity(0.25))
-
-                    // 3. 단어 뜻 (정답 공개 시에만 노출)
-                    if isRevealed {
-                        VStack(spacing: 4) {
-                            if let pos = quizzedSense.partOfSpeech {
-                                Text(pos)
-                                    .font(.caption2.weight(.bold))
-                                    .foregroundStyle(palette.secondaryTextColor)
-                            }
-                            Text(quizzedSense.meaning)
-                                .font(.title2.weight(.bold))
-                                .multilineTextAlignment(.center)
-                                .foregroundStyle(palette.primaryTextColor)
-                        }
-                        .transition(.opacity.combined(with: .move(edge: .top)))
-                    }
-
-                    // 4. 예문: 앞면에서는 후리가나/해석 없이 순수 일본어 원문만 노출!
-                    VStack(spacing: 10) {
-                        if isRevealed {
-                            // 정답 공개 후: 후리가나 어절 박스 + 해석 + 음성 해금
-                            VStack(spacing: 8) {
-                                HStack(alignment: .top, spacing: 8) {
-                                    PhraseBoxFuriganaView(
-                                        segments: word.segments(for: quizzedSense),
-                                        exampleProgress: 1.0,
-                                        furiganaProgress: 1.0,
-                                        isRevealed: true
-                                    )
-
-                                    Button {
-                                        speaker.playSingle(fileName: quizzedSense.exampleAudioFile, voice: quizzedSense.voice)
-                                    } label: {
-                                        Image(systemName: "speaker.wave.2.fill")
-                                            .font(.footnote)
-                                            .padding(6)
-                                            .background(palette.accentColor.opacity(0.22), in: Circle())
-                                            .foregroundStyle(palette.accentColor)
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-
-                                Text(quizzedSense.translation.fullText)
-                                    .font(.subheadline)
-                                    .foregroundStyle(palette.secondaryTextColor)
-                                    .multilineTextAlignment(.center)
-                            }
-                            .transition(.opacity)
-                        } else {
-                            // 정답 공개 전: 후리가나 일절 없는 순수 일본어 예문 (진짜 실력으로 읽기)
-                            Text(quizzedSense.example)
-                                .jlptExampleFont(size: 19, weight: .medium)
-                                .lineSpacing(6)
-                                .multilineTextAlignment(.center)
-                                .foregroundStyle(palette.primaryTextColor)
-                                .padding(.horizontal, 8)
-                        }
-                    }
-
-                    // 5. 다의어 서브 의미 (정답 공개 시 하단에 확장)
+                    exampleBlock
                     if isRevealed && !item.supplementarySenses.isEmpty {
                         supplementarySensesSection
-                            .transition(.opacity.combined(with: .move(edge: .top)))
+                            .transition(.opacity)
                     }
                 }
                 .padding(.horizontal, 22)
-                .padding(.top, 24)
+                .padding(.top, 28)
                 .padding(.bottom, 16)
+                .frame(maxWidth: .infinity)
             }
-            .frame(maxHeight: 460)
+            .scrollBounceBehavior(.basedOnSize)
 
-            Divider()
-                .background(palette.secondaryTextColor.opacity(0.2))
-
-            // B. 하단 액션 버튼 영역 (정답 보기 -> 4버튼 제자리 고정 모핑)
-            bottomMorphingActionBar
-                .padding(.horizontal, 18)
-                .padding(.vertical, 16)
+            // 2) 고정 액션 슬롯 (위치·크기 불변)
+            actionSlot
+                .frame(height: Self.actionSlotHeight)
+                .padding(.horizontal, 14)
+                .padding(.bottom, 14)
+                .padding(.top, 6)
         }
-        .frame(maxWidth: 360)
+        .frame(maxWidth: 380)
+        .frame(maxHeight: .infinity)
+        .foregroundStyle(palette.primaryTextColor)
         .hareruGlass(
-            in: RoundedRectangle(cornerRadius: 32, style: .continuous),
+            in: RoundedRectangle(cornerRadius: 38, style: .continuous),
             tint: palette.glassTintColor
         )
-        .overlay(
-            CardGlassRaindropOverlay(
-                isRaining: weatherEngine.activeCondition.hasRaindropsOnGlass,
-                isRevealed: isRevealed
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
-        )
-        .shadow(color: .black.opacity(palette.isDarkSky ? 0.35 : 0.12), radius: 25, y: 12)
+        .overlay {
+            CardGlassRaindropOverlay(isRaining: isRaining, isRevealed: isRevealed)
+                .clipShape(RoundedRectangle(cornerRadius: 38, style: .continuous))
+        }
+        .shadow(color: .black.opacity(0.16), radius: 26, y: 14)
         .onAppear {
-            resetState()
+            isRevealed = false
+            exampleVisible = false
+            withAnimation(.easeOut(duration: 0.9).delay(0.15)) {
+                exampleVisible = true
+            }
         }
         .onDisappear {
             speaker.stop()
-        }
-        .onChange(of: scenePhase) { _, newPhase in
-            if newPhase != .active {
-                speaker.stop()
-            }
         }
         .sheet(item: $detailSheetKanji) { kanji in
             KanjiDetailSheetView(
                 kanjiInfo: kanji,
                 usage: detailSheetUsage,
                 currentWordId: word.id,
-                accentColor: palette.accentColor
+                accentColor: accentColor
             )
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
         }
     }
 
-    // MARK: - 표제어 헤더 (JLPT 시험지 인쇄 명조 서체)
+    // MARK: - 표제어 (JLPT 명조체) + 정답 공개 후에만 발음·음성 노출
 
-    private var tappableTermHeader: some View {
+    private var termHeader: some View {
+        VStack(spacing: 10) {
+            tappableTermGlyphs
+
+            if isRevealed {
+                HStack(spacing: 8) {
+                    Text(word.reading)
+                        .jlptExampleFont(size: 18, weight: .medium)
+                        .foregroundStyle(palette.secondaryTextColor)
+
+                    Button {
+                        speaker.playSingle(fileName: word.termAudioFile, voice: quizzedSense.voice)
+                    } label: {
+                        Image(systemName: "speaker.wave.2.fill")
+                            .font(.subheadline)
+                            .padding(7)
+                            .background(.white.opacity(0.16), in: Circle())
+                    }
+                    .buttonStyle(.plain)
+
+                    if !word.hasKanji, let note = word.nonKanjiNote {
+                        Button {
+                            showNonKanjiPopover = true
+                        } label: {
+                            Text(note.kind == .loanword ? "원어" : "어원")
+                                .font(.caption2.weight(.semibold))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(.white.opacity(0.16), in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .popover(isPresented: $showNonKanjiPopover) {
+                            NonKanjiOriginPopoverView(term: word.term, note: note)
+                                .presentationCompactAdaptation(.popover)
+                        }
+                    }
+                }
+                .transition(.opacity)
+            }
+        }
+    }
+
+    /// 정답 공개 후 한자 글자만 개별 터치 가능하게 분리 렌더링
+    private var tappableTermGlyphs: some View {
         HStack(spacing: 2) {
             ForEach(word.termGlyphs) { glyph in
                 let canTapKanji = isRevealed && glyph.isKanji && catalog.kanjiInfo(for: glyph.character) != nil
@@ -225,18 +173,12 @@ public struct WordCardView: View {
                     guard canTapKanji else { return }
                     activeKanjiPopoverIndex = glyph.index
                 } label: {
-                    VStack(spacing: 4) {
+                    VStack(spacing: 3) {
                         Text(glyph.character)
-                            .jlptTermFont(size: 46, weight: .bold)
-                            .foregroundStyle(palette.primaryTextColor)
-
-                        if canTapKanji {
-                            Capsule()
-                                .fill(palette.accentColor)
-                                .frame(width: 16, height: 3)
-                        } else {
-                            Capsule().fill(Color.clear).frame(height: 3)
-                        }
+                            .jlptTermFont(size: 50, weight: .bold)
+                        Capsule()
+                            .fill(canTapKanji ? accentColor.opacity(0.8) : Color.clear)
+                            .frame(width: 18, height: 3)
                     }
                 }
                 .buttonStyle(.plain)
@@ -252,7 +194,7 @@ public struct WordCardView: View {
                         KanjiQuickPopoverView(
                             kanjiInfo: info,
                             usage: usage,
-                            accentColor: palette.accentColor
+                            accentColor: accentColor
                         ) {
                             activeKanjiPopoverIndex = nil
                             detailSheetUsage = usage
@@ -265,26 +207,86 @@ public struct WordCardView: View {
         }
     }
 
-    // MARK: - 다의어 보조 의미 섹션
+    // MARK: - 뜻 (정답 공개 후)
+
+    private var revealedMeaningBlock: some View {
+        VStack(spacing: 4) {
+            if let pos = quizzedSense.partOfSpeech {
+                Text(pos)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(palette.secondaryTextColor)
+            }
+            Text(quizzedSense.meaning)
+                .font(.title2.weight(.bold))
+                .multilineTextAlignment(.center)
+        }
+    }
+
+    // MARK: - 예문 (앞면: 후리가나 없는 순수 예문만 / 뒷면: 후리가나 + 한국어 해석 + 음성)
+
+    private var exampleBlock: some View {
+        VStack(spacing: 12) {
+            if isRevealed {
+                HStack(alignment: .top, spacing: 8) {
+                    PhraseBoxFuriganaView(
+                        segments: word.segments(for: quizzedSense),
+                        exampleProgress: 1.0,
+                        furiganaProgress: 1.0,
+                        isRevealed: true
+                    )
+
+                    Button {
+                        speaker.playSingle(fileName: quizzedSense.exampleAudioFile, voice: quizzedSense.voice)
+                    } label: {
+                        Image(systemName: "speaker.wave.2.circle.fill")
+                            .font(.title3)
+                            .foregroundStyle(accentColor)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                SplitText(
+                    before: quizzedSense.translation.before,
+                    answer: quizzedSense.translation.answer,
+                    after: quizzedSense.translation.after,
+                    otherProgress: 1.0,
+                    answerProgress: 1.0,
+                    accentColor: accentColor
+                )
+                .font(.callout)
+                .foregroundStyle(palette.secondaryTextColor)
+                .transition(.opacity)
+            } else {
+                Text(quizzedSense.example)
+                    .jlptExampleFont(size: 18, weight: .medium)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(6)
+                    .opacity(exampleVisible ? 1 : 0)
+                    .blur(radius: exampleVisible ? 0 : 6)
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity)
+        .background(.white.opacity(0.09), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
 
     private var supplementarySensesSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("다른 의미")
+            Text("함께 쓰이는 다른 의미")
                 .font(.caption.weight(.bold))
                 .foregroundStyle(palette.secondaryTextColor)
 
             ForEach(item.supplementarySenses) { sense in
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(spacing: 6) {
                         Text("뜻 \(sense.senseNumber)")
                             .font(.caption2.weight(.bold))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(.white.opacity(0.18), in: Capsule())
+                            .background(.white.opacity(0.16), in: Capsule())
 
                         Text(sense.meaning)
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(palette.primaryTextColor)
 
                         Spacer()
 
@@ -292,109 +294,102 @@ public struct WordCardView: View {
                             speaker.playSingle(fileName: sense.exampleAudioFile, voice: sense.voice)
                         } label: {
                             Image(systemName: "speaker.wave.2.fill")
-                                .font(.caption2)
+                                .font(.caption)
                                 .foregroundStyle(palette.secondaryTextColor)
                         }
                         .buttonStyle(.plain)
                     }
 
                     Text(sense.example)
-                        .jlptExampleFont(size: 13, weight: .medium)
-                        .foregroundStyle(palette.secondaryTextColor)
+                        .jlptExampleFont(size: 13)
 
                     Text(sense.translation.fullText)
                         .font(.caption2)
-                        .foregroundStyle(palette.secondaryTextColor.opacity(0.85))
+                        .foregroundStyle(palette.secondaryTextColor)
                 }
                 .padding(10)
-                .background(.white.opacity(0.10), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    // MARK: - 하단 제자리 모핑 액션 바 ('정답 보기' -> '모르겠음 / 애매함 / 알고있음 / 쉬움')
+    // MARK: - 고정 액션 슬롯: '정답 보기' ➔ 같은 자리에서 4개 평가 버튼으로 분할 모핑
 
-    @ViewBuilder
-    private var bottomMorphingActionBar: some View {
-        ZStack {
-            if !isRevealed {
-                Button {
-                    revealAnswer()
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: "eye.fill")
-                        Text("정답 보기")
-                            .fontWeight(.bold)
+    private var actionSlot: some View {
+        HareruGlassGroup(spacing: 8) {
+            HStack(spacing: 8) {
+                if !isRevealed {
+                    Button {
+                        revealAnswer()
+                    } label: {
+                        Label("정답 보기", systemImage: "eye.fill")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 52)
-                    .background(palette.accentColor, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    .foregroundStyle(palette.isDarkSky ? Color.black : Color.white)
+                    .buttonStyle(.plain)
+                    .foregroundStyle(palette.isDarkSky ? Color.black.opacity(0.82) : Color.white)
+                    .background(accentColor, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .matchedGeometryEffect(id: "slot.good", in: actionSlotNamespace)
+                    .transition(.opacity)
+                } else {
+                    evaluationButton(.again, icon: "xmark")
+                    evaluationButton(.hard, icon: "questionmark")
+                    evaluationButton(.good, icon: "checkmark")
+                        .matchedGeometryEffect(id: "slot.good", in: actionSlotNamespace)
+                    evaluationButton(.easy, icon: "bolt.fill")
                 }
-                .buttonStyle(.plain)
-                .transition(.asymmetric(
-                    insertion: .opacity.combined(with: .scale(scale: 0.95)),
-                    removal: .opacity.combined(with: .scale(scale: 0.95))
-                ))
-            } else {
-                HStack(spacing: 8) {
-                    evaluationOptionButton(.again, title: "모르겠음", icon: "xmark")
-                    evaluationOptionButton(.hard, title: "애매함", icon: "questionmark")
-                    evaluationOptionButton(.good, title: "알고있음", icon: "checkmark")
-                    evaluationOptionButton(.easy, title: "쉬움", icon: "bolt.fill")
-                }
-                .frame(height: 52)
-                .transition(.asymmetric(
-                    insertion: .opacity.combined(with: .scale(scale: 1.05)),
-                    removal: .opacity.combined(with: .scale(scale: 1.05))
-                ))
             }
         }
-        .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isRevealed)
     }
 
-    private func evaluationOptionButton(_ button: ReviewButton, title: String, icon: String) -> some View {
-        let buttonColor = palette.buttonColor(for: button)
-
-        return Button {
+    private func evaluationButton(_ button: ReviewButton, icon: String) -> some View {
+        Button {
             speaker.stop()
             onEvaluate?(button)
         } label: {
             VStack(spacing: 3) {
                 Image(systemName: icon)
+                    .font(.subheadline.weight(.bold))
+                Text(button.koreanTitle)
                     .font(.caption.weight(.bold))
-                Text(title)
-                    .font(.system(size: 11, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: 50)
-            .background(buttonColor.opacity(0.88), in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .foregroundStyle(.white)
         }
         .buttonStyle(.plain)
+        .background(palette.buttonColor(for: button).opacity(0.88), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(.white.opacity(0.22), lineWidth: 0.8)
+        )
+        .transition(.scale(scale: 0.4).combined(with: .opacity))
     }
 
-    // MARK: - 내부 상태 제어
-
-    private func resetState() {
-        isRevealed = false
-        revealProgress = 0.0
-    }
+    // MARK: - 정답 공개
 
     private func revealAnswer() {
         onReveal?()
-        withAnimation(.easeOut(duration: 0.25)) {
+        withAnimation(.spring(response: 0.42, dampingFraction: 0.78)) {
             isRevealed = true
-            revealProgress = 1.0
         }
-
         speaker.playTermThenExample(
             for: word,
             sense: quizzedSense,
-            initialDelay: timing.initialDelayBeforeTermAudio,
-            gapDelay: timing.gapBetweenTermAndExampleAudio
+            initialDelay: CardTimingConfig.standard.initialDelayBeforeTermAudio,
+            gapDelay: CardTimingConfig.standard.gapBetweenTermAndExampleAudio
         )
+    }
+}
+
+#Preview("카드 (비 오는 밤)") {
+    ZStack {
+        let palette = WeatherSkyPalette.resolve(condition: .rain, timeOfDay: .night)
+        WeatherSkyCanvasView(condition: .rain, timeOfDay: .night, palette: palette)
+        WordCardView(word: .amai, palette: palette)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 60)
     }
 }
