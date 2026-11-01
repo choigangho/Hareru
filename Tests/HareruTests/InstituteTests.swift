@@ -159,4 +159,27 @@ final class InstituteTests: XCTestCase {
         // 격자 위쪽 바깥은 음수 칸
         XCTAssertLessThan(grid.cell(at: CGPoint(x: 200, y: 0)).row, 0)
     }
+
+    // MARK: - 원내 방송 문구
+
+    func testBroadcastReflectsSettlementRestorationAndSky() {
+        let settlement = InstituteSettlement(rewards: [], basePoints: 20, bonusPercent: 10, gainedPoints: 22, budgetGranted: 50)
+        let lines = InstituteBroadcast.lines(
+            state: InstituteState(restoredKanji: ["甘"]),
+            settlement: settlement, restorableCount: 3,
+            activeCombos: [.researchCorner], realWeather: "서울 · 맑음 18°")
+
+        XCTAssertTrue(lines.contains { $0.contains("+22") })
+        XCTAssertTrue(lines.contains { $0.contains("+50") })
+        XCTAssertTrue(lines.contains { $0.contains("복원 대기 문자 3자") })
+        XCTAssertTrue(lines.contains { $0.contains("「甘」") })
+        XCTAssertTrue(lines.contains { $0.contains(FacilityCombo.researchCorner.title) })
+        XCTAssertTrue(lines.contains { $0.contains("강우") }, "영향력 1 → 연구소 하늘 비")
+        XCTAssertTrue(lines.last?.contains("서울") == true)
+
+        let quiet = InstituteBroadcast.lines(state: InstituteState(), settlement: nil, restorableCount: 0,
+                                             activeCombos: [], realWeather: "서울")
+        XCTAssertFalse(quiet.contains { $0.contains("研究P +") }, "정산이 없으면 정산 문구 없음")
+        XCTAssertTrue(quiet.contains { $0.contains("복원 대기 문자가 없습니다") })
+    }
 }

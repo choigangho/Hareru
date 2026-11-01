@@ -1,47 +1,38 @@
 import SwiftUI
+import SpriteKit
 
-// MARK: - 탭 2 「연구소」 — 国立言語遺産研究所(NJL) 경영 화면 (M1: 1단계 사무실)
-// 카이로소프트식 가장자리 HUD 레이아웃을 Hareru의 Liquid Glass + 날씨 색온도 팔레트로 재해석한 화면입니다.
+// MARK: - 탭 2 「연구소」 — 国立言語遺産研究所(NJL) 경영 화면
+// 타이쿤 장르의 '가장자리 HUD'(위: 달력·자금, 아래: 명령 도크)를 Hareru의 Liquid Glass와
+// 연구소 하늘 색온도(WeatherSkyPalette)로 재해석. 가운데 사무실은 SpriteKit(OfficeScene).
+// 자원·복원은 InstituteEngine이 즉시 확정하고, 장면은 결과를 보여 주기만 함.
 public struct InstituteView: View {
     private let sessionEngine: StudySessionEngine
     private let instituteEngine: InstituteEngine
     private let weatherEngine: WeatherAtmosphereEngine
 
-    private enum CommandMenu: String, CaseIterable, Identifiable {
-        case restore = "한자 복원"
-        case build = "시설 배치"
-        case staff = "모듈 · 인물"
-        case info = "연구소 정보"
-
+    private enum Command: String, CaseIterable, Identifiable {
+        case build = "건설"
+        case restore = "복원"
+        case status = "현황"
         var id: String { rawValue }
 
-        var emoji: String {
+        var icon: String {
             switch self {
-            case .restore: return "📜"
-            case .build: return "🪑"
-            case .staff: return "🤖"
-            case .info: return "📊"
-            }
-        }
-
-        var subtitle: String {
-            switch self {
-            case .restore: return "연구P로 한자 복원"
-            case .build: return "예산으로 설비 확충"
-            case .staff: return "연구원 · AI 모듈"
-            case .info: return "활성 콤보 · 보너스"
+            case .build: return "hammer.fill"
+            case .restore: return "character.book.closed.fill"
+            case .status: return "chart.bar.doc.horizontal.fill"
             }
         }
     }
 
-    @State private var isMenuOpen: Bool = false
-    @State private var activeMenu: CommandMenu? = nil
-    @State private var placingKind: FacilityKind? = nil
-    @State private var selectedCell: GridPosition? = nil
-    @State private var guideLine: String = ""
-    @State private var introIndex: Int? = nil
-    /// 연구원 이동 · 버블 · 복원 연출 (저장하지 않음 — 탭을 떠나면 사라져도 됨)
+    @State private var openCommand: Command?
+    @State private var placingKind: FacilityKind?
+    @State private var selectedCell: GridPosition?
+    @State private var guideLine = ""
+    @State private var introIndex: Int?
+    @State private var lastSettlement: InstituteSettlement?
     @State private var runtime: OfficeSimulationRuntime
+    @State private var scene: OfficeScene
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     public init(
@@ -52,14 +43,15 @@ public struct InstituteView: View {
         self.sessionEngine = sessionEngine
         self.instituteEngine = instituteEngine
         self.weatherEngine = weatherEngine
-        _runtime = State(initialValue: OfficeSimulationRuntime(facilities: instituteEngine.state.facilities))
+        let runtime = OfficeSimulationRuntime(facilities: instituteEngine.state.facilities)
+        _runtime = State(initialValue: runtime)
+        _scene = State(initialValue: OfficeScene(runtime: runtime))
     }
 
     private var now: Double { Date().timeIntervalSinceReferenceDate }
-
     private var state: InstituteState { instituteEngine.state }
 
-    /// 연구소 하늘은 실제 날씨가 아니라 연구소 영향력으로 정해짐 (시간대만 실제를 따름)
+    /// 연구소 하늘은 실제 날씨가 아니라 영향력으로 정해짐 (시간대만 실제를 따름)
     private var palette: WeatherSkyPalette {
         WeatherSkyPalette.resolve(condition: state.instituteSky, timeOfDay: weatherEngine.activeTimeOfDay)
     }
@@ -69,171 +61,237 @@ public struct InstituteView: View {
         return sessionEngine.store.allSnapshots()
     }
 
-    private var restorableKanjiList: [String] {
+    private var restorable: [String] {
         instituteEngine.restorableKanji(catalog: sessionEngine.catalog, snapshots: snapshots)
     }
 
     public var body: some View {
         ZStack {
-            // 배경 하늘 캔버스
             WeatherSkyCanvasView(
                 condition: state.instituteSky,
                 timeOfDay: weatherEngine.activeTimeOfDay,
                 palette: palette
             )
 
-            // 1. 캔버스 풀스크린 배치 (ZStack 바탕)
-            InstituteOfficeCanvas(
-                state: state,
-                comboMemberIDs: instituteEngine.comboMemberIDs,
-                runtime: runtime,
-                selectedCell: selectedCell,
-                placingKind: placingKind,
-                onTapCell: handleTap
-            )
-            .ignoresSafeArea(edges: .horizontal)
-
-            // 가장자리 Floating Liquid Glass HUD 레이어
             VStack(spacing: 8) {
-                // ① 최상단 슬림 글라스 상태 리본
-                topStatusRibbon
+                topEdge
+                broadcastStrip
 
-                // ② 좌상단 미니 플로팅 배지 + 선택된 타일 시설 팝업
-                HStack(alignment: .top, spacing: 8) {
-                    floatingBadges
-                    Spacer(minLength: 0)
-                    if let cell = selectedCell,
-                       placingKind == nil,
-                       let facility = instituteEngine.facility(at: cell) {
-                        selectedFacilityPopover(facility)
-                            .transition(.scale(scale: 0.92, anchor: .topTrailing).combined(with: .opacity))
-                    }
+                ZStack(alignment: .bottom) {
+                    officeView
+                    contextOverlay
                 }
+                .frame(maxHeight: .infinity)
 
-                Spacer(minLength: 0)
-
-                // ③ 좌측 플로팅 수직 커맨드 메뉴 스택 & 서브 트레이
-                HStack(alignment: .bottom, spacing: 10) {
-                    if isMenuOpen {
-                        glassCommandStack
-                            .transition(.move(edge: .leading).combined(with: .opacity))
-                    }
-                    Spacer(minLength: 0)
-                }
-
-                if let activeMenu {
-                    commandSubTray(for: activeMenu)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
-
-                // ④ 하단 2분할 글라스 전광판 (Bottom Glass Ticker)
-                bottomGlassTicker
-
-                // 타이쿤식 코너 액션 버튼 ([ ☰ 메뉴 ] / [ 뒤로 ])
-                cornerActionDock
+                secretaryPopup
+                commandDock
             }
             .padding(.horizontal, 12)
             .padding(.top, 6)
             .padding(.bottom, 6)
         }
         .foregroundStyle(palette.primaryTextColor)
+        // 앱 전체 다크/라이트는 '실제 날씨'를 따르지만, 이 화면의 글씨 색은 '연구소 하늘'을 따르므로
+        // 유리 재질도 연구소 하늘에 맞춰야 밝은 유리 위 밝은 글씨(대비 부족)가 생기지 않음
+        .environment(\.colorScheme, palette.isDarkSky ? .dark : .light)
         .onAppear {
             runtime.reduceMotion = reduceMotion
+            syncScene()
             settleAndGreet()
         }
         .onChange(of: reduceMotion) { _, value in runtime.reduceMotion = value }
+        .onChange(of: state) { _, _ in syncScene() }
+        .onChange(of: selectedCell) { _, _ in syncScene() }
+        .onChange(of: placingKind) { _, _ in syncScene() }
     }
 
-    // MARK: - ① 최상단 슬림 글라스 리본 바 (Top Status Ribbon)
+    // MARK: - 가운데: SpriteKit 사무실
 
-    private var topStatusRibbon: some View {
-        HStack(spacing: 12) {
-            // 좌측: 연구소 날씨 아이콘 + 단계 표시
+    private var officeView: some View {
+        GeometryReader { _ in
+            SpriteView(scene: scene, preferredFramesPerSecond: 30, options: [.allowsTransparency])
+                .gesture(
+                    SpatialTapGesture().onEnded { value in
+                        if let cell = scene.cell(atViewPoint: value.location) {
+                            handleTap(cell)
+                        }
+                    }
+                )
+        }
+        .padding(.horizontal, -12)   // 정수 배율을 지키려면 화면 폭을 다 써야 함
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("연구소 사무실. 시설 \(state.facilities.count)개, 복원한 한자 \(state.restoredKanji.count)자")
+    }
+
+    private func syncScene() {
+        scene.apply(
+            state: state,
+            comboMemberIDs: instituteEngine.comboMemberIDs,
+            selectedCell: selectedCell,
+            isPlacing: placingKind != nil
+        )
+    }
+
+    // MARK: - 위쪽 가장자리: 게임 달력 · 자금 · 자원 칩
+
+    private var topEdge: some View {
+        VStack(spacing: 6) {
+            HStack(alignment: .top, spacing: 8) {
+                calendarPlate
+                Spacer(minLength: 4)
+                fundsPlate
+            }
             HStack(spacing: 6) {
+                resourceChip("atom", "研究P", "\(state.researchPoints)")
+                resourceChip("sparkles", "影響力", "\(state.influence)")
+                resourceChip("character.book.closed", "복원", "\(state.restoredKanji.count)")
+                Spacer(minLength: 0)
                 Image(systemName: state.instituteSky.sfSymbolName(for: weatherEngine.activeTimeOfDay))
                     .symbolRenderingMode(.multicolor)
-                    .font(.subheadline.weight(.semibold))
-                Text("NJL \(state.stage)단계 사무실")
-                    .font(.caption.weight(.bold))
-                Text("· \(state.instituteSky.koreanTitle)")
-                    .font(.caption2.weight(.medium))
-                    .foregroundStyle(palette.secondaryTextColor)
-            }
-            .accessibilityLabel("NJL \(state.stage)단계 사무실, 연구소 하늘 \(state.instituteSky.koreanTitle)")
-
-            Spacer(minLength: 8)
-
-            // 우측: 研究P · 予算(¥) 모노스페이스 수치
-            HStack(spacing: 14) {
-                ribbonMetric(icon: "atom", label: "研究P", value: "\(state.researchPoints)")
-                Divider()
-                    .frame(height: 14)
-                    .overlay(palette.secondaryTextColor.opacity(0.3))
-                ribbonMetric(icon: "yensign", label: "予算", value: "¥\(state.budget)")
+                    .font(.subheadline)
+                    .frame(width: 34, height: 34)
+                    .hareruGlass(in: Circle(), tint: palette.glassTintColor)
+                    .accessibilityLabel("연구소 하늘 \(state.instituteSky.koreanTitle)")
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 9)
-        .hareruGlass(in: Capsule(), tint: palette.glassTintColor)
-        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: state.researchPoints)
-        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: state.budget)
     }
 
-    private func ribbonMetric(icon: String, label: String, value: String) -> some View {
+    private var calendarPlate: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(Self.inWorldDate(Date()))
+                .font(.subheadline.weight(.heavy).monospacedDigit())
+            Text("NJL \(state.stage)단계 · 사무실")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(palette.secondaryTextColor)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 7)
+        .hareruGlass(in: RoundedRectangle(cornerRadius: 14, style: .continuous), tint: palette.glassTintColor)
+        .accessibilityElement(children: .combine)
+    }
+
+    private var fundsPlate: some View {
+        VStack(alignment: .trailing, spacing: 1) {
+            Text("予算")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(palette.secondaryTextColor)
+            Text("¥\(state.budget)")
+                .font(.title3.weight(.heavy).monospacedDigit())
+                .contentTransition(.numericText())
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 5)
+        .lensGlass(in: RoundedRectangle(cornerRadius: 14, style: .continuous), tint: palette.glassTintColor)
+        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: state.budget)
+        .accessibilityLabel("예산 \(state.budget)")
+    }
+
+    private func resourceChip(_ icon: String, _ title: String, _ value: String) -> some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
                 .font(.caption2.weight(.bold))
                 .foregroundStyle(palette.accentColor)
-            Text(label)
+            Text(title)
                 .font(.caption2.weight(.semibold))
                 .foregroundStyle(palette.secondaryTextColor)
             Text(value)
                 .font(.caption.weight(.bold).monospacedDigit())
                 .contentTransition(.numericText())
         }
-    }
-
-    // MARK: - ② 좌측 상단 플로팅 배지 (Floating Badges)
-
-    private var floatingBadges: some View {
-        HStack(spacing: 6) {
-            miniBadge(emoji: "📜", title: "복원 \(state.restoredKanji.count)/2136")
-            miniBadge(emoji: "✨", title: "영향력 \(state.influence)")
-            if !instituteEngine.activeCombos.isEmpty {
-                miniBadge(emoji: "⚡", title: "콤보 \(instituteEngine.activeCombos.count)", highlighted: true)
-            }
-        }
-    }
-
-    private func miniBadge(emoji: String, title: String, highlighted: Bool = false) -> some View {
-        HStack(spacing: 4) {
-            Text(emoji)
-                .font(.caption2)
-            Text(title)
-                .font(.caption2.weight(.bold).monospacedDigit())
-        }
         .padding(.horizontal, 9)
-        .padding(.vertical, 5)
-        .hareruGlass(
-            in: Capsule(),
-            tint: highlighted ? palette.accentColor.opacity(0.45) : palette.glassTintColor
+        .padding(.vertical, 6)
+        .hareruGlass(in: Capsule(), tint: palette.glassTintColor)
+        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: value)
+        .accessibilityElement(children: .combine)
+    }
+
+    /// 게임 속 달력: 연도는 '2XXX', 월·일·요일은 실제 날짜 (하루 학습 = 연구소의 하루)
+    static func inWorldDate(_ date: Date, calendar: Calendar = .current) -> String {
+        let weekdays = ["日", "月", "火", "水", "木", "金", "土"]
+        let parts = calendar.dateComponents([.month, .day, .weekday], from: date)
+        return "2XXX年 \(parts.month ?? 1)月 \(parts.day ?? 1)日 (\(weekdays[((parts.weekday ?? 1) - 1) % 7]))"
+    }
+
+    // MARK: - 원내 방송 띠
+
+    private var broadcastLines: [String] {
+        InstituteBroadcast.lines(
+            state: state,
+            settlement: lastSettlement,
+            restorableCount: restorable.count,
+            activeCombos: instituteEngine.activeCombos,
+            realWeather: weatherEngine.weatherSummaryLine
         )
     }
 
-    // MARK: - 선택된 타일 시설 미니 팝업 (캔버스 타일 클릭 시)
-
-    private func selectedFacilityPopover(_ facility: PlacedFacility) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: Self.icon(for: facility.kind))
-                .font(.caption.weight(.bold))
-                .foregroundStyle(palette.accentColor)
-            VStack(alignment: .leading, spacing: 1) {
-                Text(facility.kind.title)
-                    .font(.caption2.weight(.bold))
-                Text(facility.kind.summary)
-                    .font(.caption2)
-                    .foregroundStyle(palette.secondaryTextColor)
+    private var broadcastStrip: some View {
+        TimelineView(.periodic(from: .now, by: 5)) { timeline in
+            let lines = broadcastLines
+            let index = Int(timeline.date.timeIntervalSinceReferenceDate / 5) % max(1, lines.count)
+            HStack(spacing: 8) {
+                Text("📢 \(InstituteBroadcast.speakerTitle)")
+                    .font(.caption2.weight(.heavy))
+                    .foregroundStyle(palette.primaryTextColor)
+                    .fixedSize()
+                Text(lines.isEmpty ? "" : lines[index])
+                    .font(.caption2.weight(.medium))
                     .lineLimit(1)
+                    .truncationMode(.tail)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .id(index)
+                    .transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity),
+                                            removal: .move(edge: .top).combined(with: .opacity)))
+            }
+            .animation(.easeInOut(duration: 0.35), value: index)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .clipped()
+            .hareruGlass(in: Capsule(), tint: palette.glassTintColor)
+            .accessibilityElement(children: .combine)
+        }
+    }
+
+    // MARK: - 장면 위 상황 안내 (배치 모드 · 선택한 시설) + 서랍
+
+    @ViewBuilder
+    private var contextOverlay: some View {
+        VStack(spacing: 8) {
+            if let kind = placingKind {
+                HStack(spacing: 8) {
+                    Image(systemName: Self.icon(for: kind)).foregroundStyle(palette.accentColor)
+                    Text("\(kind.title) — 놓을 바닥을 누르세요")
+                        .font(.caption.weight(.bold))
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) { placingKind = nil }
+                    } label: {
+                        Image(systemName: "xmark").font(.caption.weight(.bold))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("배치 취소")
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .lensGlass(in: Capsule(), tint: palette.accentColor.opacity(0.4))
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            } else if let cell = selectedCell, let facility = instituteEngine.facility(at: cell) {
+                selectedFacilityChip(facility)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+
+            if let command = openCommand, placingKind == nil {
+                drawer(command)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .padding(.bottom, 4)
+    }
+
+    private func selectedFacilityChip(_ facility: PlacedFacility) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: Self.icon(for: facility.kind)).foregroundStyle(palette.accentColor)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(facility.kind.title).font(.caption.weight(.bold))
+                Text(facility.kind.summary).font(.caption2).foregroundStyle(palette.secondaryTextColor).lineLimit(1)
             }
             if facility.kind != .researcherDesk {
                 Button("치우기") {
@@ -243,177 +301,45 @@ public struct InstituteView: View {
                     }
                 }
                 .font(.caption2.weight(.bold))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
                 .lensGlass(in: Capsule(), tint: palette.accentColor.opacity(0.35))
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 7)
         .hareruGlass(in: Capsule(), tint: palette.glassTintColor)
     }
 
-    // MARK: - ③ 좌측 플로팅 글라스 커맨드 메뉴 스택 (Glass Command Stack)
-
-    private var glassCommandStack: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            ForEach(CommandMenu.allCases) { item in
-                let isSelected = activeMenu == item
-                Button {
-                    withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
-                        if activeMenu == item {
-                            activeMenu = nil
-                            placingKind = nil
-                        } else {
-                            activeMenu = item
-                            if item != .build {
-                                placingKind = nil
-                            }
-                            selectedCell = nil
-                        }
-                    }
-                } label: {
-                    HStack(spacing: 8) {
-                        Text(item.emoji)
-                            .font(.subheadline)
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text(item.rawValue)
-                                .font(.caption.weight(.bold))
-                            Text(item.subtitle)
-                                .font(.system(size: 10, weight: .medium))
-                                .foregroundStyle(palette.secondaryTextColor)
-                        }
-                        Spacer(minLength: 6)
-                        Image(systemName: isSelected ? "chevron.down" : "chevron.right")
-                            .font(.caption2.weight(.bold))
-                            .foregroundStyle(isSelected ? palette.accentColor : palette.secondaryTextColor)
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .frame(width: 164, alignment: .leading)
-                    .background {
-                        if isSelected {
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(palette.accentColor.opacity(0.24))
-                                .overlay {
-                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                        .strokeBorder(palette.accentColor.opacity(0.85), lineWidth: 1)
-                                }
-                        }
-                    }
-                    .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(6)
-        .lensGlass(
-            in: RoundedRectangle(cornerRadius: 20, style: .continuous),
-            tint: palette.glassTintColor
-        )
-    }
-
-    // MARK: - 커맨드 서브 미니 트레이 (선택한 메뉴 항목별 플로팅 트레이)
-
-    @ViewBuilder
-    private func commandSubTray(for menu: CommandMenu) -> some View {
+    private func drawer(_ command: Command) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            switch menu {
-            case .restore:
-                restoreTrayContent
-            case .build:
-                buildTrayContent
-            case .staff:
-                staffTrayContent
-            case .info:
-                infoTrayContent
+            switch command {
+            case .build: buildDrawer
+            case .restore: restoreDrawer
+            case .status: statusDrawer
             }
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .lensGlass(
-            in: RoundedRectangle(cornerRadius: 20, style: .continuous),
-            tint: palette.glassTintColor
-        )
+        .lensGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous), tint: palette.glassTintColor)
     }
 
-    private var restoreTrayContent: some View {
-        let restorable = restorableKanjiList
-        return VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Label("한자 복원", systemImage: "scroll.fill")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(palette.accentColor)
-                Text("비용 研究P \(instituteEngine.restoreCost)")
-                    .font(.caption2.weight(.semibold).monospacedDigit())
-                if instituteEngine.restoreDiscountPercent > 0 {
-                    Text("(-\(instituteEngine.restoreDiscountPercent)%)")
-                        .font(.caption2.weight(.bold))
-                        .foregroundStyle(palette.accentColor)
-                }
-                Spacer()
-                Text("누적 \(state.restoredKanji.count)자")
-                    .font(.caption2.monospacedDigit())
-                    .foregroundStyle(palette.secondaryTextColor)
-            }
-
-            if restorable.isEmpty {
-                Text(InstituteGuideScript.nothingToRestore)
-                    .font(.caption)
-                    .foregroundStyle(palette.secondaryTextColor)
-                    .padding(.vertical, 4)
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(restorable, id: \.self) { kanji in
-                            restoreChip(kanji)
-                        }
-                    }
-                }
-            }
+    private func drawerHeader(_ title: String, icon: String, trailing: String) -> some View {
+        HStack {
+            Label(title, systemImage: icon)
+                .font(.caption.weight(.heavy))
+                .foregroundStyle(palette.primaryTextColor)
+            Spacer()
+            Text(trailing)
+                .font(.caption2.weight(.semibold).monospacedDigit())
+                .foregroundStyle(palette.secondaryTextColor)
         }
     }
 
-    private func restoreChip(_ kanji: String) -> some View {
-        let hunEum = sessionEngine.catalog.kanjiInfo(for: kanji)?.koreanHunEum
-        return Button {
-            let cost = instituteEngine.restoreCost
-            let insight = RestorationInsight(kanji: kanji, catalog: sessionEngine.catalog, snapshots: snapshots)
-            if instituteEngine.restore(kanji: kanji, catalog: sessionEngine.catalog, snapshots: snapshots) {
-                runtime.startRestoration(insight, time: now)
-                say(InstituteGuideScript.restored(kanji, hunEum: hunEum))
-            } else {
-                say(InstituteGuideScript.notEnoughPoints(cost: cost))
-            }
-        } label: {
-            VStack(spacing: 2) {
-                Text(kanji)
-                    .jlptTermFont(size: 28)
-                Text(hunEum ?? "")
-                    .font(.caption2)
-                    .foregroundStyle(palette.secondaryTextColor)
-                    .lineLimit(1)
-            }
-            .frame(width: 64, height: 66)
-            .lensGlass(in: RoundedRectangle(cornerRadius: 14, style: .continuous), tint: palette.glassTintColor)
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("\(kanji) \(hunEum ?? "") 복원")
-    }
-
-    private var buildTrayContent: some View {
+    private var buildDrawer: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Label("시설 배치", systemImage: "square.grid.2x2.fill")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(palette.accentColor)
-                Spacer()
-                Text(placingKind.map { "'\($0.title)' 놓을 바닥 타일을 탭하세요" } ?? "설치할 시설을 선택하세요")
-                    .font(.caption2)
-                    .foregroundStyle(palette.secondaryTextColor)
-            }
-
+            drawerHeader("시설 건설", icon: "hammer.fill", trailing: "예산 ¥\(state.budget)")
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(FacilityKind.allCases.filter { !$0.isUnique }) { kind in
@@ -425,283 +351,210 @@ public struct InstituteView: View {
     }
 
     private func facilityCard(_ kind: FacilityKind) -> some View {
-        let isSelected = placingKind == kind
         let affordable = state.budget >= kind.budgetCost
+        let owned = state.facilities.filter { $0.kind == kind }.count
         return Button {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                placingKind = isSelected ? nil : kind
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+                placingKind = kind
                 selectedCell = nil
-                if !isSelected {
-                    // 타일을 고르기 편하도록 좌측 메뉴 스택은 접어 시야 확보
-                    isMenuOpen = false
-                }
             }
         } label: {
             VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 4) {
+                HStack {
                     Image(systemName: Self.icon(for: kind))
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(palette.accentColor)
                     Spacer()
-                    Text("¥\(kind.budgetCost)")
+                    Text("×\(owned)")
                         .font(.caption2.weight(.bold).monospacedDigit())
-                        .foregroundStyle(affordable ? palette.secondaryTextColor : Color.red.opacity(0.85))
+                        .foregroundStyle(palette.secondaryTextColor)
                 }
-                Text(kind.title)
-                    .font(.caption.weight(.bold))
-                    .lineLimit(1)
-                Text(kind.summary)
-                    .font(.system(size: 10))
-                    .foregroundStyle(palette.secondaryTextColor)
-                    .lineLimit(1)
+                Text(kind.title).font(.caption.weight(.bold)).lineLimit(1)
+                Text(kind.summary).font(.system(size: 10)).foregroundStyle(palette.secondaryTextColor).lineLimit(2)
+                Text("¥\(kind.budgetCost)")
+                    .font(.caption2.weight(.heavy).monospacedDigit())
+                    .foregroundStyle(affordable ? palette.primaryTextColor : Color.red.opacity(0.85))
             }
-            .padding(9)
-            .frame(width: 112, alignment: .leading)
-            .lensGlass(
-                in: RoundedRectangle(cornerRadius: 14, style: .continuous),
-                tint: isSelected ? palette.accentColor.opacity(0.5) : palette.glassTintColor
-            )
-            .overlay {
-                if isSelected {
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .strokeBorder(palette.accentColor, lineWidth: 1.5)
-                }
-            }
+            .padding(10)
+            .frame(width: 124, alignment: .leading)
+            .lensGlass(in: RoundedRectangle(cornerRadius: 16, style: .continuous), tint: palette.glassTintColor)
+            .opacity(affordable ? 1 : 0.7)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("\(kind.title), 예산 \(kind.budgetCost). \(kind.summary)")
+        .accessibilityLabel("\(kind.title), 예산 \(kind.budgetCost), 보유 \(owned)개. \(kind.summary)")
     }
 
-    private var staffTrayContent: some View {
-        let serverCount = state.facilities.filter { $0.kind == .serverRack }.count
-        let boothCount = state.facilities.filter { $0.kind == .recordingBooth }.count
-        return VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Label("모듈 · 인물 현황", systemImage: "person.2.wave.2.fill")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(palette.accentColor)
-                Spacer()
-                Text("상주 인원 1명 · 보조 모듈 \(serverCount + boothCount)기")
-                    .font(.caption2.monospacedDigit())
+    private var restoreDrawer: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            drawerHeader(
+                "한자 복원", icon: "character.book.closed.fill",
+                trailing: "비용 研究P \(instituteEngine.restoreCost)"
+                    + (instituteEngine.restoreDiscountPercent > 0 ? " (-\(instituteEngine.restoreDiscountPercent)%)" : "")
+            )
+            if restorable.isEmpty {
+                Text(InstituteGuideScript.nothingToRestore)
+                    .font(.caption)
                     .foregroundStyle(palette.secondaryTextColor)
-            }
-
-            HStack(spacing: 10) {
-                HStack(spacing: 8) {
-                    GuidePixelAvatarView()
-                        .frame(width: 34, height: 34)
-                        .hareruGlass(in: RoundedRectangle(cornerRadius: 10, style: .continuous), tint: palette.glassTintColor)
-                    VStack(alignment: .leading, spacing: 2) {
-                        HStack(spacing: 4) {
-                            Text(InstituteGuideScript.speakerTitle)
-                                .font(.caption.weight(.bold))
-                            Text("？？？")
-                                .font(.caption2.weight(.semibold))
-                                .foregroundStyle(palette.accentColor)
-                        }
-                        Text("NJL 유일의 상주 연구원 · 한자 문헌 대조 담당")
-                            .font(.caption2)
-                            .foregroundStyle(palette.secondaryTextColor)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(restorable, id: \.self) { restoreChip($0) }
                     }
                 }
-                Spacer()
             }
         }
     }
 
-    private var infoTrayContent: some View {
-        let activeCombos = instituteEngine.activeCombos
-        return VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Label("연구소 효과 · 활성 콤보", systemImage: "chart.bar.xaxis")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(palette.accentColor)
-                Spacer()
-                Text("연구P +\(instituteEngine.researchBonusPercent)% · 복원할인 -\(instituteEngine.restoreDiscountPercent)%")
-                    .font(.caption2.weight(.bold).monospacedDigit())
-                    .foregroundStyle(palette.accentColor)
+    private func restoreChip(_ kanji: String) -> some View {
+        let hunEum = sessionEngine.catalog.kanjiInfo(for: kanji)?.koreanHunEum
+        return Button {
+            let cost = instituteEngine.restoreCost
+            // 결과(研究P 차감 · 복원 등록)는 엔진이 즉시 저장하고, 장면은 진행 연출만 재생
+            let insight = RestorationInsight(kanji: kanji, catalog: sessionEngine.catalog, snapshots: snapshots)
+            if instituteEngine.restore(kanji: kanji, catalog: sessionEngine.catalog, snapshots: snapshots) {
+                runtime.startRestoration(insight, time: now)
+                say(InstituteGuideScript.restored(kanji, hunEum: hunEum))
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) { openCommand = nil }
+            } else {
+                say(InstituteGuideScript.notEnoughPoints(cost: cost))
             }
+        } label: {
+            VStack(spacing: 2) {
+                Text(kanji).jlptTermFont(size: 28)
+                Text(hunEum ?? "").font(.caption2).foregroundStyle(palette.secondaryTextColor).lineLimit(1)
+            }
+            .frame(width: 64, height: 66)
+            .lensGlass(in: RoundedRectangle(cornerRadius: 14, style: .continuous), tint: palette.glassTintColor)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("\(kanji) \(hunEum ?? "") 복원")
+    }
 
+    private var statusDrawer: some View {
+        let combos = instituteEngine.activeCombos
+        return VStack(alignment: .leading, spacing: 8) {
+            drawerHeader("연구소 현황", icon: "chart.bar.doc.horizontal.fill",
+                         trailing: "研究P +\(instituteEngine.researchBonusPercent)% · 복원 -\(instituteEngine.restoreDiscountPercent)%")
+            HStack(spacing: 8) {
+                statusTile("상주 인원", "1명")
+                statusTile("시설", "\(state.facilities.count)개")
+                statusTile("복원", "\(state.restoredKanji.count)/2136")
+            }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(FacilityCombo.allCases) { combo in
-                        let isUnlocked = activeCombos.contains(combo)
+                        let active = combos.contains(combo)
                         VStack(alignment: .leading, spacing: 2) {
-                            HStack(spacing: 4) {
-                                Image(systemName: isUnlocked ? "sparkles" : "lock.fill")
-                                    .font(.caption2)
-                                    .foregroundStyle(isUnlocked ? palette.accentColor : palette.secondaryTextColor)
-                                Text(combo.title)
-                                    .font(.caption2.weight(.bold))
-                                    .lineLimit(1)
-                            }
+                            Label(combo.title, systemImage: active ? "sparkles" : "lock.fill")
+                                .font(.caption2.weight(.bold))
+                                .foregroundStyle(active ? palette.accentColor : palette.secondaryTextColor)
+                                .lineLimit(1)
                             Text(combo.summary)
                                 .font(.system(size: 10))
                                 .foregroundStyle(palette.secondaryTextColor)
                                 .lineLimit(2)
                         }
                         .padding(8)
-                        .frame(width: 170, alignment: .leading)
-                        .hareruGlass(
-                            in: RoundedRectangle(cornerRadius: 12, style: .continuous),
-                            tint: isUnlocked ? palette.accentColor.opacity(0.35) : palette.glassTintColor
-                        )
+                        .frame(width: 172, alignment: .leading)
+                        .hareruGlass(in: RoundedRectangle(cornerRadius: 12, style: .continuous),
+                                     tint: active ? palette.accentColor.opacity(0.35) : palette.glassTintColor)
                     }
                 }
             }
         }
     }
 
-    // MARK: - ④ 하단 2분할 글라스 전광판 (Bottom Glass Ticker)
+    private func statusTile(_ title: String, _ value: String) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(title).font(.caption2).foregroundStyle(palette.secondaryTextColor)
+            Text(value).font(.subheadline.weight(.heavy).monospacedDigit())
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .hareruGlass(in: RoundedRectangle(cornerRadius: 12, style: .continuous), tint: palette.glassTintColor)
+    }
 
-    private var bottomGlassTicker: some View {
-        HStack(spacing: 0) {
-            // 좌측 영역: 가이드 연구원 미니 픽셀 얼굴 + ？？？ 태그 + 대사
-            Button {
-                advanceIntro()
-            } label: {
-                HStack(spacing: 8) {
-                    GuidePixelAvatarView()
-                        .frame(width: 34, height: 34)
-                        .hareruGlass(in: RoundedRectangle(cornerRadius: 10, style: .continuous), tint: palette.glassTintColor)
+    // MARK: - 아래 가장자리: 비서 팝업 (가이드 연구원)
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        HStack(spacing: 4) {
-                            Text(InstituteGuideScript.speakerTitle)
-                                .font(.caption2.weight(.bold))
+    private var secretaryPopup: some View {
+        Button(action: advanceIntro) {
+            HStack(alignment: .top, spacing: 10) {
+                GuidePortrait()
+                    .frame(width: 44, height: 44)
+                    .lensGlass(in: RoundedRectangle(cornerRadius: 12, style: .continuous), tint: palette.glassTintColor)
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 5) {
+                        Text(InstituteGuideScript.speakerTitle)
+                            .font(.caption2.weight(.heavy))
+                            .foregroundStyle(palette.primaryTextColor)
+                        Text("？？？")
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(palette.secondaryTextColor)
+                        Spacer()
+                        if let introIndex {
+                            Text("\(introIndex + 1)/\(InstituteGuideScript.intro.count) ▸")
+                                .font(.caption2.weight(.bold).monospacedDigit())
                                 .foregroundStyle(palette.accentColor)
-                            Text("？？？")
-                                .font(.system(size: 10, weight: .semibold))
-                                .foregroundStyle(palette.secondaryTextColor)
-                            if let introIndex {
-                                Text("\(introIndex + 1)/\(InstituteGuideScript.intro.count) ▸")
-                                    .font(.system(size: 10, weight: .bold).monospacedDigit())
-                                    .foregroundStyle(palette.accentColor)
-                            }
                         }
-                        Text(guideLine)
-                            .font(.caption)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.leading)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .id(guideLine)
-                            .transition(.opacity)
                     }
+                    Text(guideLine)
+                        .font(.caption)
+                        .lineLimit(3)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .id(guideLine)
+                        .transition(.opacity)
                 }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 8)
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .buttonStyle(.plain)
-            .allowsHitTesting(introIndex != nil)
-
-            Divider()
-                .frame(height: 36)
-                .overlay(palette.secondaryTextColor.opacity(0.28))
-
-            // 우측 영역: 현재 상태 요약 (진행 중 복원 / 배치 모드 / 복원 가능 한자)
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(tickerStatusTitle)
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(palette.secondaryTextColor)
-                Text(tickerStatusValue)
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(tickerStatusHighlight ? palette.accentColor : palette.primaryTextColor)
-                    .lineLimit(1)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .frame(width: 126, alignment: .trailing)
+            .padding(10)
+            .hareruGlass(in: RoundedRectangle(cornerRadius: 18, style: .continuous), tint: palette.glassTintColor)
         }
-        .hareruGlass(
-            in: RoundedRectangle(cornerRadius: 18, style: .continuous),
-            tint: palette.glassTintColor
-        )
+        .buttonStyle(.plain)
+        .allowsHitTesting(introIndex != nil)   // disabled는 글씨를 흐리게 해서 쓰지 않음
+        .accessibilityLabel("가이드 연구원: \(guideLine)")
     }
 
-    private var tickerStatusTitle: String {
-        if let placingKind {
-            return "시설 배치 모드"
-        }
-        if !restorableKanjiList.isEmpty {
-            return "한자 복원 가능"
-        }
-        return "복원 대기 상태"
-    }
+    // MARK: - 아래 가장자리: 명령 도크
 
-    private var tickerStatusValue: String {
-        if let placingKind {
-            return "\(placingKind.title) 타일 선택"
-        }
-        if let first = restorableKanjiList.first {
-            let extra = restorableKanjiList.count > 1 ? " 외 \(restorableKanjiList.count - 1)자" : " 복원 가능"
-            return "「\(first)」\(extra)"
-        }
-        return "신규 복원 대기 중"
-    }
-
-    private var tickerStatusHighlight: Bool {
-        placingKind != nil || !restorableKanjiList.isEmpty
-    }
-
-    // MARK: - 타이쿤식 코너 액션 버튼 ([ ☰ 메뉴 ] / [ 뒤로 ])
-
-    private var cornerActionDock: some View {
-        HStack(spacing: 10) {
-            Button {
-                withAnimation(.spring(response: 0.34, dampingFraction: 0.8)) {
-                    isMenuOpen.toggle()
-                    if !isMenuOpen {
-                        activeMenu = nil
-                        placingKind = nil
-                    }
-                }
-            } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: isMenuOpen ? "xmark" : "line.3.horizontal")
-                        .font(.caption.weight(.bold))
-                    Text("메뉴")
-                        .font(.caption.weight(.bold))
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 9)
-                .lensGlass(
-                    in: Capsule(),
-                    tint: isMenuOpen ? palette.accentColor.opacity(0.45) : palette.glassTintColor
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(isMenuOpen ? "메뉴 닫기" : "메뉴 열기")
-
-            Spacer()
-
-            if isMenuOpen || activeMenu != nil || placingKind != nil || selectedCell != nil {
+    private var commandDock: some View {
+        HStack(spacing: 8) {
+            ForEach(Command.allCases) { command in
+                let active = openCommand == command
                 Button {
                     withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
-                        if placingKind != nil {
-                            placingKind = nil
-                        } else if activeMenu != nil {
-                            activeMenu = nil
-                        } else if isMenuOpen {
-                            isMenuOpen = false
-                        } else {
-                            selectedCell = nil
-                        }
+                        openCommand = active ? nil : command
+                        placingKind = nil
+                        selectedCell = nil
                     }
                 } label: {
-                    HStack(spacing: 5) {
-                        Image(systemName: "arrow.uturn.backward")
-                            .font(.caption2.weight(.bold))
-                        Text("뒤로")
-                            .font(.caption.weight(.bold))
+                    VStack(spacing: 3) {
+                        Image(systemName: command.icon)
+                            .font(.system(size: 17, weight: .semibold))
+                            .symbolEffect(.bounce, value: active)
+                        Text(command.rawValue)
+                            .font(.caption2.weight(.heavy))
                     }
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 9)
-                    .lensGlass(in: Capsule(), tint: palette.glassTintColor)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .foregroundStyle(active ? palette.primaryTextColor : palette.secondaryTextColor)
+                    .lensGlass(in: RoundedRectangle(cornerRadius: 16, style: .continuous),
+                               tint: active ? palette.accentColor.opacity(0.45) : palette.glassTintColor)
+                    .overlay(alignment: .topTrailing) {
+                        if command == .restore, !restorable.isEmpty {
+                            Text("\(restorable.count)")
+                                .font(.system(size: 10, weight: .heavy).monospacedDigit())
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 1)
+                                .background(Capsule().fill(Color.red.opacity(0.85)))
+                                .foregroundStyle(.white)
+                                .offset(x: -4, y: 4)
+                        }
+                    }
                 }
                 .buttonStyle(.plain)
-                .transition(.scale(scale: 0.9).combined(with: .opacity))
-                .accessibilityLabel("뒤로")
+                .accessibilityLabel(command.rawValue)
+                .accessibilityAddTraits(active ? .isSelected : [])
             }
         }
     }
@@ -718,26 +571,31 @@ public struct InstituteView: View {
             let combosBefore = Set(instituteEngine.activeCombos)
             if instituteEngine.facility(at: cell) != nil {
                 say(InstituteGuideScript.cellOccupied)
+                selectedCell = cell
             } else if instituteEngine.place(kind, at: cell) {
                 let newCombos = instituteEngine.activeCombos.filter { !combosBefore.contains($0) }
                 if let placed = instituteEngine.facility(at: cell) {
                     runtime.facilityPlaced(placed, newCombos: newCombos, all: instituteEngine.state.facilities, time: now)
                 }
                 say(InstituteGuideScript.placed(kind, newCombos: newCombos))
-                placingKind = nil
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+                    placingKind = nil
+                    selectedCell = nil
+                }
             } else {
                 say(InstituteGuideScript.notEnoughBudget(kind))
             }
-            selectedCell = cell
         } else {
-            withAnimation(.easeInOut(duration: 0.15)) {
+            withAnimation(.spring(response: 0.25, dampingFraction: 0.85)) {
                 selectedCell = selectedCell == cell ? nil : cell
+                openCommand = nil
             }
         }
     }
 
     private func settleAndGreet() {
         let result = instituteEngine.settle(logs: sessionEngine.store.allReviewLogs())
+        lastSettlement = result
         runtime.emitSettlement(result, time: now + 0.3)
         if !state.hasSeenIntro {
             introIndex = 0
@@ -757,7 +615,7 @@ public struct InstituteView: View {
             } else {
                 introIndex = nil
                 instituteEngine.markIntroSeen()
-                guideLine = "그럼 먼저 오늘의 학습 기록부터 정산해 볼게요. [메뉴]를 눌러 사무실을 꾸며 보세요!"
+                guideLine = "아래 [건설]에서 시설을 고르고, [복원]으로 외운 한자를 되살려 보세요!"
             }
         }
     }
@@ -780,49 +638,18 @@ public struct InstituteView: View {
     }
 }
 
-// MARK: - 가이드 연구원 미니 픽셀 얼굴 아이콘 (하단 글라스 전광판 · 인물 정보용)
-private struct GuidePixelAvatarView: View {
-    private static let headSprite = [
-        "..hhhh..",
-        ".hhhhhh.",
-        ".hssssh.",
-        ".gegeg..",
-        ".hssssh.",
-        "..ssss..",
-        "..cccc..",
-        ".cccccc."
-    ]
-
-    private static let colorMap: [Character: Color] = [
-        "h": Color(red: 0.16, green: 0.13, blue: 0.16),
-        "s": Color(red: 0.98, green: 0.86, blue: 0.76),
-        "g": Color(red: 0.25, green: 0.30, blue: 0.40),
-        "e": Color(red: 0.55, green: 0.75, blue: 0.95),
-        "c": Color(red: 0.96, green: 0.96, blue: 0.98)
-    ]
+// MARK: - 가이드 연구원 픽셀 초상화 (장면 스프라이트와 같은 픽셀 데이터, 최근접 확대)
+private struct GuidePortrait: View {
+    private static let image = OfficePixelArt.guidePortrait()
 
     var body: some View {
-        Canvas { context, size in
-            let px = max(1, (min(size.width, size.height) / 10).rounded(.down))
-            let totalWidth = 8 * px
-            let totalHeight = CGFloat(Self.headSprite.count) * px
-            let originX = ((size.width - totalWidth) / 2).rounded()
-            let originY = ((size.height - totalHeight) / 2).rounded()
-
-            for (y, row) in Self.headSprite.enumerated() {
-                for (x, ch) in row.enumerated() {
-                    guard let color = Self.colorMap[ch] else { continue }
-                    let rect = CGRect(
-                        x: originX + CGFloat(x) * px,
-                        y: originY + CGFloat(y) * px,
-                        width: px,
-                        height: px
-                    )
-                    context.fill(Path(rect), with: .color(color))
-                }
-            }
+        if let image = Self.image {
+            Image(decorative: image, scale: 1)
+                .resizable()
+                .interpolation(.none)
+                .aspectRatio(contentMode: .fit)
+                .padding(6)
         }
-        .accessibilityHidden(true)
     }
 }
 

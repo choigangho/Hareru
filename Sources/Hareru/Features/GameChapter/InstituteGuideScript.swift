@@ -59,3 +59,43 @@ enum InstituteGuideScript {
 
     static let nothingToRestore = "복원할 수 있는 한자가 아직 없어요. 한자가 들어간 단어를 외우면 여기에 나타나요."
 }
+
+// MARK: - 원내 방송 AI (`announcer_ai`) — HUD 방송 띠 문구
+// 문어체 · 공식 안내체. 연구소 상태와 실제 날씨에서 만들고, 차례로 돌려 보여 줌.
+enum InstituteBroadcast {
+    static let speakerTitle = "NJL 원내 방송"
+
+    static func lines(
+        state: InstituteState,
+        settlement: InstituteSettlement?,
+        restorableCount: Int,
+        activeCombos: [FacilityCombo],
+        realWeather: String
+    ) -> [String] {
+        var lines: [String] = []
+        if let settlement, settlement.gainedPoints > 0 {
+            lines.append("금일 학습 기록 정산 완료. 研究P +\(settlement.gainedPoints)이 연구소 계좌에 반영되었습니다.")
+        }
+        if let settlement, settlement.budgetGranted > 0 {
+            lines.append("문화 예산 배정 알림 — 本日の予算 +\(settlement.budgetGranted).")
+        }
+        if restorableCount > 0 {
+            lines.append("복원 대기 문자 \(restorableCount)자. 研究P가 충분하면 즉시 복원할 수 있습니다.")
+        } else {
+            lines.append("현재 복원 대기 문자가 없습니다. 학습 탭에서 한자 어휘를 외우면 목록에 추가됩니다.")
+        }
+        if let latest = state.restoredKanji.last {
+            lines.append("최근 복원 문자 「\(latest)」. 누적 복원 \(state.restoredKanji.count)자 / 상용 2,136자.")
+        }
+        for combo in activeCombos {
+            lines.append("설비 연계 가동 중: \(combo.title).")
+        }
+        switch state.instituteSky {
+        case .rain: lines.append("연구소 상공 강우 지속. 영향력이 오르면 구름이 걷힐 것으로 예측됩니다.")
+        case .cloudy: lines.append("연구소 상공 흐림. 晴れ間まで、あと少しです。")
+        default: lines.append("연구소 상공 쾌청. 本日も良い研究日和です。")
+        }
+        lines.append("도시 기상 — \(realWeather).")
+        return lines
+    }
+}
