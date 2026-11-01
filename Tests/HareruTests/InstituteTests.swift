@@ -87,6 +87,10 @@ final class InstituteTests: XCTestCase {
         XCTAssertTrue(engine.place(.kanjiArchive, at: GridPosition(column: desk.column + 1, row: desk.row)))
         XCTAssertTrue(engine.place(.copyRoom, at: GridPosition(column: desk.column + 2, row: desk.row)))
         XCTAssertEqual(Set(engine.activeCombos), [.researchCorner, .copyWorkshop])
+        // 떨어져 있는 (0,0) 서고는 같은 종류여도 콤보 강조 대상이 아님
+        let farArchive = engine.facility(at: GridPosition(column: 0, row: 0))!
+        XCTAssertFalse(engine.comboMemberIDs.contains(farArchive.id))
+        XCTAssertEqual(engine.comboMemberIDs.count, 3, "책상 · 옆 서고 · 필사실")
         XCTAssertEqual(engine.researchBonusPercent, 5 + 5 + 10)
         XCTAssertEqual(engine.restoreDiscountPercent, 10 + 20)
         XCTAssertEqual(engine.restoreCost, 21)

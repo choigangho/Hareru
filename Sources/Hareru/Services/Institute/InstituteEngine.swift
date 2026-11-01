@@ -80,6 +80,21 @@ public final class InstituteEngine {
         }
     }
 
+    /// 실제로 맞닿아 콤보를 이룬 시설들의 id (같은 종류라도 떨어져 있으면 제외)
+    public var comboMemberIDs: Set<String> {
+        var members = Set<String>()
+        for combo in FacilityCombo.allCases {
+            let (a, b) = combo.pair
+            for x in state.facilities where x.kind == a {
+                for y in state.facilities where y.kind == b && x.position.isAdjacent(to: y.position) {
+                    members.insert(x.id)
+                    members.insert(y.id)
+                }
+            }
+        }
+        return members
+    }
+
     public var researchBonusPercent: Int {
         state.facilities.reduce(0) { $0 + $1.kind.researchBonusPercent }
             + activeCombos.reduce(0) { $0 + $1.researchBonusPercent }

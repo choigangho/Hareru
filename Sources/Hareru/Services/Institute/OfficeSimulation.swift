@@ -1,0 +1,415 @@
+import Foundation
+import CoreGraphics
+
+// MARK: - 연구소 화면 전용 시뮬레이션 (저장하지 않음)
+// 연구원 이동 · 떠오르는 버블 · 복원 진행 연출은 모두 '보여 주기'용입니다.
+// 자원(研究P · 予算)과 복원 결과는 InstituteEngine이 즉시 확정하고, 여기서는 절대 바꾸지 않습니다.
+// → 연출 도중 탭을 옮기거나 앱이 꺼져도 저장된 결과와 어긋나지 않음.
+
+// MARK: - 재현 가능한 난수 (테스트에서 같은 동선을 다시 만들 수 있게)
+public struct SeededRandom: RandomNumberGenerator, Sendable {
+    private var state: UInt64
+
+    public init(seed: UInt64) {
+        state = seed == 0 ? 0x9E37_79B9_7F4A_7C15 : seed
+    }
+
+    public mutating func next() -> UInt64 {
+        state &+= 0x9E37_79B9_7F4A_7C15
+        var z = state
+        z = (z ^ (z >> 30)) &* 0xBF58_476D_1CE4_E5B9
+        z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
+        return z ^ (z >> 31)
+    }
+}
+
+// MARK: - 격자 길찾기 (BFS, 시설이 놓인 칸은 지나갈 수 없음)
+public enum OfficePathfinder {
+    public static func isWalkable(_ position: GridPosition, facilities: [PlacedFacility]) -> Bool {
+        (0..<InstituteState.gridColumns).contains(position.column)
+            && (0..<InstituteState.gridRows).contains(position.row)
+            && !facilities.contains { $0.position == position }
+    }
+
+    static func neighbors(of position: GridPosition) -> [GridPosition] {
+        [(0, 1), (1, 0), (0, -1), (-1, 0)].map {
+            GridPosition(column: position.column + $0.0, row: position.row + $0.1)
+        }
+    }
+
+    /// 시설 옆에서 일할 수 있는 빈 칸들
+    public static func standingSpots(beside target: GridPosition, facilities: [PlacedFacility]) -> [GridPosition] {
+        neighbors(of: target).filter { isWalkable($0, facilities: facilities) }
+    }
+
+    /// 연구원이 책상에서 일하는 자리 (책상 앞 칸을 우선, 막혀 있으면 다른 옆 칸)
+    public static func deskSpot(facilities: [PlacedFacility]) -> GridPosition? {
+        let desk = InstituteState.deskPosition
+        let preferred = GridPosition(column: desk.column, row: desk.row + 1)
+        if isWalkable(preferred, facilities: facilities) { return preferred }
+        return standingSpots(beside: desk, facilities: facilities).first
+    }
+
+    /// start에서 goals 중 가장 가까운 칸까지의 경로 (start 제외, 도착 칸 포함). 이미 도착해 있으면 []. 길이 없으면 nil
+    public static func path(
+        from start: GridPosition,
+        toAnyOf goals: [GridPosition],
+        facilities: [PlacedFacility]
+    ) -> [GridPosition]? {
+        let goalSet = Set(goals)
+        guard !goalSet.isEmpty else { return nil }
+        if goalSet.contains(start) { return [] }
+        var previous: [GridPosition: GridPosition] = [:]
+        var visited: Set<GridPosition> = [start]
+        var queue = [start]
+        var head = 0
+        while head < queue.count {
+            let current = queue[head]
+            head += 1
+            for next in neighbors(of: current) where !visited.contains(next) && isWalkable(next, facilities: facilities) {
+                visited.insert(next)
+                previous[next] = current
+                if goalSet.contains(next) {
+                    var route = [next]
+                    var cursor = next
+                    while let back = previous[cursor], back != start {
+                        route.append(back)
+                        cursor = back
+                    }
+                    return route.reversed()
+                }
+                queue.append(next)
+            }
+        }
+        return nil
+    }
+}
+
+// MARK: - 가이드 연구원 자율 행동 (책상 ↔ 시설 왕복)
+public struct ResearcherAgent: Equatable, Sendable {
+    public enum Activity: Equatable, Sendable {
+        case idle(remaining: Double)
+        case walking(path: [GridPosition], progress: Double, toward: FacilityKind?)   // nil = 책상으로 복귀
+        case working(facility: FacilityKind, remaining: Double)
+    }
+
+    public static let secondsPerTile = 0.35
+    public static let workSeconds = 2.0
+
+    public private(set) var tile: GridPosition
+    public private(set) var activity: Activity
+    public private(set) var facingRight = true
+    /// 복원 연출 중에는 쉬는 시간을 줄여 바쁘게 오감
+    public var isBusy = false
+
+    public init(tile: GridPosition, idleSeconds: Double = 2.0) {
+        self.tile = tile
+        self.activity = .idle(remaining: idleSeconds)
+    }
+
+    /// 화면에 그릴 연속 좌표 (column, row) — 타일 사이를 선형 보간
+    public var visualPosition: (column: CGFloat, row: CGFloat) {
+        if case let .walking(path, progress, _) = activity, let next = path.first {
+            let t = CGFloat(min(max(progress, 0), 1))
+            return (CGFloat(tile.column) + CGFloat(next.column - tile.column) * t,
+                    CGFloat(tile.row) + CGFloat(next.row - tile.row) * t)
+        }
+        return (CGFloat(tile.column), CGFloat(tile.row))
+    }
+
+    public var isWalking: Bool {
+        if case .walking = activity { return true }
+        return false
+    }
+
+    /// 시설이 치워지거나 옮겨져 현재 칸이 막혔을 때 책상 자리로 되돌림
+    public mutating func recover(facilities: [PlacedFacility]) {
+        guard !OfficePathfinder.isWalkable(tile, facilities: facilities),
+              let spot = OfficePathfinder.deskSpot(facilities: facilities) else { return }
+        tile = spot
+        activity = .idle(remaining: 1.0)
+    }
+
+    /// dt초만큼 진행. 반환값: 이번 틱에 일을 시작한 시설 (말풍선 연출용)
+    @discardableResult
+    public mutating func step<G: RandomNumberGenerator>(
+        dt: Double,
+        facilities: [PlacedFacility],
+        rng: inout G
+    ) -> FacilityKind? {
+        switch activity {
+        case .idle(let remaining):
+            let left = remaining - dt
+            guard left <= 0 else {
+                activity = .idle(remaining: left)
+                return nil
+            }
+            let targets = facilities.filter { $0.kind != .researcherDesk }
+            guard let target = targets.randomElement(using: &rng),
+                  let route = OfficePathfinder.path(
+                    from: tile,
+                    toAnyOf: OfficePathfinder.standingSpots(beside: target.position, facilities: facilities),
+                    facilities: facilities) else {
+                activity = .idle(remaining: isBusy ? 0.5 : 3.0)
+                return nil
+            }
+            if route.isEmpty {
+                activity = .working(facility: target.kind, remaining: Self.workSeconds)
+                return target.kind
+            }
+            activity = .walking(path: route, progress: 0, toward: target.kind)
+            return nil
+
+        case .walking(var path, var progress, let toward):
+            progress += dt / Self.secondsPerTile
+            while progress >= 1, !path.isEmpty {
+                let next = path.removeFirst()
+                if next.column != tile.column {
+                    facingRight = next.column > tile.column
+                }
+                tile = next
+                progress -= 1
+            }
+            if let next = path.first, next.column != tile.column {
+                facingRight = next.column > tile.column
+            }
+            guard path.isEmpty else {
+                activity = .walking(path: path, progress: progress, toward: toward)
+                return nil
+            }
+            if let kind = toward {
+                activity = .working(facility: kind, remaining: Self.workSeconds)
+                return kind
+            }
+            activity = .idle(remaining: isBusy ? 0.6 : Double.random(in: 3...6, using: &rng))
+            return nil
+
+        case .working(let facility, let remaining):
+            let left = remaining - dt
+            guard left <= 0 else {
+                activity = .working(facility: facility, remaining: left)
+                return nil
+            }
+            if let desk = OfficePathfinder.deskSpot(facilities: facilities),
+               let route = OfficePathfinder.path(from: tile, toAnyOf: [desk], facilities: facilities),
+               !route.isEmpty {
+                activity = .walking(path: route, progress: 0, toward: nil)
+            } else {
+                activity = .idle(remaining: isBusy ? 0.6 : 3.0)
+            }
+            return nil
+        }
+    }
+}
+
+// MARK: - 복원 연출에 쓸 학습 데이터 요약 (읽기 전용)
+// 버블은 장식이 아니라 '내가 이 한자를 어떻게 알고 있는지'를 보여 줌:
+// 音 = 음독으로 읽은 단어를 외움, 訓 = 훈독으로 읽은 단어를 외움, 文 = 외운 단어 수, 形 = 획수·부수
+public struct RestorationInsight: Equatable, Sendable {
+    public let kanji: String
+    public let knowsOnReading: Bool
+    public let knowsKunReading: Bool
+    public let learnedWordCount: Int
+    public let strokeCount: Int?
+    public let averageStability: Double
+
+    /// 외운 단어들을 평균 3일 이상 기억해 왔으면 '크리티컬 집중'
+    public static let criticalStability = 3.0
+    public var isCritical: Bool { averageStability >= Self.criticalStability }
+
+    public init(
+        kanji: String,
+        catalog: CatalogRepository,
+        snapshots: [String: WordMemorySnapshot]
+    ) {
+        let learned = catalog.words.filter {
+            (snapshots[$0.id]?.reps ?? 0) > 0 && $0.term.contains(kanji)
+        }
+        let usages = learned.compactMap { $0.kanjiUsage(for: kanji) }
+        self.kanji = kanji
+        knowsOnReading = usages.contains { $0.readingType == .onyomi }
+        knowsKunReading = usages.contains { $0.readingType == .kunyomi }
+        learnedWordCount = learned.count
+        strokeCount = catalog.kanjiInfo(for: kanji)?.strokeCount
+        let stabilities = learned.compactMap { snapshots[$0.id]?.stability }
+        averageStability = stabilities.isEmpty ? 0 : stabilities.reduce(0, +) / Double(stabilities.count)
+    }
+
+    /// 진행 중에 차례로 떠오를 버블 문구
+    public var bubbleTexts: [String] {
+        var texts: [String] = []
+        if knowsOnReading { texts.append("+音") }
+        if knowsKunReading { texts.append("+訓") }
+        texts.append(strokeCount.map { "+形 \($0)画" } ?? "+形")
+        texts.append("+文 ×\(learnedWordCount)")
+        return texts
+    }
+
+    /// 크리티컬이면 더 빨리 끝남
+    public var showDuration: Double { isCritical ? 4.5 : 6.5 }
+}
+
+// MARK: - 떠오르는 버블
+public struct FloatingBubble: Identifiable, Equatable, Sendable {
+    public enum Style: Equatable, Sendable {
+        case points, budget, combo, stat, critical, emote, done
+    }
+
+    public let id: UUID
+    public let text: String
+    public let style: Style
+    public let anchorColumn: CGFloat
+    public let anchorRow: CGFloat
+    public let born: Double
+    public let lifetime: Double
+
+    public init(text: String, style: Style, anchor: (column: CGFloat, row: CGFloat), born: Double, lifetime: Double = 1.2) {
+        self.id = UUID()
+        self.text = text
+        self.style = style
+        self.anchorColumn = anchor.column
+        self.anchorRow = anchor.row
+        self.born = born
+        self.lifetime = lifetime
+    }
+
+    /// 0 → 1 진행도
+    public func progress(at time: Double) -> Double {
+        min(max((time - born) / lifetime, 0), 1)
+    }
+
+    public func isAlive(at time: Double) -> Bool { time < born + lifetime }
+}
+
+// MARK: - 런타임 (뷰가 들고 있는 화면 전용 상태)
+public final class OfficeSimulationRuntime {
+    public struct RestorationShow: Equatable, Sendable {
+        public let insight: RestorationInsight
+        public let startedAt: Double
+        public var emittedCount: Int
+        public var hasShownCritical: Bool
+
+        public func progress(at time: Double) -> Double {
+            min(max((time - startedAt) / insight.showDuration, 0), 1)
+        }
+    }
+
+    public private(set) var agent: ResearcherAgent
+    public private(set) var bubbles: [FloatingBubble] = []
+    public private(set) var restoration: RestorationShow?
+    public private(set) var dropStarts: [String: Double] = [:]
+    public var reduceMotion = false
+    private var lastTime: Double?
+    private var rng: SeededRandom
+
+    public static let maxBubbles = 24
+    public static let bubbleInterval = 0.7
+
+    public init(facilities: [PlacedFacility], seed: UInt64 = UInt64(Date().timeIntervalSince1970)) {
+        rng = SeededRandom(seed: seed)
+        let start = OfficePathfinder.deskSpot(facilities: facilities) ?? InstituteState.deskPosition
+        agent = ResearcherAgent(tile: start)
+    }
+
+    /// 매 프레임 호출. dt는 최대 0.1초로 잘라서 백그라운드 복귀 시 순간이동을 막음
+    public func update(time: Double, facilities: [PlacedFacility]) {
+        let dt = min(max(time - (lastTime ?? time), 0), 0.1)
+        lastTime = time
+        bubbles.removeAll { !$0.isAlive(at: time) }
+
+        agent.recover(facilities: facilities)
+        agent.isBusy = restoration != nil
+        if !reduceMotion, let startedWork = agent.step(dt: dt, facilities: facilities, rng: &rng) {
+            emit(Self.emote(for: startedWork), style: .emote, at: agent.visualPosition, time: time, lifetime: 1.0)
+        }
+
+        guard var show = restoration else { return }
+        let elapsed = time - show.startedAt
+        let texts = show.insight.bubbleTexts
+        let due = Int(elapsed / Self.bubbleInterval)
+        while show.emittedCount < due, show.progress(at: time) < 1 {
+            emit(texts[show.emittedCount % texts.count], style: .stat, at: agent.visualPosition, time: time)
+            show.emittedCount += 1
+        }
+        if show.insight.isCritical, !show.hasShownCritical, elapsed > 1.0 {
+            emit("集中!", style: .critical, at: agent.visualPosition, time: time, lifetime: 1.4)
+            show.hasShownCritical = true
+        }
+        if show.progress(at: time) >= 1 {
+            finishRestoration(show.insight, time: time)
+        } else {
+            restoration = show
+        }
+    }
+
+    // MARK: - 이벤트 (모두 이미 엔진에서 확정된 결과를 보여 주기만 함)
+
+    public func emitSettlement(_ settlement: InstituteSettlement, time: Double) {
+        if settlement.gainedPoints > 0 {
+            emit("+\(settlement.gainedPoints) 研究P", style: .points, at: agent.visualPosition, time: time, lifetime: 1.6)
+        }
+        if settlement.budgetGranted > 0 {
+            emit("+\(settlement.budgetGranted) 予算", style: .budget, at: agent.visualPosition, time: time + 0.4, lifetime: 1.6)
+        }
+    }
+
+    public func facilityPlaced(_ facility: PlacedFacility, newCombos: [FacilityCombo], all: [PlacedFacility], time: Double) {
+        if !reduceMotion {
+            dropStarts[facility.id] = time
+        }
+        for combo in newCombos {
+            let (a, b) = combo.pair
+            let partner = all.first { $0.id != facility.id && ($0.kind == a || $0.kind == b) && $0.position.isAdjacent(to: facility.position) }
+            let mid = partner.map {
+                ((CGFloat($0.position.column) + CGFloat(facility.position.column)) / 2,
+                 (CGFloat($0.position.row) + CGFloat(facility.position.row)) / 2)
+            } ?? (CGFloat(facility.position.column), CGFloat(facility.position.row))
+            emit("Combo!", style: .combo, at: mid, time: time + 0.3, lifetime: 1.6)
+        }
+    }
+
+    public func startRestoration(_ insight: RestorationInsight, time: Double) {
+        restoration = RestorationShow(insight: insight, startedAt: time, emittedCount: 0, hasShownCritical: false)
+    }
+
+    /// 탭하면 연출을 건너뜀 (결과는 이미 저장돼 있음)
+    public func skipRestoration(time: Double) {
+        guard let show = restoration else { return }
+        finishRestoration(show.insight, time: time)
+    }
+
+    public var isShowingRestoration: Bool { restoration != nil }
+
+    /// 0 → 1 설치 낙하 진행 (끝났으면 nil)
+    public func dropProgress(for facilityId: String, time: Double) -> Double? {
+        guard let start = dropStarts[facilityId] else { return nil }
+        let t = (time - start) / 0.45
+        if t >= 1 {
+            dropStarts[facilityId] = nil
+            return nil
+        }
+        return max(0, t)
+    }
+
+    private func finishRestoration(_ insight: RestorationInsight, time: Double) {
+        restoration = nil
+        emit("\(insight.kanji) 復元!", style: .done, at: agent.visualPosition, time: time, lifetime: 2.0)
+    }
+
+    private func emit(_ text: String, style: FloatingBubble.Style, at anchor: (column: CGFloat, row: CGFloat), time: Double, lifetime: Double = 1.2) {
+        bubbles.append(FloatingBubble(text: text, style: style, anchor: anchor, born: time, lifetime: lifetime))
+        if bubbles.count > Self.maxBubbles {
+            bubbles.removeFirst(bubbles.count - Self.maxBubbles)
+        }
+    }
+
+    private static func emote(for kind: FacilityKind) -> String {
+        switch kind {
+        case .kanjiArchive: return "📖"
+        case .copyRoom: return "✍️"
+        case .recordingBooth: return "🎙️"
+        case .serverRack: return "⚙️"
+        case .researcherDesk: return "…"
+        }
+    }
+}

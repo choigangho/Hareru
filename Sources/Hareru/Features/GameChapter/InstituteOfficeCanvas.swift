@@ -4,7 +4,10 @@ import SwiftUI
 // 실제 픽셀 아트 에셋이 생기면 이 파일의 draw* 함수만 이미지 그리기로 바꾸면 됨.
 struct InstituteOfficeCanvas: View {
     let state: InstituteState
-    let activeCombos: [FacilityCombo]
+    /// 실제로 맞닿아 콤보를 이룬 시설만 금색 테두리
+    let comboMemberIDs: Set<String>
+    /// 화면 전용 시뮬레이션 (연구원 이동 · 버블 · 복원 연출). 저장 데이터는 건드리지 않음
+    let runtime: OfficeSimulationRuntime
     let selectedCell: GridPosition?
     let placingKind: FacilityKind?
     var onTapCell: (GridPosition) -> Void
@@ -25,12 +28,17 @@ struct InstituteOfficeCanvas: View {
                 )
             )
 
-            TimelineView(.periodic(from: .now, by: 0.5)) { timeline in
-                let tick = Int(timeline.date.timeIntervalSinceReferenceDate * 2)
+            // 30fps: 이동 계산은 매끄럽게, 그리기는 아트 픽셀 단위로 맞춤
+            TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { timeline in
+                let time = timeline.date.timeIntervalSinceReferenceDate
+                let tick = Int(time * 2)
                 Canvas { context, _ in
+                    runtime.update(time: time, facilities: state.facilities)
                     drawWalls(&context, grid: grid, tick: tick)
                     drawFloor(&context, grid: grid)
-                    drawObjects(&context, grid: grid, tick: tick)
+                    drawObjects(&context, grid: grid, time: time)
+                    drawRestorationGauge(&context, grid: grid, time: time)
+                    drawBubbles(&context, grid: grid, time: time)
                 }
             }
             .contentShape(Rectangle())
@@ -143,39 +151,56 @@ struct InstituteOfficeCanvas: View {
 
     // MARK: - 시설 · 연구원 (앞뒤 가림: column + row 순서)
 
-    private func drawObjects(_ context: inout GraphicsContext, grid: IsoGrid, tick: Int) {
-        let comboKinds = Set(activeCombos.flatMap { [$0.pair.0, $0.pair.1] })
-        let guidePosition = GridPosition(
-            column: InstituteState.deskPosition.column,
-            row: InstituteState.deskPosition.row + 1
-        )
-        let ordered = state.facilities.sorted {
-            ($0.position.column + $0.position.row, $0.position.column) < ($1.position.column + $1.position.row, $1.position.column)
+    private func drawObjects(_ context: inout GraphicsContext, grid: IsoGrid, time: Double) {
+        let tick = Int(time * 2)
+        let agentPosition = runtime.agent.visualPosition
+
+        // 앞뒤 가림: (column + row) 합이 작은 것부터. 연구원은 이동 중에도 실수 좌표로 매 프레임 정렬
+        enum Drawable { case facility(PlacedFacility), agent }
+        var items: [(key: CGFloat, item: Drawable)] = state.facilities.map {
+            (CGFloat($0.position.column + $0.position.row), .facility($0))
         }
-        var guideDrawn = false
-        for facility in ordered {
-            let depth = facility.position.column + facility.position.row
-            if !guideDrawn, guidePosition.column + guidePosition.row < depth {
-                drawGuide(&context, grid: grid, at: guidePosition, tick: tick)
-                guideDrawn = true
+        items.append((agentPosition.column + agentPosition.row + 0.01, .agent))
+        items.sort { $0.key < $1.key }
+
+        for entry in items {
+            switch entry.item {
+            case .facility(let facility):
+                drawFacility(&context, grid: grid, facility: facility,
+                             highlighted: comboMemberIDs.contains(facility.id), tick: tick,
+                             drop: runtime.dropProgress(for: facility.id, time: time))
+            case .agent:
+                drawGuide(&context, grid: grid, at: agentPosition, time: time)
             }
-            drawFacility(&context, grid: grid, facility: facility,
-                         highlighted: comboKinds.contains(facility.kind), tick: tick)
-        }
-        if !guideDrawn, state.facilities.contains(where: { $0.position == guidePosition }) == false {
-            drawGuide(&context, grid: grid, at: guidePosition, tick: tick)
         }
     }
 
+    /// 실수 격자 좌표 → 아트 픽셀에 맞춘 화면 좌표 (서브픽셀 이동으로 픽셀이 흐려지지 않게)
+    private func snappedCenter(_ grid: IsoGrid, column: CGFloat, row: CGFloat) -> CGPoint {
+        let raw = CGPoint(
+            x: grid.origin.x + (column - row) * grid.tileWidth / 2,
+            y: grid.origin.y + (column + row) * grid.tileHeight / 2 + grid.tileHeight / 2
+        )
+        let px = grid.pixelScale
+        return CGPoint(x: (raw.x / px).rounded() * px, y: (raw.y / px).rounded() * px)
+    }
+
     private func drawFacility(
-        _ context: inout GraphicsContext, grid: IsoGrid, facility: PlacedFacility, highlighted: Bool, tick: Int
+        _ context: inout GraphicsContext, grid: IsoGrid, facility: PlacedFacility, highlighted: Bool, tick: Int,
+        drop: Double?
     ) {
         let style = Self.style(for: facility.kind)
         let column = facility.position.column, row = facility.position.row
         let height = style.artHeight * grid.pixelScale
         let top = grid.topCorner(column: column, row: row)
         let w = grid.tileWidth / 2 - 2 * grid.pixelScale, h = grid.tileHeight / 2 - grid.pixelScale
-        let center = CGPoint(x: top.x, y: top.y + grid.tileHeight / 2)
+        // 설치 직후: 위에서 떨어져 착지하며 살짝 튐 (아트 픽셀 단위로 끊어서)
+        let dropLift: CGFloat = drop.map { t in
+            let fall = t < 0.7 ? 18 * (1 - t / 0.7) * (1 - t / 0.7) : 0
+            let bounce = t >= 0.7 ? 3 * sin((t - 0.7) / 0.3 * .pi) : 0
+            return (CGFloat(fall + bounce)).rounded() * grid.pixelScale
+        } ?? 0
+        let center = CGPoint(x: top.x, y: top.y + grid.tileHeight / 2 - dropLift)
 
         // 블록 세 면: 윗면 · 왼쪽 앞면 · 오른쪽 앞면
         var left = Path()
@@ -264,13 +289,16 @@ struct InstituteOfficeCanvas: View {
         "..k..k.."
     ]
 
-    private func drawGuide(_ context: inout GraphicsContext, grid: IsoGrid, at position: GridPosition, tick: Int) {
+    private func drawGuide(_ context: inout GraphicsContext, grid: IsoGrid, at position: (column: CGFloat, row: CGFloat), time: Double) {
         let px = grid.pixelScale
-        let center = grid.center(column: position.column, row: position.row)
-        let bob: CGFloat = tick % 2 == 0 ? 0 : -px
+        let center = snappedCenter(grid, column: position.column, row: position.row)
+        // 걸을 때는 초당 8장으로 통통 튀고, 서 있을 때는 천천히 숨쉬기
+        let frame = runtime.agent.isWalking ? Int(time * 8) % 2 : Int(time * 1.5) % 2
+        let bob: CGFloat = frame == 0 ? 0 : -px
         let spriteHeight = CGFloat(Self.guideSprite.count) * px
         let originX = center.x - 4 * px
         let originY = center.y - spriteHeight + 2 * px + bob
+        let mirrored = !runtime.agent.facingRight
 
         // 발밑 그림자
         context.fill(Path(ellipseIn: CGRect(x: center.x - 5 * px, y: center.y, width: 10 * px, height: 3 * px)),
@@ -287,9 +315,77 @@ struct InstituteOfficeCanvas: View {
         for (y, line) in Self.guideSprite.enumerated() {
             for (x, char) in line.enumerated() {
                 guard let color = palette[char] else { continue }
-                context.fill(Path(CGRect(x: originX + CGFloat(x) * px, y: originY + CGFloat(y) * px, width: px, height: px)),
+                let column = mirrored ? 7 - x : x
+                context.fill(Path(CGRect(x: originX + CGFloat(column) * px, y: originY + CGFloat(y) * px, width: px, height: px)),
                              with: .color(color))
             }
+        }
+    }
+
+    // MARK: - 복원 진행 게이지 (책상 위: 복원 중인 한자 + 픽셀 막대)
+
+    private func drawRestorationGauge(_ context: inout GraphicsContext, grid: IsoGrid, time: Double) {
+        guard let show = runtime.restoration else { return }
+        let px = grid.pixelScale
+        let desk = InstituteState.deskPosition
+        let anchor = snappedCenter(grid, column: CGFloat(desk.column), row: CGFloat(desk.row))
+        let barWidth = 28 * px, barHeight = 4 * px
+        let barOrigin = CGPoint(x: anchor.x - barWidth / 2, y: anchor.y - 34 * px)
+        let progress = CGFloat(show.progress(at: time))
+
+        let kanji = context.resolve(Text(show.insight.kanji).font(JLPTFont.termMincho(size: 13 * px)).foregroundColor(.white))
+        context.draw(kanji, at: CGPoint(x: anchor.x, y: barOrigin.y - 9 * px), anchor: .center)
+        context.fill(Path(CGRect(x: barOrigin.x - px, y: barOrigin.y - px, width: barWidth + 2 * px, height: barHeight + 2 * px)),
+                     with: .color(.black.opacity(0.6)))
+        context.fill(Path(CGRect(x: barOrigin.x, y: barOrigin.y, width: barWidth, height: barHeight)),
+                     with: .color(.white.opacity(0.18)))
+        let filled = ((barWidth * progress) / px).rounded(.down) * px
+        let barColor = show.insight.isCritical ? Color(red: 1.0, green: 0.78, blue: 0.3) : Color(red: 0.55, green: 0.85, blue: 0.75)
+        context.fill(Path(CGRect(x: barOrigin.x, y: barOrigin.y, width: filled, height: barHeight)), with: .color(barColor))
+    }
+
+    // MARK: - 떠오르는 버블 (톡 튀어나와 떠오르며 사라짐)
+
+    private func drawBubbles(_ context: inout GraphicsContext, grid: IsoGrid, time: Double) {
+        let px = grid.pixelScale
+        for bubble in runtime.bubbles where time >= bubble.born {
+            let t = bubble.progress(at: time)
+            let rise = runtime.reduceMotion ? 0 : CGFloat(1 - pow(1 - t, 3)) * 16
+            let pop = t < 0.12 ? 0.7 + 0.3 * (t / 0.12) : 1.0
+            let opacity = t < 0.7 ? 1.0 : (1 - t) / 0.3
+            let base = snappedCenter(grid, column: bubble.anchorColumn, row: bubble.anchorRow)
+            // 머리 위 22 아트 픽셀에서 시작해 떠오름 — 아트 픽셀 단위로 반올림
+            let center = CGPoint(x: base.x, y: base.y - (22 + rise).rounded() * px)
+
+            let (fill, textColor, size) = Self.bubbleStyle(bubble.style)
+            let text = context.resolve(
+                Text(bubble.text)
+                    .font(.system(size: size * px * pop, weight: .heavy, design: .rounded))
+                    .foregroundColor(textColor)
+            )
+            let textSize = text.measure(in: CGSize(width: 400, height: 100))
+            let pill = CGRect(x: center.x - textSize.width / 2 - 3 * px, y: center.y - textSize.height / 2 - px,
+                              width: textSize.width + 6 * px, height: textSize.height + 2 * px)
+            var layer = context
+            layer.opacity = opacity
+            if bubble.style != .emote {
+                layer.fill(Path(roundedRect: pill, cornerRadius: 2 * px), with: .color(fill))
+                layer.stroke(Path(roundedRect: pill, cornerRadius: 2 * px), with: .color(.black.opacity(0.35)), lineWidth: px / 2)
+            }
+            layer.draw(text, at: center, anchor: .center)
+        }
+    }
+
+    private static func bubbleStyle(_ style: FloatingBubble.Style) -> (Color, Color, CGFloat) {
+        func rgb(_ r: Double, _ g: Double, _ b: Double) -> Color { Color(red: r, green: g, blue: b) }
+        switch style {
+        case .points: return (rgb(0.36, 0.62, 0.95), .white, 6)
+        case .budget: return (rgb(0.96, 0.74, 0.25), rgb(0.25, 0.17, 0.05), 6)
+        case .combo: return (rgb(1.0, 0.86, 0.4), rgb(0.35, 0.2, 0.0), 7)
+        case .stat: return (rgb(0.98, 0.97, 0.93), rgb(0.25, 0.27, 0.35), 6)
+        case .critical: return (rgb(0.95, 0.35, 0.35), .white, 8)
+        case .emote: return (.clear, .white, 7)
+        case .done: return (rgb(0.35, 0.75, 0.6), .white, 8)
         }
     }
 
