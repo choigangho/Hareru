@@ -1,0 +1,126 @@
+{
+ "about": "N5 시험 배치 20단어 — 한국어 뜻·예문 AI 초안 (검수 전). 단어 키는 words_base.json의 id.",
+ "kanji": {
+  "会": {"hunEum": "모일 회", "meanings": ["모이다", "만나다", "모임"], "radicalKoreanName": "사람 인"},
+  "食": {"hunEum": "밥 식", "meanings": ["먹다", "음식", "식사"], "radicalKoreanName": "밥 식"},
+  "行": {"hunEum": "다닐 행", "meanings": ["가다", "다니다", "행하다"], "radicalKoreanName": "다닐 행"},
+  "高": {"hunEum": "높을 고", "meanings": ["높다", "비싸다", "뛰어나다"], "radicalKoreanName": "높을 고"},
+  "静": {"hunEum": "고요할 정", "meanings": ["고요하다", "조용하다", "차분하다"], "radicalKoreanName": "푸를 청"},
+  "天": {"hunEum": "하늘 천", "meanings": ["하늘", "날씨", "타고난 것"], "radicalKoreanName": "큰 대"},
+  "気": {"hunEum": "기운 기", "meanings": ["기운", "공기", "마음", "기분"], "radicalKoreanName": "기운 기"},
+  "電": {"hunEum": "번개 전", "meanings": ["전기", "번개"], "radicalKoreanName": "비 우"},
+  "車": {"hunEum": "수레 차", "meanings": ["차", "수레", "바퀴"], "radicalKoreanName": "수레 거"},
+  "学": {"hunEum": "배울 학", "meanings": ["배우다", "학문", "학교"], "radicalKoreanName": "아들 자"},
+  "校": {"hunEum": "학교 교", "meanings": ["학교", "바로잡다"], "radicalKoreanName": "나무 목"},
+  "時": {"hunEum": "때 시", "meanings": ["때", "시간", "시각"], "radicalKoreanName": "날 일"},
+  "計": {"hunEum": "셀 계", "meanings": ["세다", "재다", "꾀하다"], "radicalKoreanName": "말씀 언"},
+  "大": {"hunEum": "큰 대", "meanings": ["크다", "많다", "중요하다"], "radicalKoreanName": "큰 대"},
+  "人": {"hunEum": "사람 인", "meanings": ["사람", "남", "인품"], "radicalKoreanName": "사람 인"},
+  "雨": {"hunEum": "비 우", "meanings": ["비", "비가 오다"], "radicalKoreanName": "비 우"},
+  "友": {"hunEum": "벗 우", "meanings": ["벗", "친구", "사이좋다"], "radicalKoreanName": "또 우"},
+  "達": {"hunEum": "통달할 달", "meanings": ["이르다", "통달하다", "(사람 뒤에 붙어) ~들"], "radicalKoreanName": "쉬엄쉬엄 갈 착"},
+  "見": {"hunEum": "볼 견", "meanings": ["보다", "보이다", "생각"], "radicalKoreanName": "볼 견"},
+  "一": {"hunEum": "한 일", "meanings": ["하나", "첫째", "같다"], "radicalKoreanName": "한 일"},
+  "暑": {"hunEum": "더울 서", "meanings": ["덥다", "더위"], "radicalKoreanName": "날 일"},
+  "傘": {"hunEum": "우산 산", "meanings": ["우산", "양산"], "radicalKoreanName": "사람 인"}
+ },
+ "words": {
+  "n5_1198180": {"term": "会う", "category": "일상·관계", "senses": [
+   {"partOfSpeech": "동사", "meaning": "만나다", "voiceId": "tokyo_senpai",
+    "exampleMarkup": "{明日|あした}、{駅|えき}で{友達|ともだち}に{会|あ}います。",
+    "translation": {"before": "내일 역에서 친구를 ", "answer": "만납니다", "after": "."}}]},
+  "n5_1358280": {"term": "食べる", "category": "음식", "senses": [
+   {"partOfSpeech": "동사", "meaning": "먹다", "voiceId": "tenchou",
+    "exampleMarkup": "{熱|あつ}いうちに{早|はや}く{食|た}べてくれ!",
+    "translation": {"before": "뜨거울 때 빨리 ", "answer": "먹어", "after": " 줘!"}}]},
+  "n5_1578850": {"term": "行く", "category": "모임·회식", "senses": [
+   {"partOfSpeech": "동사", "meaning": "가다", "voiceId": "buchou",
+    "exampleMarkup": "{仕事|しごと}の{後|あと}、{一緒|いっしょ}に{飲|の}みに{行|い}こう。",
+    "translation": {"before": "일 끝나고 같이 한잔하러 ", "answer": "가자", "after": "."}}]},
+  "n5_1283190": {"term": "高い", "category": "상태·거래", "senses": [
+   {"partOfSpeech": "い형용사", "meaning": "높다", "voiceId": "expedition_captain",
+    "exampleMarkup": "あの{山|やま}は{本当|ほんとう}に{高|たか}いな。",
+    "translation": {"before": "저 산은 정말 ", "answer": "높구나", "after": "."}},
+   {"partOfSpeech": "い형용사", "meaning": "비싸다", "voiceId": "alchemy_merchant",
+    "exampleMarkup": "この{薬|くすり}は{少|すこ}し{高|たか}いですよ。",
+    "translation": {"before": "이 약은 조금 ", "answer": "비싸요", "after": "."}}]},
+  "n5_1381820": {"term": "静か", "category": "감각·판단", "senses": [
+   {"partOfSpeech": "な형용사", "meaning": "조용하다", "voiceId": "kyoto_grandma",
+    "exampleMarkup": "{夜|よる}の{庭|にわ}は{静|しず}かですねえ。",
+    "translation": {"before": "밤의 정원은 ", "answer": "조용하네요", "after": "."}}]},
+  "n5_1438690": {"term": "天気", "category": "생활·날씨", "senses": [
+   {"partOfSpeech": "명사", "meaning": "날씨", "voiceId": "konbini_clerk",
+    "exampleMarkup": "{今日|きょう}はいい{天気|てんき}ですね!",
+    "translation": {"before": "오늘은 좋은 ", "answer": "날씨", "after": "네요!"}}]},
+  "n5_1443530": {"term": "電車", "category": "시간·일상", "senses": [
+   {"partOfSpeech": "명사", "meaning": "전철, 전차", "voiceId": "tokyo_senpai",
+    "exampleMarkup": "{電車|でんしゃ}が{遅|おく}れているので、{少|すこ}し{待|ま}ちましょう。",
+    "translation": {"before": "", "answer": "전철", "after": "이 늦어지고 있으니 조금 기다립시다."}}]},
+  "n5_1206730": {"term": "学校", "category": "일상 회화", "senses": [
+   {"partOfSpeech": "명사", "meaning": "학교", "voiceId": "cafe_staff",
+    "exampleMarkup": "{学校|がっこう}の{帰|かえ}りにケーキを{買|か}いに{来|き}てね。",
+    "translation": {"before": "", "answer": "학교", "after": " 끝나고 오는 길에 케이크 사러 와요."}}]},
+  "n5_1288810": {"term": "ここ", "category": "일상 회화",
+   "nonKanjiNote": {"kind": "native_kana", "explanation": "보통 가나로 쓰는 지시대명사. 한자 표기(此処)는 거의 쓰지 않음"},
+   "senses": [
+   {"partOfSpeech": "대명사", "meaning": "여기, 이곳", "voiceId": "modulated_detective",
+    "exampleMarkup": "{犯人|はんにん}は、ここにいる。",
+    "translation": {"before": "범인은 ", "answer": "여기", "after": "에 있다."}}]},
+  "n5_1012480": {"term": "もう", "category": "모임·회식",
+   "nonKanjiNote": {"kind": "native_kana", "explanation": "보통 가나로 쓰는 부사. 문맥에 따라 '벌써'와 '더'로 뜻이 갈림"},
+   "senses": [
+   {"partOfSpeech": "부사", "meaning": "벌써, 이미", "voiceId": "buchou",
+    "exampleMarkup": "もう{九時|くじ}か。そろそろ{帰|かえ}ろう。",
+    "translation": {"before": "", "answer": "벌써", "after": " 9시인가. 슬슬 돌아가자."}},
+   {"partOfSpeech": "부사", "meaning": "더, 한 ~ 더", "voiceId": "buchou",
+    "exampleMarkup": "もう{一杯|いっぱい}どうだ?",
+    "translation": {"before": "한 잔 ", "answer": "더", "after": " 어때?"}}]},
+  "n5_1049180": {"term": "コーヒー", "category": "음식·디저트",
+   "nonKanjiNote": {"kind": "loanword", "originLanguage": "Dutch", "originTerm": "koffie", "explanation": "네덜란드어 koffie에서 들어온 외래어. 한자 표기(珈琲)도 있지만 보통 가타카나로 씀"},
+   "senses": [
+   {"partOfSpeech": "명사", "meaning": "커피", "voiceId": "cafe_staff",
+    "exampleMarkup": "コーヒーと{一緒|いっしょ}にケーキはいかがですか。",
+    "translation": {"before": "", "answer": "커피", "after": "와 함께 케이크는 어떠세요?"}}]},
+  "n5_1414170": {"term": "大人", "category": "일상·관계", "senses": [
+   {"partOfSpeech": "명사", "meaning": "어른, 성인", "voiceId": "kyoto_grandma",
+    "exampleMarkup": "あの{子|こ}も、もうすっかり{大人|おとな}ですねえ。",
+    "translation": {"before": "그 아이도 이제 완전히 ", "answer": "어른", "after": "이네요."}}]},
+  "n5_1207610": {"term": "かける", "category": "행동·요구",
+   "nonKanjiNote": {"kind": "native_kana", "explanation": "보통 가나로 씀. 한자로는 뜻에 따라 掛ける(걸다)·架ける(놓다) 등으로 갈림"},
+   "senses": [
+   {"partOfSpeech": "동사", "meaning": "걸다, 매달다", "voiceId": "knight_commander",
+    "exampleMarkup": "{剣|けん}を{壁|かべ}にかけておけ。",
+    "translation": {"before": "검을 벽에 ", "answer": "걸어", "after": " 둬라."}},
+   {"partOfSpeech": "동사", "meaning": "(안경을) 쓰다", "voiceId": "modulated_detective",
+    "exampleMarkup": "{眼鏡|めがね}をかけた{男|おとこ}を{探|さが}せ。",
+    "translation": {"before": "안경을 ", "answer": "쓴", "after": " 남자를 찾아라."}}]},
+  "n5_1171900": {"term": "雨", "category": "생활·날씨", "senses": [
+   {"partOfSpeech": "명사", "meaning": "비", "voiceId": "expedition_captain",
+    "exampleMarkup": "{雨|あめ}がやむまで、ここで{休|やす}もう。",
+    "translation": {"before": "", "answer": "비", "after": "가 그칠 때까지 여기서 쉬자."}}]},
+  "n5_1540170": {"term": "友達", "category": "일상·관계", "senses": [
+   {"partOfSpeech": "명사", "meaning": "친구", "voiceId": "konbini_clerk",
+    "exampleMarkup": "{友達|ともだち}と{一緒|いっしょ}にお{弁当|べんとう}を{食|た}べました。",
+    "translation": {"before": "", "answer": "친구", "after": "와 함께 도시락을 먹었어요."}}]},
+  "n5_1259290": {"term": "見る", "category": "일상 회화", "senses": [
+   {"partOfSpeech": "동사", "meaning": "보다", "voiceId": "tokyo_senpai",
+    "exampleMarkup": "この{写真|しゃしん}を{見|み}てください。",
+    "translation": {"before": "이 사진을 ", "answer": "봐", "after": " 주세요."}}]},
+  "n5_1576150": {"term": "一人", "category": "음식·매장", "senses": [
+   {"partOfSpeech": "명사", "meaning": "한 사람, 혼자", "voiceId": "alchemy_merchant",
+    "exampleMarkup": "いらっしゃいませ。お{一人|ひとり}ですか?",
+    "translation": {"before": "어서 오세요. ", "answer": "한 분", "after": "이신가요?"}}]},
+  "n5_1343460": {"term": "暑い", "category": "생활·날씨", "senses": [
+   {"partOfSpeech": "い형용사", "meaning": "덥다", "voiceId": "expedition_captain",
+    "exampleMarkup": "{今日|きょう}は{暑|あつ}いから、{水|みず}をたくさん{飲|の}め。",
+    "translation": {"before": "오늘은 ", "answer": "더우니까", "after": " 물을 많이 마셔라."}}]},
+  "n5_1316140": {"term": "時計", "category": "시간·일상", "senses": [
+   {"partOfSpeech": "명사", "meaning": "시계", "voiceId": "modulated_detective",
+    "exampleMarkup": "この{時計|とけい}、{五分|ごふん}{遅|おく}れているな。",
+    "translation": {"before": "이 ", "answer": "시계", "after": ", 5분 늦네."}}]},
+  "n5_1301940": {"term": "傘", "category": "생활·날씨", "senses": [
+   {"partOfSpeech": "명사", "meaning": "우산", "voiceId": "kyoto_grandma",
+    "exampleMarkup": "{雨|あめ}が{降|ふ}りそうだから、{傘|かさ}を{持|も}っていきなさい。",
+    "translation": {"before": "비가 올 것 같으니 ", "answer": "우산", "after": "을 가져가렴."}}]}
+ }
+}

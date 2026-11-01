@@ -1,7 +1,7 @@
 import SwiftUI
 
-// MARK: - 탭 2 게임 챕터 (임시 화면)
-// 단어 · 통계 · 날씨 · 음성 캐릭터가 엮이는 종합 게임이 들어올 자리입니다. 컨셉은 Docs/BACKLOG.md 참고.
+// MARK: - 탭 2 「연구소」 게임 챕터 (임시 화면)
+// 国立言語遺産研究所(NJL)를 키우는 경영 시뮬레이션이 들어올 자리입니다. 기획은 Docs/GAME_DESIGN.md 참고.
 public struct GameChapterPlaceholderView: View {
     private let weatherEngine: WeatherAtmosphereEngine
 
@@ -14,13 +14,13 @@ public struct GameChapterPlaceholderView: View {
     public var body: some View {
         NavigationStack {
             VStack(spacing: 14) {
-                Image(systemName: "gamecontroller.fill")
+                Image(systemName: "building.columns.fill")
                     .font(.system(size: 44))
                     .foregroundStyle(palette.accentColor)
-                Text("게임 챕터 준비 중")
+                Text("연구소 준비 중")
                     .font(.title3.bold())
                     .foregroundStyle(palette.primaryTextColor)
-                Text("외운 단어와 음성 캐릭터, 오늘의 날씨가\n하나의 이야기로 이어질 예정이에요.")
+                Text("잊혀진 한자를 되살리는 마지막 연구소가\n곧 문을 열어요.")
                     .font(.subheadline)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(palette.secondaryTextColor)
@@ -37,11 +37,11 @@ public struct GameChapterPlaceholderView: View {
                     isHareruCleared: weatherEngine.isHareruClearedToday
                 )
             }
-            .navigationTitle("게임")
+            .navigationTitle("연구소")
         }
     }
 }
 
-#Preview("게임 챕터 (임시)") {
+#Preview("연구소 (임시)") {
     GameChapterPlaceholderView()
 }

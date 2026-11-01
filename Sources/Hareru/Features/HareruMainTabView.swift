@@ -32,7 +32,7 @@ public struct HareruMainTabView: View {
         } else {
             ZStack {
                 // 학습 탭은 카드 진행 상태가 유지되도록 항상 띄워두고 노출만 전환,
-                // 게임·통계·설정은 선택될 때만 만들어 60fps 하늘 캔버스가 중복으로 돌지 않게 함
+                // 연구소·통계·설정은 선택될 때만 만들어 60fps 하늘 캔버스가 중복으로 돌지 않게 함
                 tabContent(for: .study)
                     .opacity(selectedTab == .study ? 1 : 0)
                     .allowsHitTesting(selectedTab == .study)

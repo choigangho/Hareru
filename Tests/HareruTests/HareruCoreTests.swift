@@ -832,4 +832,43 @@ final class HareruCoreTests: XCTestCase {
             XCTAssertEqual(rebuilt, JapaneseScript.toHiragana(word.reading), word.term)
         }
     }
+
+    // MARK: - 데이터 파이프라인: 시험 배치(Tools/build/pilot)가 앱 무결성 검사를 통과하는지
+
+    func testPilotCatalogExportPassesAppValidation() throws {
+        let pilotDirectory = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("Tools/build/pilot")
+        let wordsURL = pilotDirectory.appendingPathComponent("words.json")
+        let kanjiURL = pilotDirectory.appendingPathComponent("kanji.json")
+        guard FileManager.default.fileExists(atPath: wordsURL.path) else {
+            throw XCTSkip("Tools/build/pilot 내보내기 결과가 없음 (export_catalog.py 실행 전)")
+        }
+
+        let decoder = JSONDecoder()
+        let words = try decoder.decode([Word].self, from: Data(contentsOf: wordsURL))
+        let kanji = try decoder.decode([KanjiInfo].self, from: Data(contentsOf: kanjiURL))
+        let repo = CatalogRepository(words: words, kanjiEntries: kanji)
+
+        XCTAssertTrue(repo.validationIssues().isEmpty, "Issues: \(repo.validationIssues())")
+
+        for word in words {
+            // 표제어 루비를 이어 붙이면 단어 읽기가 복원되어야 함
+            let rebuilt = word.termRubyRuns.map { $0.reading ?? JapaneseScript.toHiragana($0.text) }.joined()
+            XCTAssertEqual(rebuilt, JapaneseScript.toHiragana(word.reading), word.term)
+
+            for sense in word.senses {
+                XCTAssertFalse(sense.translation.answer.isEmpty, "\(word.term) 해석 정답 조각 비어 있음")
+                // 한자 단어는 예문 안에서 정답 어절이 감지되어야 정답 공개 전 후리가나가 잠김
+                if word.termGlyphs.contains(where: \.isKanji) {
+                    let segments = word.segments(for: sense)
+                    XCTAssertTrue(segments.contains(where: \.isTargetWord), "\(word.term) 예문에서 정답 어절을 못 찾음: \(sense.example)")
+                } else {
+                    // 가나 단어는 활용형(かける → かけて)도 인정: 끝 글자를 뗀 어간이 예문에 있으면 통과
+                    let stem = word.term.count > 2 ? String(word.term.dropLast()) : word.term
+                    XCTAssertTrue(sense.example.contains(stem), "\(word.term) 예문에 표제어가 없음: \(sense.example)")
+                }
+            }
+        }
+    }
 }

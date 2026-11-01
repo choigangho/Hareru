@@ -1,0 +1,434 @@
+[
+ {
+  "character": "一",
+  "koreanHunEum": "한 일",
+  "meanings": [
+   "하나",
+   "첫째",
+   "같다"
+  ],
+  "onyomi": [
+   "イチ",
+   "イツ"
+  ],
+  "kunyomi": [
+   "ひと-",
+   "ひと.つ"
+  ],
+  "strokeCount": 1,
+  "radical": "一 (한 일)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "会",
+  "koreanHunEum": "모일 회",
+  "meanings": [
+   "모이다",
+   "만나다",
+   "모임"
+  ],
+  "onyomi": [
+   "カイ",
+   "エ"
+  ],
+  "kunyomi": [
+   "あ.う",
+   "あ.わせる",
+   "あつ.まる"
+  ],
+  "strokeCount": 6,
+  "radical": "人 (사람 인)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "人",
+  "koreanHunEum": "사람 인",
+  "meanings": [
+   "사람",
+   "남",
+   "인품"
+  ],
+  "onyomi": [
+   "ジン",
+   "ニン"
+  ],
+  "kunyomi": [
+   "ひと",
+   "-り",
+   "-と"
+  ],
+  "strokeCount": 2,
+  "radical": "人 (사람 인)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "大",
+  "koreanHunEum": "큰 대",
+  "meanings": [
+   "크다",
+   "많다",
+   "중요하다"
+  ],
+  "onyomi": [
+   "ダイ",
+   "タイ"
+  ],
+  "kunyomi": [
+   "おお-",
+   "おお.きい",
+   "-おお.いに"
+  ],
+  "strokeCount": 3,
+  "radical": "大 (큰 대)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "時",
+  "koreanHunEum": "때 시",
+  "meanings": [
+   "때",
+   "시간",
+   "시각"
+  ],
+  "onyomi": [
+   "ジ"
+  ],
+  "kunyomi": [
+   "とき",
+   "-どき"
+  ],
+  "strokeCount": 10,
+  "radical": "日 (날 일)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "行",
+  "koreanHunEum": "다닐 행",
+  "meanings": [
+   "가다",
+   "다니다",
+   "행하다"
+  ],
+  "onyomi": [
+   "コウ",
+   "ギョウ",
+   "アン"
+  ],
+  "kunyomi": [
+   "い.く",
+   "ゆ.く",
+   "-ゆ.き",
+   "-ゆき",
+   "-い.き",
+   "-いき",
+   "おこな.う",
+   "おこ.なう"
+  ],
+  "strokeCount": 6,
+  "radical": "行 (다닐 행)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "見",
+  "koreanHunEum": "볼 견",
+  "meanings": [
+   "보다",
+   "보이다",
+   "생각"
+  ],
+  "onyomi": [
+   "ケン"
+  ],
+  "kunyomi": [
+   "み.る",
+   "み.える",
+   "み.せる"
+  ],
+  "strokeCount": 7,
+  "radical": "見 (볼 견)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "学",
+  "koreanHunEum": "배울 학",
+  "meanings": [
+   "배우다",
+   "학문",
+   "학교"
+  ],
+  "onyomi": [
+   "ガク"
+  ],
+  "kunyomi": [
+   "まな.ぶ"
+  ],
+  "strokeCount": 8,
+  "radical": "子 (아들 자)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "高",
+  "koreanHunEum": "높을 고",
+  "meanings": [
+   "높다",
+   "비싸다",
+   "뛰어나다"
+  ],
+  "onyomi": [
+   "コウ"
+  ],
+  "kunyomi": [
+   "たか.い",
+   "たか",
+   "-だか",
+   "たか.まる",
+   "たか.める"
+  ],
+  "strokeCount": 10,
+  "radical": "高 (높을 고)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "気",
+  "koreanHunEum": "기운 기",
+  "meanings": [
+   "기운",
+   "공기",
+   "마음",
+   "기분"
+  ],
+  "onyomi": [
+   "キ",
+   "ケ"
+  ],
+  "kunyomi": [
+   "いき",
+   "き"
+  ],
+  "strokeCount": 6,
+  "radical": "气 (기운 기)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "計",
+  "koreanHunEum": "셀 계",
+  "meanings": [
+   "세다",
+   "재다",
+   "꾀하다"
+  ],
+  "onyomi": [
+   "ケイ"
+  ],
+  "kunyomi": [
+   "はか.る",
+   "はか.らう"
+  ],
+  "strokeCount": 9,
+  "radical": "言 (말씀 언)",
+  "jlptLevel": "N4"
+ },
+ {
+  "character": "電",
+  "koreanHunEum": "번개 전",
+  "meanings": [
+   "전기",
+   "번개"
+  ],
+  "onyomi": [
+   "デン"
+  ],
+  "kunyomi": [],
+  "strokeCount": 13,
+  "radical": "雨 (비 우)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "校",
+  "koreanHunEum": "학교 교",
+  "meanings": [
+   "학교",
+   "바로잡다"
+  ],
+  "onyomi": [
+   "コウ",
+   "キョウ"
+  ],
+  "kunyomi": [],
+  "strokeCount": 10,
+  "radical": "木 (나무 목)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "食",
+  "koreanHunEum": "밥 식",
+  "meanings": [
+   "먹다",
+   "음식",
+   "식사"
+  ],
+  "onyomi": [
+   "ショク",
+   "ジキ"
+  ],
+  "kunyomi": [
+   "く.う",
+   "く.らう",
+   "た.べる",
+   "は.む"
+  ],
+  "strokeCount": 9,
+  "radical": "食 (밥 식)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "車",
+  "koreanHunEum": "수레 차",
+  "meanings": [
+   "차",
+   "수레",
+   "바퀴"
+  ],
+  "onyomi": [
+   "シャ"
+  ],
+  "kunyomi": [
+   "くるま"
+  ],
+  "strokeCount": 7,
+  "radical": "車 (수레 거)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "達",
+  "koreanHunEum": "통달할 달",
+  "meanings": [
+   "이르다",
+   "통달하다",
+   "(사람 뒤에 붙어) ~들"
+  ],
+  "onyomi": [
+   "タツ",
+   "ダ"
+  ],
+  "kunyomi": [
+   "-たち"
+  ],
+  "strokeCount": 12,
+  "radical": "辵 (쉬엄쉬엄 갈 착)",
+  "jlptLevel": "N3"
+ },
+ {
+  "character": "天",
+  "koreanHunEum": "하늘 천",
+  "meanings": [
+   "하늘",
+   "날씨",
+   "타고난 것"
+  ],
+  "onyomi": [
+   "テン"
+  ],
+  "kunyomi": [
+   "あまつ",
+   "あめ",
+   "あま-"
+  ],
+  "strokeCount": 4,
+  "radical": "大 (큰 대)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "友",
+  "koreanHunEum": "벗 우",
+  "meanings": [
+   "벗",
+   "친구",
+   "사이좋다"
+  ],
+  "onyomi": [
+   "ユウ"
+  ],
+  "kunyomi": [
+   "とも"
+  ],
+  "strokeCount": 4,
+  "radical": "又 (또 우)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "静",
+  "koreanHunEum": "고요할 정",
+  "meanings": [
+   "고요하다",
+   "조용하다",
+   "차분하다"
+  ],
+  "onyomi": [
+   "セイ",
+   "ジョウ"
+  ],
+  "kunyomi": [
+   "しず-",
+   "しず.か",
+   "しず.まる",
+   "しず.める"
+  ],
+  "strokeCount": 14,
+  "radical": "靑 (푸를 청)",
+  "jlptLevel": "N3"
+ },
+ {
+  "character": "雨",
+  "koreanHunEum": "비 우",
+  "meanings": [
+   "비",
+   "비가 오다"
+  ],
+  "onyomi": [
+   "ウ"
+  ],
+  "kunyomi": [
+   "あめ",
+   "あま-",
+   "-さめ"
+  ],
+  "strokeCount": 8,
+  "radical": "雨 (비 우)",
+  "jlptLevel": "N5"
+ },
+ {
+  "character": "暑",
+  "koreanHunEum": "더울 서",
+  "meanings": [
+   "덥다",
+   "더위"
+  ],
+  "onyomi": [
+   "ショ"
+  ],
+  "kunyomi": [
+   "あつ.い"
+  ],
+  "strokeCount": 12,
+  "radical": "日 (날 일)",
+  "jlptLevel": "N4"
+ },
+ {
+  "character": "傘",
+  "koreanHunEum": "우산 산",
+  "meanings": [
+   "우산",
+   "양산"
+  ],
+  "onyomi": [
+   "サン"
+  ],
+  "kunyomi": [
+   "かさ"
+  ],
+  "strokeCount": 12,
+  "radical": "人 (사람 인)",
+  "jlptLevel": "N1"
+ }
+]

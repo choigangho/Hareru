@@ -18,3 +18,9 @@ DerivedData/
 !default.perspectivev3
 *.xcscmblueprint
 *.xccheckout
+
+# 오프라인 데이터 원본 (재배포 대신 Tools/README.md의 출처에서 다시 받기)
+Tools/sources/
+# 기본 데이터는 build_kanji.py / build_words.py로 다시 만들 수 있으므로 제외
+Tools/build/kanji_base.json
+Tools/build/words_base.json

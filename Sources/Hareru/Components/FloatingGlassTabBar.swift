@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - 메인 4탭 정의 (학습 · 게임 · 통계 · 설정)
+// MARK: - 메인 4탭 정의 (학습 · 연구소 · 통계 · 설정)
 public enum HareruMainTab: String, CaseIterable, Identifiable, Sendable {
     case study
     case game
@@ -12,7 +12,7 @@ public enum HareruMainTab: String, CaseIterable, Identifiable, Sendable {
     public var title: String {
         switch self {
         case .study: return "학습"
-        case .game: return "게임" // 임시 이름 (게임 컨셉 확정 후 변경)
+        case .game: return "연구소"
         case .insights: return "통계"
         case .settings: return "설정"
         }
@@ -21,7 +21,7 @@ public enum HareruMainTab: String, CaseIterable, Identifiable, Sendable {
     public var systemImage: String {
         switch self {
         case .study: return "rectangle.stack.fill"
-        case .game: return "gamecontroller.fill"
+        case .game: return "building.columns.fill"
         case .insights: return "chart.bar.fill"
         case .settings: return "gearshape.fill"
         }
