@@ -315,7 +315,8 @@ public final class WeatherAtmosphereEngine: NSObject, CLLocationManagerDelegate 
     }
 
     public var activeCondition: WeatherCondition {
-        if isHareruClearedToday && isAutomaticMode {
+        // 목표 완주(晴れる) 시에는 자동·수동 모드 모두 맑게 개어 팔레트와 파티클이 어긋나지 않도록 함
+        if isHareruClearedToday {
             return .clear
         }
         return isAutomaticMode ? detectedCondition : manualCondition

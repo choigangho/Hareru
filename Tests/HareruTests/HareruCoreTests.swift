@@ -706,4 +706,65 @@ final class HareruCoreTests: XCTestCase {
         XCTAssertGreaterThan(beginnerUpdatedPlan.estimatedDailyPaceCapacity, beginnerInitialPlan.estimatedDailyPaceCapacity)
         XCTAssertLessThan(beginnerUpdatedPlan.expectedDaysAtCurrentPace, beginnerInitialPlan.expectedDaysAtCurrentPace)
     }
+
+    // MARK: - 통계 탭: 3D 글라스 잔디 & 4버튼 분포
+
+    private func makeLog(_ wordId: String, _ date: Date, _ button: ReviewButton) -> ReviewLogEntry {
+        ReviewLogEntry(
+            wordId: wordId,
+            reviewedAt: date,
+            button: button,
+            grade: .good,
+            reactionSeconds: 3.0,
+            didGraduate: button != .again,
+            didHitDailyCap: false
+        )
+    }
+
+    func testHeatmapBuildsFourteenSundayStartWeeksWithUniqueWordCounts() {
+        let now = makeDate(2026, 11, 4) // 수요일
+        let logs = [
+            makeLog("a", makeDate(2026, 11, 4, hour: 9), .good),
+            makeLog("a", makeDate(2026, 11, 4, hour: 21), .again),
+            makeLog("b", makeDate(2026, 11, 4, hour: 22), .easy),
+            makeLog("c", makeDate(2026, 11, 2), .hard)
+        ]
+
+        let columns = StudyHeatmapCalculator.weeklyColumns(logs: logs, weeks: 14, now: now, calendar: fixedCalendar)
+        XCTAssertEqual(columns.count, 14)
+        XCTAssertTrue(columns.allSatisfy { $0.count == 7 })
+
+        let lastWeek = columns[13]
+        XCTAssertEqual(lastWeek[0].dayKey, "2026-11-01") // 일요일 시작
+        XCTAssertEqual(lastWeek[3].dayKey, "2026-11-04")
+        XCTAssertEqual(lastWeek[3].studiedWordCount, 2)   // 같은 단어 중복 제외
+        XCTAssertEqual(lastWeek[3].reviewCount, 3)
+        XCTAssertEqual(lastWeek[3].intensityLevel, 1)
+        XCTAssertEqual(lastWeek[1].studiedWordCount, 1)
+        XCTAssertFalse(lastWeek[3].isFuture)
+        XCTAssertTrue(lastWeek[4].isFuture)
+        XCTAssertEqual(columns[0][0].dayKey, "2026-08-02")
+
+        XCTAssertEqual(StudyHeatmapCalculator.intensityLevel(forWordCount: 0), 0)
+        XCTAssertEqual(StudyHeatmapCalculator.intensityLevel(forWordCount: 9), 2)
+        XCTAssertEqual(StudyHeatmapCalculator.intensityLevel(forWordCount: 25), 4)
+    }
+
+    func testStreakAndButtonDistributionUseOnlyFourVisibleButtons() {
+        let now = makeDate(2026, 11, 4, hour: 8)
+        let logs = [
+            makeLog("a", makeDate(2026, 11, 3), .good),
+            makeLog("b", makeDate(2026, 11, 2), .again),
+            makeLog("c", makeDate(2026, 11, 1), .easy),
+            makeLog("d", makeDate(2026, 10, 30), .good)
+        ]
+
+        // 오늘은 아직 학습 전이므로 어제부터 3일 연속
+        XCTAssertEqual(StudyHeatmapCalculator.currentStreak(logs: logs, now: now, calendar: fixedCalendar), 3)
+        XCTAssertEqual(StudyHeatmapCalculator.currentStreak(logs: [], now: now, calendar: fixedCalendar), 0)
+
+        let distribution = StudyHeatmapCalculator.buttonDistribution(logs: logs)
+        XCTAssertEqual(distribution.map(\.button), [.again, .hard, .good, .easy])
+        XCTAssertEqual(distribution.map(\.count), [1, 0, 2, 1])
+    }
 }

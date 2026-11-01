@@ -7,12 +7,17 @@ import SwiftData
 public struct WordDeckView: View {
     @State private var sessionEngine: StudySessionEngine
     @State private var isStudyingCards: Bool = false
-    @State private var showGoalResetOnboarding: Bool = false
     @State private var feedbackBanner: String?
     @State private var cardPresentationId = UUID()
+    @State private var showClearCelebration: Bool = false
     @Environment(\.scenePhase) private var scenePhase
+    private let weatherEngine: WeatherAtmosphereEngine
 
-    public init(engine: StudySessionEngine? = nil, startImmediatelyInDeck: Bool = false) {
+    public init(
+        engine: StudySessionEngine? = nil,
+        weatherEngine: WeatherAtmosphereEngine = .shared,
+        startImmediatelyInDeck: Bool = false
+    ) {
         if let engine {
             _sessionEngine = State(initialValue: engine)
         } else {
@@ -25,29 +30,32 @@ public struct WordDeckView: View {
             _sessionEngine = State(initialValue: StudySessionEngine(store: store))
         }
         _isStudyingCards = State(initialValue: startImmediatelyInDeck)
+        self.weatherEngine = weatherEngine
     }
 
-    private var backgroundColors: [Color] {
-        if isStudyingCards, let item = sessionEngine.currentItem {
-            return item.activeColors(maxDailyEncounters: sessionEngine.configuration.maxDailyEncounters)
-        }
-        return CategoryThemeGroup.standardDefault.palette.swiftUIColors
-    }
+    private var palette: WeatherSkyPalette { weatherEngine.activePalette }
 
-    private var isDeeplyEroded: Bool {
-        isStudyingCards && (sessionEngine.currentItem?.todayErosionCount ?? 0) >= 2
+    /// 오늘 여러 번 놓친 카드일수록 하늘이 조금씩 어두워짐 (배지 없이 분위기로만 전달)
+    private var currentFailureCount: Int {
+        guard isStudyingCards else { return 0 }
+        return sessionEngine.currentItem?.todayErosionCount ?? 0
     }
 
     public var body: some View {
         ZStack {
-            LinearGradient(
-                colors: backgroundColors,
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+            WeatherSkyCanvasView(
+                condition: weatherEngine.activeCondition,
+                timeOfDay: weatherEngine.activeTimeOfDay,
+                palette: palette,
+                failureCount: currentFailureCount,
+                isHareruCleared: weatherEngine.isHareruClearedToday
             )
-            .ignoresSafeArea()
             .animation(.easeInOut(duration: 0.45), value: cardPresentationId)
-            .animation(.easeInOut(duration: 0.35), value: isStudyingCards)
+
+            if showClearCelebration {
+                HareruClearCelebrationView(palette: palette)
+                    .transition(.opacity)
+            }
 
             if isStudyingCards {
                 activeCardDeckBody
@@ -55,10 +63,9 @@ public struct WordDeckView: View {
                 studyOverviewDashboardBody
             }
         }
-        .sheet(isPresented: $showGoalResetOnboarding) {
-            OnboardingFlowView(engine: sessionEngine) { _ in
-                showGoalResetOnboarding = false
-            }
+        .onChange(of: sessionEngine.isSessionCompleted) { _, completed in
+            guard completed, isStudyingCards else { return }
+            celebrateHareruClear()
         }
         .onChange(of: scenePhase) { _, newPhase in
             guard isStudyingCards else { return }
@@ -106,23 +113,10 @@ public struct WordDeckView: View {
                         dueReviewCount: dueReviewCount,
                         recentLogsCount: logs.count
                     )
-
-                    // C. 카테고리 컬러 테마 가이드 (단어별 무작위 색상 대신 5대 카테고리 + 기본 테마)
-                    categoryPaletteGuideCard
                 }
                 .padding(18)
             }
             .navigationTitle("오늘의 단어 학습")
-            .toolbar {
-                ToolbarItem(placement: .automatic) {
-                    Button {
-                        showGoalResetOnboarding = true
-                    } label: {
-                        Label("목표·진단 재설정", systemImage: "slider.horizontal.3")
-                            .font(.caption.weight(.semibold))
-                    }
-                }
-            }
         }
     }
 
@@ -214,13 +208,13 @@ public struct WordDeckView: View {
             }
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                miniMetric(title: "누적 졸업", value: "\(totalGraduatedCount)단어")
+                miniMetric(title: "외운 단어", value: "\(totalGraduatedCount)단어")
                 miniMetric(title: "오늘 학습", value: "\(todayReviewedWordsCount)단어")
                 miniMetric(title: "복습 대기", value: "\(dueReviewCount)단어")
             }
 
             if hasActiveQueue {
-                Text("직전 세션에서 \(sessionGraduatedCount)단어를 졸업하고, 현재 \(remainingInQueue)장의 카드가 큐에 남아 있습니다.")
+                Text("직전 세션에서 \(sessionGraduatedCount)단어를 외우고, 현재 \(remainingInQueue)장의 카드가 큐에 남아 있습니다.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else if recentLogsCount > 0 {
@@ -296,40 +290,6 @@ public struct WordDeckView: View {
         .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
-    private var categoryPaletteGuideCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("카테고리별 테마 컬러 안내")
-                .font(.caption.weight(.bold))
-                .foregroundStyle(.secondary)
-
-            Text("눈이 피로하지 않도록 단어마다 색을 바꾸지 않고, 의미 카테고리별로 차분한 테마 색상을 적용합니다.")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(CategoryThemeGroup.allCases, id: \.rawValue) { group in
-                        HStack(spacing: 6) {
-                            Circle()
-                                .fill(group.palette.accentColor)
-                                .frame(width: 10, height: 10)
-                            Text(group.rawValue)
-                                .font(.caption2.weight(.semibold))
-                        }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(
-                            group.palette.swiftUIColors[0].opacity(0.55),
-                            in: Capsule()
-                        )
-                    }
-                }
-            }
-        }
-        .padding(16)
-        .hareruGlassCard(cornerRadius: 20)
-    }
-
     // MARK: - 2) 실제 단어 카드 학습 화면 본체
 
     private var activeCardDeckBody: some View {
@@ -353,6 +313,8 @@ public struct WordDeckView: View {
                     WordCardView(
                         item: activeItem,
                         catalog: sessionEngine.catalog,
+                        palette: palette,
+                        isRaining: weatherEngine.activeCondition.hasRaindropsOnGlass,
                         onReveal: {
                             sessionEngine.markAnswerRevealed()
                         },
@@ -364,7 +326,6 @@ public struct WordDeckView: View {
                     .padding(.vertical, 4)
                 }
                 .scrollBounceBehavior(.basedOnSize)
-                .environment(\.colorScheme, isDeeplyEroded ? .dark : .light)
             } else {
                 sessionCompletedCard
             }
@@ -375,102 +336,72 @@ public struct WordDeckView: View {
         .padding(.vertical, 12)
     }
 
-    // MARK: - 상단 진행 헤더 (학습 요약으로 돌아가기 버튼 포함)
+    // MARK: - 상단 진행 헤더 (요약으로 돌아가기 + `진행 / 전체` 숫자)
 
     private var headerBar: some View {
-        HareruGlassGroup(spacing: 8) {
-            VStack(spacing: 10) {
-                HStack(spacing: 8) {
-                    Button {
-                        sessionEngine.pauseReactionTimer()
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-                            isStudyingCards = false
-                        }
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chevron.left")
-                            Text("요약")
-                        }
-                        .font(.caption.weight(.bold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 7)
-                        .hareruGlass(in: Capsule())
-                    }
-                    .buttonStyle(.plain)
+        let total = sessionEngine.initialCardCount
+        let resolved = max(0, total - sessionEngine.queue.count)
 
-                    if let item = sessionEngine.currentItem {
-                        Label("\(item.word.jlptLevel.rawValue) · \(item.word.categoryThemeGroup.rawValue)", systemImage: "tag.fill")
-                            .font(.caption.weight(.semibold))
-                            .padding(.horizontal, 11)
-                            .padding(.vertical, 7)
-                            .hareruGlass(in: Capsule())
-
-                        if item.isAwaitingFinalConfirmation {
-                            Text("최종 확인")
-                                .font(.caption2.weight(.bold))
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 7)
-                                .foregroundStyle(.white)
-                                .hareruGlass(in: Capsule(), tint: .teal)
-                        } else if item.todayErosionCount > 0 {
-                            Text("침식 \(item.todayErosionCount)단계")
-                                .font(.caption2.weight(.bold))
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 7)
-                                .foregroundStyle(.white)
-                                .hareruGlass(in: Capsule(), tint: .red)
-                        }
-                    }
-
-                    Spacer()
-
-                    Text("\(sessionEngine.queue.count)장 남음")
-                        .font(.caption.monospacedDigit().weight(.semibold))
-                        .contentTransition(.numericText())
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 7)
-                        .hareruGlass(in: Capsule())
+        return HStack {
+            Button {
+                sessionEngine.pauseReactionTimer()
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                    isStudyingCards = false
                 }
-
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        Capsule()
-                            .fill(.white.opacity(0.32))
-                        Capsule()
-                            .fill(isDeeplyEroded ? Color.red : backgroundColors[2])
-                            .frame(width: geo.size.width * CGFloat(sessionEngine.completionProgress))
-                            .animation(.spring(response: 0.4, dampingFraction: 0.82), value: sessionEngine.completionProgress)
-                    }
-                }
-                .frame(height: 6)
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.subheadline.weight(.bold))
+                    .frame(width: 36, height: 36)
+                    .hareruGlass(in: Circle(), tint: palette.glassTintColor)
             }
+            .buttonStyle(.plain)
+            .accessibilityLabel("학습 요약으로")
+
+            Spacer()
+
+            HStack(spacing: 5) {
+                Text("\(resolved)")
+                    .contentTransition(.numericText())
+                Text("/")
+                    .foregroundStyle(palette.secondaryTextColor)
+                Text("\(total)")
+                    .foregroundStyle(palette.secondaryTextColor)
+            }
+            .font(.headline.monospacedDigit())
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .hareruGlass(in: Capsule(), tint: palette.glassTintColor)
+            .animation(.spring(response: 0.4, dampingFraction: 0.82), value: resolved)
+            .accessibilityLabel("전체 \(total)장 중 \(resolved)장 완료")
+
+            Spacer()
+
+            // 좌우 대칭을 위한 투명 자리 표시
+            Color.clear.frame(width: 36, height: 36)
         }
+        .foregroundStyle(palette.primaryTextColor)
     }
 
     // MARK: - 세션 완료 카드
 
     private var sessionCompletedCard: some View {
         VStack(spacing: 18) {
-            Image(systemName: "sun.max.fill")
-                .font(.system(size: 48))
-                .foregroundStyle(.orange)
+            Text("晴れる")
+                .font(JLPTFont.termMincho(size: 44))
+                .foregroundStyle(palette.primaryTextColor)
 
             Text("흐릿하던 기억이 맑게 갰어요!")
                 .font(.title3.bold())
+                .foregroundStyle(palette.primaryTextColor)
 
             VStack(spacing: 6) {
-                Text("이번 세션 졸업 단어: \(sessionEngine.graduatedWordIds.count)개")
+                Text("오늘 외운 단어 \(sessionEngine.graduatedWordIds.count)개")
                     .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(palette.primaryTextColor)
                 if !sessionEngine.deferredTodayWordIds.isEmpty {
-                    Text("수면 공고화로 내일 이관된 단어: \(sessionEngine.deferredTodayWordIds.count)개")
+                    Text("내일 다시 만날 단어 \(sessionEngine.deferredTodayWordIds.count)개")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                if let plan = sessionEngine.currentStudyPlanProjection() {
-                    Text("최근 정답률 동향이 반영되어 일일 소화 가능 속도가 \(plan.estimatedDailyPaceCapacity)단어로 업데이트되었습니다.")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
+                        .foregroundStyle(palette.secondaryTextColor)
                 }
             }
 
@@ -501,7 +432,7 @@ public struct WordDeckView: View {
         }
         .padding(32)
         .frame(maxWidth: 360)
-        .hareruGlass(in: RoundedRectangle(cornerRadius: 30, style: .continuous))
+        .hareruGlass(in: RoundedRectangle(cornerRadius: 30, style: .continuous), tint: palette.glassTintColor)
     }
 
     // MARK: - 내부 동작 헬퍼
@@ -519,6 +450,15 @@ public struct WordDeckView: View {
         cardPresentationId = UUID()
         withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
             isStudyingCards = true
+            showClearCelebration = false
+        }
+    }
+
+    /// 오늘의 카드를 모두 마치면 구름이 걷히고 햇살이 비치는 '晴れる' 연출
+    private func celebrateHareruClear() {
+        withAnimation(.easeInOut(duration: 1.6)) {
+            weatherEngine.isHareruClearedToday = true
+            showClearCelebration = true
         }
     }
 
@@ -527,26 +467,14 @@ public struct WordDeckView: View {
 
         let message: String?
         switch outcome.status {
-        case .requeued(_, let encounters, let erosion):
-            if erosion > 0 {
-                message = "다시 순환합니다 · 조우 \(encounters)/\(sessionEngine.configuration.maxDailyEncounters)"
-            } else {
-                message = "잠시 후 한 번 더 확인합니다 (\(outcome.grade.displayName))"
-            }
-        case .confirmationQueued(_, _, let didPurify):
-            message = didPurify
-                ? "컬러 정화 완료! 세션 마지막에 최종 확인 1회 남았습니다"
-                : "세션 마지막에 최종 확인 1회 진행합니다"
-        case .graduated(let schedule, let didPurify, _, _):
-            if didPurify {
-                message = "침식 정화 & 졸업 완료! (\(schedule.scheduledIntervalDays)일 뒤 복습)"
-            } else {
-                message = "졸업 완료! (\(outcome.grade.displayName) · \(schedule.scheduledIntervalDays)일 뒤 복습)"
-            }
-        case .deferredByDailyCap(_, let prescribed):
-            message = prescribed
-                ? "3일 누적 보류 → 손글씨 처방 노트로 이동했습니다"
-                : "오늘 8회 도달 · 수면 후 내일 맑은 머리로 다시 만나요"
+        case .requeued:
+            message = "잠시 후 한 번 더 만나요"
+        case .confirmationQueued:
+            message = "마지막에 한 번 더 확인할게요"
+        case .graduated(let schedule, _, _, _):
+            message = "\(button.koreanTitle) · \(schedule.scheduledIntervalDays)일 뒤 다시 만나요"
+        case .deferredByDailyCap:
+            message = "오늘은 여기까지 · 내일 맑은 머리로 다시 만나요"
         }
 
         withAnimation(.easeInOut(duration: 0.25)) {
