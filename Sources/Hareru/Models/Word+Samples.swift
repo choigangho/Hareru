@@ -16,7 +16,7 @@ extension Word {
     public static let beer = Word(
         id: "n5_food_beer",
         jlptLevel: .n5,
-        category: "음식",
+        category: "생활",
         term: "ビール",
         reading: "びーる",
         pitchAccent: 1,
@@ -49,7 +49,7 @@ extension Word {
     public static let ramen = Word(
         id: "n5_food_ramen",
         jlptLevel: .n5,
-        category: "음식",
+        category: "생활",
         term: "ラーメン",
         reading: "らーめん",
         pitchAccent: 1,
@@ -83,7 +83,7 @@ extension Word {
     public static let amai = Word(
         id: "n5_adj_amai",
         jlptLevel: .n5,
-        category: "감각·판단",
+        category: "생활",
         term: "甘い",
         reading: "あまい",
         pitchAccent: 0,
@@ -148,7 +148,7 @@ extension Word {
     public static let kanpai = Word(
         id: "n4_social_kanpai",
         jlptLevel: .n4,
-        category: "모임·회식",
+        category: "생활",
         term: "乾杯",
         reading: "かんぱい",
         pitchAccent: 0,
@@ -189,7 +189,7 @@ extension Word {
     public static let kansou = Word(
         id: "n3_noun_kansou",
         jlptLevel: .n3,
-        category: "생활·날씨",
+        category: "생활",
         term: "乾燥",
         reading: "かんそう",
         pitchAccent: 0,
@@ -231,7 +231,7 @@ extension Word {
     public static let uketamawaru = Word(
         id: "n3_biz_uketamawaru",
         jlptLevel: .n3,
-        category: "비즈니스·접객",
+        category: "업무",
         term: "承る",
         reading: "うけたまわる",
         pitchAccent: 5,
@@ -281,7 +281,7 @@ extension Word {
     public static let shounin = Word(
         id: "n2_biz_shounin",
         jlptLevel: .n2,
-        category: "비즈니스",
+        category: "업무",
         term: "承認",
         reading: "しょうにん",
         pitchAccent: 0,
@@ -322,7 +322,7 @@ extension Word {
     public static let toriaezu = Word(
         id: "n4_adv_toriaezu",
         jlptLevel: .n4,
-        category: "일상 회화",
+        category: "분야 없음",
         term: "とりあえず",
         reading: "とりあえず",
         pitchAccent: 3,
