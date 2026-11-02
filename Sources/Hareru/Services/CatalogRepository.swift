@@ -9,6 +9,7 @@ public enum CatalogValidationError: Error, Equatable, Sendable, CustomStringConv
     case missingKanjiUsage(wordId: String, kanji: String)
     case missingKanjiMasterEntry(wordId: String, kanji: String)
     case missingNonKanjiNote(wordId: String)
+    case unknownCategory(wordId: String, category: String)
     case resourceNotFound(String)
 
     public var description: String {
@@ -27,6 +28,8 @@ public enum CatalogValidationError: Error, Equatable, Sendable, CustomStringConv
             return "단어 '\(wordId)'에 쓰인 한자 '\(kanji)'가 한자 사전(kanji.json)에 존재하지 않습니다."
         case .missingNonKanjiNote(let wordId):
             return "비한자 단어 '\(wordId)'의 어원·원어 안내(NonKanjiNote)가 누락되었습니다."
+        case .unknownCategory(let wordId, let category):
+            return "단어 '\(wordId)'의 대분류 '\(category)'가 대분류 목록(CategoryThemeGroup)에 없습니다."
         case .resourceNotFound(let file):
             return "번들 리소스 파일을 찾을 수 없습니다: \(file)"
         }
@@ -107,6 +110,10 @@ public final class CatalogRepository: Sendable {
 
             if word.senses.first?.senseNumber != 1 {
                 issues.append(.invalidPrimarySense(wordId: word.id))
+            }
+
+            if CategoryThemeGroup(rawValue: word.category) == nil {
+                issues.append(.unknownCategory(wordId: word.id, category: word.category))
             }
 
             for sense in word.senses where sense.hasExample {

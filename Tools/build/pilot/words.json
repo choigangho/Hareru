@@ -2,7 +2,7 @@
  {
   "id": "n5_1198180",
   "jlptLevel": "N5",
-  "category": "일상·관계",
+  "category": "분야 없음",
   "term": "会う",
   "reading": "あう",
   "termAudioFile": "n5_1198180_term",
@@ -19,7 +19,41 @@
      "after": "."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1198180_s1_example"
+    "exampleAudioFile": "n5_1198180_s1_example",
+    "exampleTarget": [
+     "{明日|あした}、{駅|えき}で{友達|ともだち}に",
+     "{会|あ}います",
+     "。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "あした、{駅|えき}でともだちに{会|あ}います。",
+      "target": [
+       "あした、{駅|えき}でともだちに",
+       "{会|あ}います",
+       "。"
+      ]
+     },
+     {
+      "level": "N4",
+      "markup": "{明日|あした}、{駅|えき}でともだちに{会|あ}います。",
+      "target": [
+       "{明日|あした}、{駅|えき}でともだちに",
+       "{会|あ}います",
+       "。"
+      ]
+     },
+     {
+      "level": "N3",
+      "markup": "{明日|あした}、{駅|えき}で{友達|ともだち}に{会|あ}います。",
+      "target": [
+       "{明日|あした}、{駅|えき}で{友達|ともだち}に",
+       "{会|あ}います",
+       "。"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [
@@ -29,12 +63,13 @@
     "dictionaryReading": "あ.う",
     "readingType": "kunyomi"
    }
-  ]
+  ],
+  "fieldlessVoice": "protagonist"
  },
  {
   "id": "n5_1343460",
   "jlptLevel": "N5",
-  "category": "생활·날씨",
+  "category": "생활",
   "term": "暑い",
   "reading": "あつい",
   "termAudioFile": "n5_1343460_term",
@@ -51,7 +86,32 @@
      "after": " 물을 많이 마셔라."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1343460_s1_example"
+    "exampleAudioFile": "n5_1343460_s1_example",
+    "exampleTarget": [
+     "{今日|きょう}は",
+     "{暑|あつ}い",
+     "から、{水|みず}をたくさん{飲|の}め。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "{今日|きょう}はあついから、{水|みず}をたくさん{飲|の}め。",
+      "target": [
+       "{今日|きょう}は",
+       "あつい",
+       "から、{水|みず}をたくさん{飲|の}め。"
+      ]
+     },
+     {
+      "level": "N4",
+      "markup": "{今日|きょう}は{暑|あつ}いから、{水|みず}をたくさん{飲|の}め。",
+      "target": [
+       "{今日|きょう}は",
+       "{暑|あつ}い",
+       "から、{水|みず}をたくさん{飲|の}め。"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [
@@ -61,12 +121,23 @@
     "dictionaryReading": "あつ.い",
     "readingType": "kunyomi"
    }
-  ]
+  ],
+  "notations": [
+   {
+    "level": "N5",
+    "term": "あつい"
+   },
+   {
+    "level": "N4",
+    "term": "暑い"
+   }
+  ],
+  "aboveLevelKanji": true
  },
  {
   "id": "n5_1171900",
   "jlptLevel": "N5",
-  "category": "생활·날씨",
+  "category": "생활",
   "term": "雨",
   "reading": "あめ",
   "termAudioFile": "n5_1171900_term",
@@ -83,7 +154,12 @@
      "after": "가 그칠 때까지 여기서 쉬자."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1171900_s1_example"
+    "exampleAudioFile": "n5_1171900_s1_example",
+    "exampleTarget": [
+     "",
+     "{雨|あめ}",
+     "がやむまで、ここで{休|やす}もう。"
+    ]
    }
   ],
   "kanjiUsages": [
@@ -98,7 +174,7 @@
  {
   "id": "n5_1578850",
   "jlptLevel": "N5",
-  "category": "모임·회식",
+  "category": "교통·이동",
   "term": "行く",
   "reading": "いく",
   "termAudioFile": "n5_1578850_term",
@@ -115,7 +191,41 @@
      "after": "."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1578850_s1_example"
+    "exampleAudioFile": "n5_1578850_s1_example",
+    "exampleTarget": [
+     "{仕事|しごと}の{後|あと}、{一緒|いっしょ}に{飲|の}みに",
+     "{行|い}こう",
+     "。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "しごとの{後|あと}、いっしょに{飲|の}みに{行|い}こう。",
+      "target": [
+       "しごとの{後|あと}、いっしょに{飲|の}みに",
+       "{行|い}こう",
+       "。"
+      ]
+     },
+     {
+      "level": "N4",
+      "markup": "{仕事|しごと}の{後|あと}、いっしょに{飲|の}みに{行|い}こう。",
+      "target": [
+       "{仕事|しごと}の{後|あと}、いっしょに{飲|の}みに",
+       "{行|い}こう",
+       "。"
+      ]
+     },
+     {
+      "level": "N3",
+      "markup": "{仕事|しごと}の{後|あと}、{一緒|いっしょ}に{飲|の}みに{行|い}こう。",
+      "target": [
+       "{仕事|しごと}の{後|あと}、{一緒|いっしょ}に{飲|の}みに",
+       "{行|い}こう",
+       "。"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [
@@ -130,7 +240,7 @@
  {
   "id": "n5_1414170",
   "jlptLevel": "N5",
-  "category": "일상·관계",
+  "category": "사회",
   "term": "大人",
   "reading": "おとな",
   "termAudioFile": "n5_1414170_term",
@@ -147,7 +257,12 @@
      "after": "이네요."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1414170_s1_example"
+    "exampleAudioFile": "n5_1414170_s1_example",
+    "exampleTarget": [
+     "あの{子|こ}も、もうすっかり",
+     "{大人|おとな}",
+     "ですねえ。"
+    ]
    }
   ],
   "kanjiUsages": [
@@ -166,7 +281,7 @@
  {
   "id": "n5_1207610_2",
   "jlptLevel": "N5",
-  "category": "행동·요구",
+  "category": "분야 없음",
   "term": "かける",
   "reading": "かける",
   "termAudioFile": "n5_1207610_2_term",
@@ -183,7 +298,41 @@
      "after": " 둬라."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1207610_2_s1_example"
+    "exampleAudioFile": "n5_1207610_2_s1_example",
+    "exampleTarget": [
+     "{剣|けん}を{壁|かべ}に",
+     "かけて",
+     "おけ。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "けんをかべにかけておけ。",
+      "target": [
+       "けんをかべに",
+       "かけて",
+       "おけ。"
+      ]
+     },
+     {
+      "level": "N3",
+      "markup": "けんを{壁|かべ}にかけておけ。",
+      "target": [
+       "けんを{壁|かべ}に",
+       "かけて",
+       "おけ。"
+      ]
+     },
+     {
+      "level": "N1",
+      "markup": "{剣|けん}を{壁|かべ}にかけておけ。",
+      "target": [
+       "{剣|けん}を{壁|かべ}に",
+       "かけて",
+       "おけ。"
+      ]
+     }
+    ]
    },
    {
     "id": "n5_1207610_2_s2",
@@ -197,10 +346,45 @@
      "after": " 남자를 찾아라."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1207610_2_s2_example"
+    "exampleAudioFile": "n5_1207610_2_s2_example",
+    "exampleTarget": [
+     "{眼鏡|めがね}を",
+     "かけた",
+     "{男|おとこ}を{探|さが}せ。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "めがねをかけた{男|おとこ}をさがせ。",
+      "target": [
+       "めがねを",
+       "かけた",
+       "{男|おとこ}をさがせ。"
+      ]
+     },
+     {
+      "level": "N3",
+      "markup": "めがねをかけた{男|おとこ}を{探|さが}せ。",
+      "target": [
+       "めがねを",
+       "かけた",
+       "{男|おとこ}を{探|さが}せ。"
+      ]
+     },
+     {
+      "level": "N1",
+      "markup": "{眼鏡|めがね}をかけた{男|おとこ}を{探|さが}せ。",
+      "target": [
+       "{眼鏡|めがね}を",
+       "かけた",
+       "{男|おとこ}を{探|さが}せ。"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [],
+  "fieldlessVoice": "protagonist",
   "nonKanjiNote": {
    "kind": "native_kana",
    "explanation": "보통 가나로 씀. 한자로는 뜻에 따라 掛ける(걸다)·架ける(놓다) 등으로 갈림"
@@ -209,7 +393,7 @@
  {
   "id": "n5_1301940",
   "jlptLevel": "N5",
-  "category": "생활·날씨",
+  "category": "사물·형태",
   "term": "傘",
   "reading": "かさ",
   "termAudioFile": "n5_1301940_term",
@@ -226,7 +410,50 @@
      "after": "을 가져가렴."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1301940_s1_example"
+    "exampleAudioFile": "n5_1301940_s1_example",
+    "exampleTarget": [
+     "{雨|あめ}が{降|ふ}りそうだから、",
+     "{傘|かさ}",
+     "を{持|も}っていきなさい。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "{雨|あめ}がふりそうだから、かさをもっていきなさい。",
+      "target": [
+       "{雨|あめ}がふりそうだから、",
+       "かさ",
+       "をもっていきなさい。"
+      ]
+     },
+     {
+      "level": "N4",
+      "markup": "{雨|あめ}がふりそうだから、かさを{持|も}っていきなさい。",
+      "target": [
+       "{雨|あめ}がふりそうだから、",
+       "かさ",
+       "を{持|も}っていきなさい。"
+      ]
+     },
+     {
+      "level": "N3",
+      "markup": "{雨|あめ}が{降|ふ}りそうだから、かさを{持|も}っていきなさい。",
+      "target": [
+       "{雨|あめ}が{降|ふ}りそうだから、",
+       "かさ",
+       "を{持|も}っていきなさい。"
+      ]
+     },
+     {
+      "level": "N1",
+      "markup": "{雨|あめ}が{降|ふ}りそうだから、{傘|かさ}を{持|も}っていきなさい。",
+      "target": [
+       "{雨|あめ}が{降|ふ}りそうだから、",
+       "{傘|かさ}",
+       "を{持|も}っていきなさい。"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [
@@ -236,12 +463,23 @@
     "dictionaryReading": "かさ",
     "readingType": "kunyomi"
    }
-  ]
+  ],
+  "notations": [
+   {
+    "level": "N5",
+    "term": "かさ"
+   },
+   {
+    "level": "N1",
+    "term": "傘"
+   }
+  ],
+  "aboveLevelKanji": true
  },
  {
   "id": "n5_1206730",
   "jlptLevel": "N5",
-  "category": "일상 회화",
+  "category": "교육",
   "term": "学校",
   "reading": "がっこう",
   "termAudioFile": "n5_1206730_term",
@@ -258,7 +496,32 @@
      "after": " 끝나고 오는 길에 케이크 사러 와요."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1206730_s1_example"
+    "exampleAudioFile": "n5_1206730_s1_example",
+    "exampleTarget": [
+     "",
+     "{学校|がっこう}",
+     "の{帰|かえ}りにケーキを{買|か}いに{来|き}てね。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "{学校|がっこう}のかえりにケーキを{買|か}いに{来|き}てね。",
+      "target": [
+       "",
+       "{学校|がっこう}",
+       "のかえりにケーキを{買|か}いに{来|き}てね。"
+      ]
+     },
+     {
+      "level": "N4",
+      "markup": "{学校|がっこう}の{帰|かえ}りにケーキを{買|か}いに{来|き}てね。",
+      "target": [
+       "",
+       "{学校|がっこう}",
+       "の{帰|かえ}りにケーキを{買|か}いに{来|き}てね。"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [
@@ -279,7 +542,7 @@
  {
   "id": "n5_1288810",
   "jlptLevel": "N5",
-  "category": "일상 회화",
+  "category": "분야 없음",
   "term": "ここ",
   "reading": "ここ",
   "termAudioFile": "n5_1288810_term",
@@ -296,10 +559,36 @@
      "after": "에 있다."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1288810_s1_example"
+    "exampleAudioFile": "n5_1288810_s1_example",
+    "exampleTarget": [
+     "{犯人|はんにん}は、",
+     "ここ",
+     "にいる。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "はんにんは、ここにいる。",
+      "target": [
+       "はんにんは、",
+       "ここ",
+       "にいる。"
+      ]
+     },
+     {
+      "level": "N2",
+      "markup": "{犯人|はんにん}は、ここにいる。",
+      "target": [
+       "{犯人|はんにん}は、",
+       "ここ",
+       "にいる。"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [],
+  "fieldlessVoice": "protagonist",
   "nonKanjiNote": {
    "kind": "native_kana",
    "explanation": "보통 가나로 쓰는 지시대명사. 한자 표기(此処)는 거의 쓰지 않음"
@@ -308,7 +597,7 @@
  {
   "id": "n5_1381820",
   "jlptLevel": "N5",
-  "category": "감각·판단",
+  "category": "분야 없음",
   "term": "静か",
   "reading": "しずか",
   "termAudioFile": "n5_1381820_term",
@@ -325,7 +614,41 @@
      "after": "."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1381820_s1_example"
+    "exampleAudioFile": "n5_1381820_s1_example",
+    "exampleTarget": [
+     "{夜|よる}の{庭|にわ}は",
+     "{静|しず}か",
+     "ですねえ。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "よるのにわはしずかですねえ。",
+      "target": [
+       "よるのにわは",
+       "しずか",
+       "ですねえ。"
+      ]
+     },
+     {
+      "level": "N4",
+      "markup": "{夜|よる}のにわはしずかですねえ。",
+      "target": [
+       "{夜|よる}のにわは",
+       "しずか",
+       "ですねえ。"
+      ]
+     },
+     {
+      "level": "N3",
+      "markup": "{夜|よる}の{庭|にわ}は{静|しず}かですねえ。",
+      "target": [
+       "{夜|よる}の{庭|にわ}は",
+       "{静|しず}か",
+       "ですねえ。"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [
@@ -335,12 +658,24 @@
     "dictionaryReading": "しず-",
     "readingType": "kunyomi"
    }
-  ]
+  ],
+  "fieldlessVoice": "chiefResearcher",
+  "notations": [
+   {
+    "level": "N5",
+    "term": "しずか"
+   },
+   {
+    "level": "N3",
+    "term": "静か"
+   }
+  ],
+  "aboveLevelKanji": true
  },
  {
   "id": "n5_1283190",
   "jlptLevel": "N5",
-  "category": "상태·거래",
+  "category": "분야 없음",
   "term": "高い",
   "reading": "たかい",
   "termAudioFile": "n5_1283190_term",
@@ -357,7 +692,32 @@
      "after": "."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1283190_s1_example"
+    "exampleAudioFile": "n5_1283190_s1_example",
+    "exampleTarget": [
+     "あの{山|やま}は{本当|ほんとう}に",
+     "{高|たか}い",
+     "な。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "あの{山|やま}はほんとうに{高|たか}いな。",
+      "target": [
+       "あの{山|やま}はほんとうに",
+       "{高|たか}い",
+       "な。"
+      ]
+     },
+     {
+      "level": "N3",
+      "markup": "あの{山|やま}は{本当|ほんとう}に{高|たか}いな。",
+      "target": [
+       "あの{山|やま}は{本当|ほんとう}に",
+       "{高|たか}い",
+       "な。"
+      ]
+     }
+    ]
    },
    {
     "id": "n5_1283190_s2",
@@ -371,7 +731,32 @@
      "after": "."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1283190_s2_example"
+    "exampleAudioFile": "n5_1283190_s2_example",
+    "exampleTarget": [
+     "この{薬|くすり}は{少|すこ}し",
+     "{高|たか}い",
+     "ですよ。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "このくすりは{少|すこ}し{高|たか}いですよ。",
+      "target": [
+       "このくすりは{少|すこ}し",
+       "{高|たか}い",
+       "ですよ。"
+      ]
+     },
+     {
+      "level": "N4",
+      "markup": "この{薬|くすり}は{少|すこ}し{高|たか}いですよ。",
+      "target": [
+       "この{薬|くすり}は{少|すこ}し",
+       "{高|たか}い",
+       "ですよ。"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [
@@ -381,12 +766,13 @@
     "dictionaryReading": "たか.い",
     "readingType": "kunyomi"
    }
-  ]
+  ],
+  "fieldlessVoice": "chiefResearcher"
  },
  {
   "id": "n5_1358280",
   "jlptLevel": "N5",
-  "category": "음식",
+  "category": "생활",
   "term": "食べる",
   "reading": "たべる",
   "termAudioFile": "n5_1358280_term",
@@ -403,7 +789,41 @@
      "after": " 줘!"
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1358280_s1_example"
+    "exampleAudioFile": "n5_1358280_s1_example",
+    "exampleTarget": [
+     "{熱|あつ}いうちに{早|はや}く",
+     "{食|た}べてくれ",
+     "!"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "あついうちにはやく{食|た}べてくれ!",
+      "target": [
+       "あついうちにはやく",
+       "{食|た}べてくれ",
+       "!"
+      ]
+     },
+     {
+      "level": "N4",
+      "markup": "あついうちに{早|はや}く{食|た}べてくれ!",
+      "target": [
+       "あついうちに{早|はや}く",
+       "{食|た}べてくれ",
+       "!"
+      ]
+     },
+     {
+      "level": "N3",
+      "markup": "{熱|あつ}いうちに{早|はや}く{食|た}べてくれ!",
+      "target": [
+       "{熱|あつ}いうちに{早|はや}く",
+       "{食|た}べてくれ",
+       "!"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [
@@ -418,7 +838,7 @@
  {
   "id": "n5_1438690",
   "jlptLevel": "N5",
-  "category": "생활·날씨",
+  "category": "생활",
   "term": "天気",
   "reading": "てんき",
   "termAudioFile": "n5_1438690_term",
@@ -435,7 +855,12 @@
      "after": "네요!"
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1438690_s1_example"
+    "exampleAudioFile": "n5_1438690_s1_example",
+    "exampleTarget": [
+     "{今日|きょう}はいい",
+     "{天気|てんき}",
+     "ですね!"
+    ]
    }
   ],
   "kanjiUsages": [
@@ -456,7 +881,7 @@
  {
   "id": "n5_1443530",
   "jlptLevel": "N5",
-  "category": "시간·일상",
+  "category": "교통·이동",
   "term": "電車",
   "reading": "でんしゃ",
   "termAudioFile": "n5_1443530_term",
@@ -473,7 +898,41 @@
      "after": "이 늦어지고 있으니 조금 기다립시다."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1443530_s1_example"
+    "exampleAudioFile": "n5_1443530_s1_example",
+    "exampleTarget": [
+     "",
+     "{電車|でんしゃ}",
+     "が{遅|おく}れているので、{少|すこ}し{待|ま}ちましょう。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "{電車|でんしゃ}がおくれているので、{少|すこ}しまちましょう。",
+      "target": [
+       "",
+       "{電車|でんしゃ}",
+       "がおくれているので、{少|すこ}しまちましょう。"
+      ]
+     },
+     {
+      "level": "N4",
+      "markup": "{電車|でんしゃ}がおくれているので、{少|すこ}し{待|ま}ちましょう。",
+      "target": [
+       "",
+       "{電車|でんしゃ}",
+       "がおくれているので、{少|すこ}し{待|ま}ちましょう。"
+      ]
+     },
+     {
+      "level": "N3",
+      "markup": "{電車|でんしゃ}が{遅|おく}れているので、{少|すこ}し{待|ま}ちましょう。",
+      "target": [
+       "",
+       "{電車|でんしゃ}",
+       "が{遅|おく}れているので、{少|すこ}し{待|ま}ちましょう。"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [
@@ -494,7 +953,7 @@
  {
   "id": "n5_1316140",
   "jlptLevel": "N5",
-  "category": "시간·일상",
+  "category": "사물·형태",
   "term": "時計",
   "reading": "とけい",
   "termAudioFile": "n5_1316140_term",
@@ -511,7 +970,41 @@
      "after": ", 5분 늦네."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1316140_s1_example"
+    "exampleAudioFile": "n5_1316140_s1_example",
+    "exampleTarget": [
+     "この",
+     "{時計|とけい}",
+     "、{五分|ごふん}{遅|おく}れているな。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "このとけい、{五分|ごふん}おくれているな。",
+      "target": [
+       "この",
+       "とけい",
+       "、{五分|ごふん}おくれているな。"
+      ]
+     },
+     {
+      "level": "N4",
+      "markup": "この{時計|とけい}、{五分|ごふん}おくれているな。",
+      "target": [
+       "この",
+       "{時計|とけい}",
+       "、{五分|ごふん}おくれているな。"
+      ]
+     },
+     {
+      "level": "N3",
+      "markup": "この{時計|とけい}、{五分|ごふん}{遅|おく}れているな。",
+      "target": [
+       "この",
+       "{時計|とけい}",
+       "、{五分|ごふん}{遅|おく}れているな。"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [
@@ -525,12 +1018,23 @@
     "activeReading": "とけい",
     "readingType": "special"
    }
-  ]
+  ],
+  "notations": [
+   {
+    "level": "N5",
+    "term": "とけい"
+   },
+   {
+    "level": "N4",
+    "term": "時計"
+   }
+  ],
+  "aboveLevelKanji": true
  },
  {
   "id": "n5_1540170",
   "jlptLevel": "N5",
-  "category": "일상·관계",
+  "category": "교육",
   "term": "友達",
   "reading": "ともだち",
   "termAudioFile": "n5_1540170_term",
@@ -547,7 +1051,41 @@
      "after": "와 함께 도시락을 먹었어요."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1540170_s1_example"
+    "exampleAudioFile": "n5_1540170_s1_example",
+    "exampleTarget": [
+     "",
+     "{友達|ともだち}",
+     "と{一緒|いっしょ}にお{弁当|べんとう}を{食|た}べました。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "ともだちといっしょにおべんとうを{食|た}べました。",
+      "target": [
+       "",
+       "ともだち",
+       "といっしょにおべんとうを{食|た}べました。"
+      ]
+     },
+     {
+      "level": "N3",
+      "markup": "{友達|ともだち}と{一緒|いっしょ}におべんとうを{食|た}べました。",
+      "target": [
+       "",
+       "{友達|ともだち}",
+       "と{一緒|いっしょ}におべんとうを{食|た}べました。"
+      ]
+     },
+     {
+      "level": "N1",
+      "markup": "{友達|ともだち}と{一緒|いっしょ}にお{弁当|べんとう}を{食|た}べました。",
+      "target": [
+       "",
+       "{友達|ともだち}",
+       "と{一緒|いっしょ}にお{弁当|べんとう}を{食|た}べました。"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [
@@ -563,12 +1101,23 @@
     "dictionaryReading": "-たち",
     "readingType": "kunyomi"
    }
-  ]
+  ],
+  "notations": [
+   {
+    "level": "N5",
+    "term": "友だち"
+   },
+   {
+    "level": "N3",
+    "term": "友達"
+   }
+  ],
+  "aboveLevelKanji": true
  },
  {
   "id": "n5_1576150",
   "jlptLevel": "N5",
-  "category": "음식·매장",
+  "category": "업무",
   "term": "一人",
   "reading": "ひとり",
   "termAudioFile": "n5_1576150_term",
@@ -585,7 +1134,12 @@
      "after": "이신가요?"
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1576150_s1_example"
+    "exampleAudioFile": "n5_1576150_s1_example",
+    "exampleTarget": [
+     "いらっしゃいませ。お",
+     "{一人|ひとり}",
+     "ですか?"
+    ]
    }
   ],
   "kanjiUsages": [
@@ -604,7 +1158,7 @@
  {
   "id": "n5_1259290",
   "jlptLevel": "N5",
-  "category": "일상 회화",
+  "category": "분야 없음",
   "term": "見る",
   "reading": "みる",
   "termAudioFile": "n5_1259290_term",
@@ -621,7 +1175,32 @@
      "after": " 주세요."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1259290_s1_example"
+    "exampleAudioFile": "n5_1259290_s1_example",
+    "exampleTarget": [
+     "この{写真|しゃしん}を",
+     "{見|み}てください",
+     "。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "このしゃしんを{見|み}てください。",
+      "target": [
+       "このしゃしんを",
+       "{見|み}てください",
+       "。"
+      ]
+     },
+     {
+      "level": "N4",
+      "markup": "この{写真|しゃしん}を{見|み}てください。",
+      "target": [
+       "この{写真|しゃしん}を",
+       "{見|み}てください",
+       "。"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [
@@ -631,12 +1210,13 @@
     "dictionaryReading": "み.る",
     "readingType": "kunyomi"
    }
-  ]
+  ],
+  "fieldlessVoice": "protagonist"
  },
  {
   "id": "n5_1012480",
   "jlptLevel": "N5",
-  "category": "모임·회식",
+  "category": "분야 없음",
   "term": "もう",
   "reading": "もう",
   "termAudioFile": "n5_1012480_term",
@@ -653,7 +1233,32 @@
      "after": " 9시인가. 슬슬 돌아가자."
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1012480_s1_example"
+    "exampleAudioFile": "n5_1012480_s1_example",
+    "exampleTarget": [
+     "",
+     "もう",
+     "{九時|くじ}か。そろそろ{帰|かえ}ろう。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "もう{九時|くじ}か。そろそろかえろう。",
+      "target": [
+       "",
+       "もう",
+       "{九時|くじ}か。そろそろかえろう。"
+      ]
+     },
+     {
+      "level": "N4",
+      "markup": "もう{九時|くじ}か。そろそろ{帰|かえ}ろう。",
+      "target": [
+       "",
+       "もう",
+       "{九時|くじ}か。そろそろ{帰|かえ}ろう。"
+      ]
+     }
+    ]
    },
    {
     "id": "n5_1012480_s2",
@@ -667,10 +1272,36 @@
      "after": " 어때?"
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1012480_s2_example"
+    "exampleAudioFile": "n5_1012480_s2_example",
+    "exampleTarget": [
+     "",
+     "もう",
+     "{一杯|いっぱい}どうだ?"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "もういっぱいどうだ?",
+      "target": [
+       "",
+       "もう",
+       "いっぱいどうだ?"
+      ]
+     },
+     {
+      "level": "N3",
+      "markup": "もう{一杯|いっぱい}どうだ?",
+      "target": [
+       "",
+       "もう",
+       "{一杯|いっぱい}どうだ?"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [],
+  "fieldlessVoice": "chiefResearcher",
   "nonKanjiNote": {
    "kind": "native_kana",
    "explanation": "보통 가나로 쓰는 부사. 문맥에 따라 '벌써'와 '더'로 뜻이 갈림"
@@ -679,7 +1310,7 @@
  {
   "id": "n5_1049180",
   "jlptLevel": "N5",
-  "category": "음식·디저트",
+  "category": "생활",
   "term": "コーヒー",
   "reading": "コーヒー",
   "termAudioFile": "n5_1049180_term",
@@ -696,7 +1327,32 @@
      "after": "와 함께 케이크는 어떠세요?"
     },
     "voiceId": "unassigned",
-    "exampleAudioFile": "n5_1049180_s1_example"
+    "exampleAudioFile": "n5_1049180_s1_example",
+    "exampleTarget": [
+     "",
+     "コーヒー",
+     "と{一緒|いっしょ}にケーキはいかがですか。"
+    ],
+    "exampleNotations": [
+     {
+      "level": "N5",
+      "markup": "コーヒーといっしょにケーキはいかがですか。",
+      "target": [
+       "",
+       "コーヒー",
+       "といっしょにケーキはいかがですか。"
+      ]
+     },
+     {
+      "level": "N3",
+      "markup": "コーヒーと{一緒|いっしょ}にケーキはいかがですか。",
+      "target": [
+       "",
+       "コーヒー",
+       "と{一緒|いっしょ}にケーキはいかがですか。"
+      ]
+     }
+    ]
    }
   ],
   "kanjiUsages": [],

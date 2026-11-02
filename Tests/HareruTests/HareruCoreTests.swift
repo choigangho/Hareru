@@ -618,12 +618,12 @@ final class HareruCoreTests: XCTestCase {
 
     func testCategoryThemeGroupAndDefaultPaletteFallback() {
         // 같은 식음료 카테고리인 'ビール'와 'ラーメン'은 단어별 무작위 색이 아니라 동일한 카테고리 테마를 공유
-        XCTAssertEqual(Word.beer.categoryThemeGroup, .foodAndDining)
-        XCTAssertEqual(Word.ramen.categoryThemeGroup, .foodAndDining)
+        XCTAssertEqual(Word.beer.categoryThemeGroup, .daily)
+        XCTAssertEqual(Word.ramen.categoryThemeGroup, .daily)
         XCTAssertEqual(Word.beer.categoryPalette, Word.ramen.categoryPalette)
 
-        // 카테고리가 애매하거나 비어 있는 단어는 디폴트 테마(.standardDefault)로 깔끔하게 귀속
-        XCTAssertEqual(CategoryThemeGroup.resolve(for: "기타 미분류 어휘"), .standardDefault)
+        // 카테고리가 애매하거나 비어 있는 단어는 디폴트 테마(.fieldless)로 깔끔하게 귀속
+        XCTAssertEqual(CategoryThemeGroup.resolve(for: "기타 미분류 어휘"), .fieldless)
         XCTAssertEqual(ThemePalette.forCategory("기타 미분류 어휘"), ThemePalette.defaultPalette)
     }
 

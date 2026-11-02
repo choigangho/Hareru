@@ -8377,6 +8377,23 @@
   "jlptLevel": "N5"
  },
  {
+  "character": "碗",
+  "koreanHunEum": "주발 완",
+  "meanings": [
+   "사발",
+   "공기"
+  ],
+  "onyomi": [
+   "ワン"
+  ],
+  "kunyomi": [
+   "こばち"
+  ],
+  "strokeCount": 13,
+  "radical": "石 (돌 석)",
+  "jlptLevel": "N5"
+ },
+ {
   "character": "鹸",
   "koreanHunEum": "잿물 감",
   "meanings": [
@@ -8412,23 +8429,6 @@
   ],
   "strokeCount": 13,
   "radical": "食 (밥 식)",
-  "jlptLevel": "N5"
- },
- {
-  "character": "碗",
-  "koreanHunEum": "주발 완",
-  "meanings": [
-   "사발",
-   "공기"
-  ],
-  "onyomi": [
-   "ワン"
-  ],
-  "kunyomi": [
-   "こばち"
-  ],
-  "strokeCount": 13,
-  "radical": "石 (돌 석)",
   "jlptLevel": "N5"
  }
 ]
