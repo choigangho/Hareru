@@ -1,0 +1,36 @@
+{
+  "group_id": "ae481563-9d85-48c8-a9fb-d23d67deffe4",
+  "states": [
+    {
+      "character": {
+        "id": "c2ee258d-8aaa-4e58-b44f-e1145abe9bc9",
+        "name": "Idle",
+        "prompt": "energetic young female courier standing on foot, no vehicle, no scooter, short windswept dark hair, amber goggles on forehead, weathered courier jacket, messenger satchel bag with old paper books, near-future decaying research institute, muted faded teal grey and off-white palette, single amber accent, no logos",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-11-02T02:13:25.599782+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-11-02T02:15:56.760308"
+}

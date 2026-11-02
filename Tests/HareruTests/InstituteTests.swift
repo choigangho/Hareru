@@ -74,21 +74,22 @@ final class InstituteTests: XCTestCase {
         let engine = InstituteEngine(store: InMemoryInstituteStore(state: InstituteState(budget: 1_000)))
         let desk = InstituteState.deskPosition
 
-        XCTAssertFalse(engine.canPlace(.researcherDesk, at: GridPosition(column: 0, row: 0)), "책상은 하나만")
+        XCTAssertFalse(engine.canPlace(.researcherDesk, at: GridPosition(column: 4, row: 4)), "책상은 하나만")
         XCTAssertFalse(engine.canPlace(.kanjiArchive, at: desk), "이미 차 있는 칸")
         XCTAssertFalse(engine.canPlace(.kanjiArchive, at: GridPosition(column: 9, row: 0)), "격자 밖")
+        XCTAssertFalse(engine.canPlace(.kanjiArchive, at: GridPosition(column: 3, row: 0)), "방 그림 속 고정 가구 칸")
 
         // 떨어뜨려 놓으면 콤보 없음
-        XCTAssertTrue(engine.place(.kanjiArchive, at: GridPosition(column: 0, row: 0)))
+        XCTAssertTrue(engine.place(.kanjiArchive, at: GridPosition(column: 4, row: 4)))
         XCTAssertTrue(engine.activeCombos.isEmpty)
         XCTAssertEqual(engine.researchBonusPercent, 5)
 
         // 책상 바로 옆 서고 → 研究デスク, 서고 옆 필사실 → 写本工房
-        XCTAssertTrue(engine.place(.kanjiArchive, at: GridPosition(column: desk.column + 1, row: desk.row)))
-        XCTAssertTrue(engine.place(.copyRoom, at: GridPosition(column: desk.column + 2, row: desk.row)))
+        XCTAssertTrue(engine.place(.kanjiArchive, at: GridPosition(column: desk.column, row: desk.row + 1)))
+        XCTAssertTrue(engine.place(.copyRoom, at: GridPosition(column: desk.column, row: desk.row + 2)))
         XCTAssertEqual(Set(engine.activeCombos), [.researchCorner, .copyWorkshop])
-        // 떨어져 있는 (0,0) 서고는 같은 종류여도 콤보 강조 대상이 아님
-        let farArchive = engine.facility(at: GridPosition(column: 0, row: 0))!
+        // 떨어져 있는 (4,4) 서고는 같은 종류여도 콤보 강조 대상이 아님
+        let farArchive = engine.facility(at: GridPosition(column: 4, row: 4))!
         XCTAssertFalse(engine.comboMemberIDs.contains(farArchive.id))
         XCTAssertEqual(engine.comboMemberIDs.count, 3, "책상 · 옆 서고 · 필사실")
         XCTAssertEqual(engine.researchBonusPercent, 5 + 5 + 10)
@@ -97,14 +98,14 @@ final class InstituteTests: XCTestCase {
 
         XCTAssertFalse(engine.remove(at: desk), "책상은 철거 불가")
         let budgetBefore = engine.state.budget
-        XCTAssertTrue(engine.remove(at: GridPosition(column: desk.column + 2, row: desk.row)))
+        XCTAssertTrue(engine.remove(at: GridPosition(column: desk.column, row: desk.row + 2)))
         XCTAssertEqual(engine.state.budget, budgetBefore + FacilityKind.copyRoom.budgetCost / 2)
     }
 
     func testCannotPlaceWithoutBudget() {
         let engine = InstituteEngine(store: InMemoryInstituteStore(state: InstituteState(budget: 100)))
-        XCTAssertFalse(engine.canPlace(.serverRack, at: GridPosition(column: 0, row: 0)))
-        XCTAssertTrue(engine.place(.copyRoom, at: GridPosition(column: 0, row: 0)))
+        XCTAssertFalse(engine.canPlace(.serverRack, at: GridPosition(column: 4, row: 4)))
+        XCTAssertTrue(engine.place(.copyRoom, at: GridPosition(column: 4, row: 4)))
         XCTAssertEqual(engine.state.budget, 0)
     }
 
@@ -134,7 +135,7 @@ final class InstituteTests: XCTestCase {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString).appendingPathComponent("institute.json")
         let first = InstituteEngine(store: JSONFileInstituteStore(fileURL: url))
-        XCTAssertTrue(first.place(.copyRoom, at: GridPosition(column: 0, row: 0)))
+        XCTAssertTrue(first.place(.copyRoom, at: GridPosition(column: 4, row: 4)))
         first.markIntroSeen()
 
         let reloaded = InstituteEngine(store: JSONFileInstituteStore(fileURL: url))

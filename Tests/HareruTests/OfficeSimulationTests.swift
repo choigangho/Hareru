@@ -11,10 +11,10 @@ final class OfficeSimulationTests: XCTestCase {
     // MARK: - 길찾기
 
     func testPathfinderWalksAroundFacilities() throws {
-        // 책상(2,2) 오른쪽으로 세로 벽: (3,1) (3,2) (3,3)
-        let placed = facilities([(.kanjiArchive, 3, 1), (.copyRoom, 3, 2), (.serverRack, 3, 3)])
+        // 책상 앞 빈 바닥(행 3~5)에서, 가운데 시설 하나(3,3)를 돌아가는 길
+        let placed = facilities([(.kanjiArchive, 3, 3)])
         let start = GridPosition(column: 2, row: 3)
-        let goal = GridPosition(column: 4, row: 2)
+        let goal = GridPosition(column: 4, row: 3)
         let route = try XCTUnwrap(OfficePathfinder.path(from: start, toAnyOf: [goal], facilities: placed))
 
         XCTAssertEqual(route.last, goal)
@@ -24,8 +24,8 @@ final class OfficeSimulationTests: XCTestCase {
             XCTAssertTrue(step.isAdjacent(to: previous), "한 칸씩 이동")
             previous = step
         }
-        // 벽을 아래로 돌아가는 최단 경로: (2,4) → (3,4) → (4,4) → (4,3) → (4,2)
-        XCTAssertEqual(route.count, 5)
+        // 시설을 아래로 돌아가는 최단 경로: (2,4) → (3,4) → (4,4) → (4,3)  (위쪽 행 2는 방 그림의 큰 책상이라 못 지남)
+        XCTAssertEqual(route.count, 4)
     }
 
     func testPathfinderReturnsNilWhenBlockedAndEmptyWhenAlreadyThere() {
@@ -43,13 +43,13 @@ final class OfficeSimulationTests: XCTestCase {
         let spot = OfficePathfinder.deskSpot(facilities: blocked)
         XCTAssertNotNil(spot)
         XCTAssertNotEqual(spot, front)
-        XCTAssertTrue(spot!.isAdjacent(to: InstituteState.deskPosition))
+        XCTAssertTrue(OfficePathfinder.isWalkable(spot!, facilities: blocked), "책상 둘레가 다 막히면 가장 가까운 빈 칸")
     }
 
     // MARK: - 연구원 자율 행동
 
     func testAgentVisitsFacilitiesAndNeverStandsOnOne() {
-        let placed = facilities([(.kanjiArchive, 0, 0), (.recordingBooth, 5, 5), (.copyRoom, 4, 1)])
+        let placed = facilities([(.kanjiArchive, 1, 3), (.recordingBooth, 3, 5), (.copyRoom, 4, 4)])
         var agent = ResearcherAgent(tile: OfficePathfinder.deskSpot(facilities: placed)!, idleSeconds: 0.1)
         var rng = SeededRandom(seed: 42)
         var visited = Set<FacilityKind>()
@@ -162,10 +162,11 @@ final class OfficeSimulationTests: XCTestCase {
         let base = [PlacedFacility(kind: .researcherDesk, position: desk)]
         let chief = OfficePathfinder.homeSpot(for: .chief, facilities: base)
         let newcomer = OfficePathfinder.homeSpot(for: .newcomer, facilities: base)
-        XCTAssertEqual(newcomer, GridPosition(column: desk.column + 1, row: desk.row))
-        XCTAssertNotEqual(chief, newcomer)
+        XCTAssertEqual(chief, GridPosition(column: desk.column, row: desk.row + 1))
+        XCTAssertNotNil(newcomer)
+        XCTAssertNotEqual(chief, newcomer, "신입 책상이 없어도 두 사람은 다른 칸")
 
-        let blocked = base + [PlacedFacility(kind: .serverRack, position: GridPosition(column: desk.column + 1, row: desk.row))]
+        let blocked = base + [PlacedFacility(kind: .serverRack, position: newcomer!)]
         let fallback = OfficePathfinder.homeSpot(for: .newcomer, facilities: blocked)
         XCTAssertNotNil(fallback)
         XCTAssertNotEqual(fallback, OfficePathfinder.homeSpot(for: .chief, facilities: blocked))
