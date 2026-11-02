@@ -27,8 +27,9 @@ final class HareruCoreTests: XCTestCase {
 
     func testBundledCatalogLoadsAndValidatesCleanly() throws {
         let repo = try CatalogRepository.loadBundled()
-        XCTAssertEqual(repo.words.count, 30)
-        XCTAssertEqual(repo.kanjiByCharacter.count, 37)
+        // 견본 30 + N5 705 이상 — N4~N1 뜻 초안이 들어올수록 늘어남 (Tools/export_levels.sh)
+        XCTAssertGreaterThanOrEqual(repo.words.count, 735)
+        XCTAssertGreaterThanOrEqual(repo.kanjiByCharacter.count, 465)
         XCTAssertTrue(repo.validationIssues().isEmpty, "Issues: \(repo.validationIssues())")
 
         // 10명의 시그니처 성우 캐릭터가 모두 30단어 스타터 팩에 등장하는지 검증
@@ -867,7 +868,7 @@ final class HareruCoreTests: XCTestCase {
             let rebuilt = word.termRubyRuns.map { $0.reading ?? JapaneseScript.toHiragana($0.text) }.joined()
             XCTAssertEqual(rebuilt, JapaneseScript.toHiragana(word.reading), word.term)
 
-            for sense in word.senses {
+            for sense in word.senses where sense.hasExample {  // 예문 없는 의미(추후 추가)는 뜻만 검사 대상
                 XCTAssertFalse(sense.translation.answer.isEmpty, "\(word.term) 해석 정답 조각 비어 있음")
                 // 한자 단어는 예문 안에서 정답 어절이 감지되어야 정답 공개 전 후리가나가 잠김
                 if word.termGlyphs.contains(where: \.isKanji) {

@@ -59,6 +59,13 @@ public struct WordSense: Codable, Identifiable, Equatable, Hashable, Sendable {
         senseNumber == 1
     }
 
+    /// 예문이 아직 없는 의미 (N4~N1은 뜻만 먼저 넣고 예문은 추후 추가) — 카드에 안내 문구를 대신 표시
+    public var hasExample: Bool {
+        !exampleMarkup.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    public static let examplePendingNotice = "예문 추후 추가 예정"
+
     public var exampleSegments: [FuriganaSegment] {
         FuriganaParser.parsePhraseBoxes(exampleMarkup)
     }
