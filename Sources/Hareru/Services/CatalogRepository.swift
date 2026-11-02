@@ -109,7 +109,7 @@ public final class CatalogRepository: Sendable {
                 issues.append(.invalidPrimarySense(wordId: word.id))
             }
 
-            for sense in word.senses {
+            for sense in word.senses where sense.hasExample {
                 if !sense.translation.isValid {
                     issues.append(.invalidSplitTranslation(wordId: word.id, senseId: sense.id))
                 }

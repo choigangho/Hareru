@@ -269,7 +269,11 @@ public struct WordCardView: View {
 
     private var exampleBlock: some View {
         VStack(spacing: 12) {
-            if isRevealed {
+            if !quizzedSense.hasExample {
+                Text(WordSense.examplePendingNotice)
+                    .font(.callout)
+                    .foregroundStyle(palette.secondaryTextColor)
+            } else if isRevealed {
                 // 예문은 카드 폭 전체를 쓰고(스피커가 옆에서 줄 배치를 밀지 않도록), 스피커는 해석 줄 오른쪽에 둠
                 PhraseBoxFuriganaView(
                     segments: word.segments(for: quizzedSense),
@@ -334,21 +338,29 @@ public struct WordCardView: View {
 
                         Spacer()
 
-                        SpeakerHitButton(accessibilityLabel: "뜻 \(sense.senseNumber) 예문 듣기") {
-                            speaker.playSingle(fileName: sense.exampleAudioFile, voice: sense.voice)
-                        } label: {
-                            Image(systemName: "speaker.wave.2.fill")
-                                .font(.subheadline)
-                                .foregroundStyle(palette.secondaryTextColor)
+                        if sense.hasExample {
+                            SpeakerHitButton(accessibilityLabel: "뜻 \(sense.senseNumber) 예문 듣기") {
+                                speaker.playSingle(fileName: sense.exampleAudioFile, voice: sense.voice)
+                            } label: {
+                                Image(systemName: "speaker.wave.2.fill")
+                                    .font(.subheadline)
+                                    .foregroundStyle(palette.secondaryTextColor)
+                            }
                         }
                     }
 
-                    Text(sense.example)
-                        .jlptExampleFont(size: 13)
+                    if sense.hasExample {
+                        Text(sense.example)
+                            .jlptExampleFont(size: 13)
 
-                    Text(sense.translation.fullText)
-                        .font(.caption2)
-                        .foregroundStyle(palette.secondaryTextColor)
+                        Text(sense.translation.fullText)
+                            .font(.caption2)
+                            .foregroundStyle(palette.secondaryTextColor)
+                    } else {
+                        Text(WordSense.examplePendingNotice)
+                            .font(.caption2)
+                            .foregroundStyle(palette.secondaryTextColor)
+                    }
                 }
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
