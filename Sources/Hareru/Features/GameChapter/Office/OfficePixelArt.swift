@@ -29,15 +29,27 @@ enum OfficePixelArt {
     static let tileHeight = Int(IsoGrid.tileArtHeight)  // 16
     static let wallHeight = 40
 
-    /// 방(벽 + 바닥) 텍스처의 아트 크기
+    // MARK: 1단계 방 그림 (Docs/Art/Environment/stage1)
+    // Pixellab /unzoom으로 4배 격자를 되찾은 381×244 픽셀 그림 한 장. 그림 1픽셀 = 아트 픽셀 1칸 (시설 에셋은 그 절반 크기의 픽셀 밀도).
+
+    static let stageRoomName = "room_stage1"
+    static let stageRoomImage: CGImage? = bundledImage(stageRoomName)
+    static var usesStageRoom: Bool { stageRoomImage != nil }
+
+    /// 방 그림 안에서 격자 (0, 0) 타일 윗꼭짓점의 위치 (위-왼쪽 기준 아트 좌표) — 그림의 열린 바닥에 6×6 마름모를 맞춘 값
+    static let stageRoomGridOrigin = CGPoint(x: 166, y: 84)
+
+    /// 방 텍스처의 아트 크기
     static var roomSize: (width: Int, height: Int) {
+        if let image = stageRoomImage { return (image.width, image.height) }
         let columns = InstituteState.gridColumns, rows = InstituteState.gridRows
-        return ((columns + rows) * tileWidth / 2, wallHeight + (columns + rows) * tileHeight / 2)
+        return ((columns + rows) * tileWidth / 2, wallHeight + (columns + rows) * tileHeight / 2 + floorEdge)
     }
 
     /// 방 텍스처 안에서 격자 (0,0) 타일 윗꼭짓점의 위치 (위-왼쪽 기준 아트 좌표)
     static var roomGridOrigin: CGPoint {
-        CGPoint(x: CGFloat(InstituteState.gridRows * tileWidth / 2), y: CGFloat(wallHeight))
+        if stageRoomImage != nil { return stageRoomGridOrigin }
+        return CGPoint(x: CGFloat(InstituteState.gridRows * tileWidth / 2), y: CGFloat(wallHeight))
     }
 
     // MARK: - 비트맵 그리기 도우미 (위-왼쪽 원점, 안티앨리어싱 끔)
@@ -84,73 +96,166 @@ enum OfficePixelArt {
                 CGPoint(x: top.x, y: top.y + 2 * h + inset / 2), CGPoint(x: top.x - w, y: top.y + h)]
     }
 
-    // MARK: - 방 (벽 두 면 + 창문 틀 + 마루)
-    // 텍스처는 에셋 밀도(방 픽셀 1칸 = 2칸)로 그림. 바닥·벽 텍스처 에셋은 아이소메트릭 면에 투영하고,
-    // 에셋이 없으면 단색 체크무늬로 대체.
+    // MARK: - 방 (벽 두 면 + 창문 + 마루)
+    // 텍스처는 에셋 밀도(방 픽셀 1칸 = 2칸)로 그림.
+    // 바닥: 고른 마루 테마의 평면 텍스처를 바닥 전체에 이음매 없이 투영 (칸마다 찍지 않음 → 하나로 통일된 바닥)
+    // 벽: 고른 외벽 테마로 두 벽면을 한 면씩 이어 그림 (패널 사이 틈 없음). 창문은 오른쪽 벽 가운데 하나로 자동 배치,
+    //     유리는 투명하게 뚫어 방 뒤의 연구소 하늘(날씨)이 비치고, 옅은 빛 반사만 얹음.
 
-    static func makeRoom() -> SKTexture {
+    /// 바닥 앞쪽 두께 (방 픽셀)
+    static let floorEdge = 3
+
+    static func floorAssetName(_ theme: FloorTheme) -> String {
+        switch theme {
+        case .lightWood: return "floor_light_wood"
+        case .darkWood: return "floor_dark_wood"
+        }
+    }
+
+    struct WallPalette {
+        let upper: RGB, stain: RGB, rail: RGB, wainscot: RGB, board: RGB, base: RGB, cap: RGB
+        let boardsOnUpper: Bool      // 목재 판벽은 위쪽에도 판자 줄
+        let tieHoles: Bool           // 콘크리트 거푸집 구멍
+    }
+
+    static func wallPalette(_ theme: WallTheme) -> WallPalette {
+        switch theme {
+        case .plasterTeal:
+            return WallPalette(upper: RGB(0.88, 0.86, 0.78), stain: RGB(0.70, 0.66, 0.52, 0.45), rail: RGB(0.30, 0.37, 0.38),
+                               wainscot: RGB(0.43, 0.54, 0.53), board: RGB(0.35, 0.45, 0.45), base: RGB(0.21, 0.25, 0.28),
+                               cap: RGB(0.95, 0.93, 0.87), boardsOnUpper: false, tieHoles: false)
+        case .woodPanel:
+            return WallPalette(upper: RGB(0.62, 0.46, 0.32), stain: RGB(0.40, 0.28, 0.18, 0.45), rail: RGB(0.27, 0.18, 0.11),
+                               wainscot: RGB(0.44, 0.30, 0.20), board: RGB(0.33, 0.22, 0.14), base: RGB(0.18, 0.12, 0.08),
+                               cap: RGB(0.72, 0.56, 0.40), boardsOnUpper: true, tieHoles: false)
+        case .concrete:
+            return WallPalette(upper: RGB(0.67, 0.68, 0.66), stain: RGB(0.48, 0.50, 0.48, 0.45), rail: RGB(0.40, 0.42, 0.42),
+                               wainscot: RGB(0.56, 0.58, 0.57), board: RGB(0.47, 0.49, 0.48), base: RGB(0.29, 0.31, 0.32),
+                               cap: RGB(0.76, 0.77, 0.75), boardsOnUpper: false, tieHoles: true)
+        }
+    }
+
+    static func makeRoom(floor floorTheme: FloorTheme = .lightWood, wall wallTheme: WallTheme = .plasterTeal) -> SKTexture {
+        if let image = stageRoomImage { return texture(image) }
         let size = roomSize, origin = roomGridOrigin
         let columns = InstituteState.gridColumns, rows = InstituteState.gridRows
         func top(_ c: Int, _ r: Int) -> CGPoint {
             CGPoint(x: origin.x + CGFloat((c - r) * tileWidth / 2), y: origin.y + CGFloat((c + r) * tileHeight / 2))
         }
         let density = CGFloat(assetDensity)
-        let floorTexture = bundledImage("texture_floor"), wallTexture = bundledImage("texture_wall")
+        let floorImage = bundledImage(floorAssetName(floorTheme))
         return texture(render(width: size.width * assetDensity, height: size.height * assetDensity) { ctx in
             ctx.scaleBy(x: density, y: density)
-            let wall = CGFloat(wallHeight)
-            let leftEnd = top(0, rows), corner = top(0, 0), rightEnd = top(columns, 0)
-            let leftWall = [leftEnd, corner, CGPoint(x: corner.x, y: corner.y - wall), CGPoint(x: leftEnd.x, y: leftEnd.y - wall)]
-            let rightWall = [corner, rightEnd, CGPoint(x: rightEnd.x, y: rightEnd.y - wall), CGPoint(x: corner.x, y: corner.y - wall)]
-            fill(ctx, leftWall, wallShade)
-            fill(ctx, rightWall, wallLight)
-            if let wallTexture {
-                // 벽지 한 장이 벽 높이를 꽉 채우게 (위쪽 전선관이 천장선에 오도록), 가로는 에셋 1칸 = 방 0.5칸
-                let down = CGVector(dx: 0, dy: wall / CGFloat(wallTexture.height))
-                drawProjected(ctx, wallTexture, clip: rightWall, origin: CGPoint(x: corner.x, y: corner.y - wall),
-                              across: texelStep(16, 8), down: down)
-                drawProjected(ctx, wallTexture, clip: leftWall, origin: CGPoint(x: leftEnd.x, y: leftEnd.y - wall),
-                              across: texelStep(16, -8), down: down)
-                fill(ctx, leftWall, RGB(0.12, 0.10, 0.14, 0.16))   // 왼쪽 벽은 창 반대편이라 그늘
-            }
-            // 걸레받이
-            fill(ctx, [leftEnd, corner, CGPoint(x: corner.x, y: corner.y - 3), CGPoint(x: leftEnd.x, y: leftEnd.y - 3)], wallTrim.shaded(0.9))
-            fill(ctx, [corner, rightEnd, CGPoint(x: rightEnd.x, y: rightEnd.y - 3), CGPoint(x: corner.x, y: corner.y - 3)], wallTrim)
+            ctx.interpolationQuality = .none
+            drawWalls(ctx, palette: wallPalette(wallTheme), leftEnd: top(0, rows), corner: top(0, 0), length: CGFloat(columns * tileWidth / 2))
 
-            // 오른쪽 벽 창문: 유리 부분은 투명하게 비워 뒤의 연구소 하늘 캔버스가 비쳐 보이게 함
-            for window in windowQuads() {
-                fill(ctx, window.frame, windowFrame)
-                ctx.setBlendMode(.clear)
-                fill(ctx, window.glass, RGB(0, 0, 0, 1))
-                ctx.setBlendMode(.normal)
+            let floor = [top(0, 0), top(columns, 0), top(columns, rows), top(0, rows)]
+            let edge = CGFloat(floorEdge)
+            if let floorImage {
+                // 평면 텍스처 1장 = 타일 1칸 (텍셀 32개가 칸의 한 변), 바닥 전체에 이어 깔기
+                let n = CGFloat(floorImage.width)
+                drawProjected(ctx, floorImage, clip: floor, origin: top(0, 0),
+                              across: CGVector(dx: 16 / n, dy: 8 / n), down: CGVector(dx: -16 / n, dy: 8 / n))
+            } else {
+                fill(ctx, floor, floorLight)
             }
-
-            if let floorTexture {
-                // 마루 텍스처는 바닥 전체에 이어 깔고, 배치 격자가 보이도록 칸마다 옅은 체크 그늘만 얹음
-                let floor = [top(0, 0), top(columns, 0), top(columns, rows), top(0, rows)]
-                drawProjected(ctx, floorTexture, clip: floor, origin: top(0, 0), across: texelStep(16, 8), down: texelStep(-16, 8))
-            }
-            for r in 0..<rows {
-                for c in 0..<columns {
-                    let t = top(c, r)
-                    if floorTexture == nil {
-                        fill(ctx, diamond(top: t), (c + r) % 2 == 0 ? floorLight : floorDark)
-                    } else if (c + r) % 2 == 1 {
-                        fill(ctx, diamond(top: t), RGB(0.18, 0.10, 0.04, 0.10))
-                    }
-                    // 판자 이음매: 타일 아래쪽 두 변에 한 줄
-                    fill(ctx, [CGPoint(x: t.x, y: t.y + 15), CGPoint(x: t.x + 16, y: t.y + 7),
-                               CGPoint(x: t.x + 16, y: t.y + 8), CGPoint(x: t.x, y: t.y + 16)],
-                         floorTexture == nil ? floorSeam : RGB(0.30, 0.20, 0.12, 0.30))
-                }
-            }
+            // 바닥 앞쪽 두께 면 (왼쪽 앞 · 오른쪽 앞)
+            let front = top(columns, rows), left = top(0, rows), right = top(columns, 0)
+            fill(ctx, [left, front, CGPoint(x: front.x, y: front.y + edge), CGPoint(x: left.x, y: left.y + edge)], floorDark.shaded(0.62))
+            fill(ctx, [front, right, CGPoint(x: right.x, y: right.y + edge), CGPoint(x: front.x, y: front.y + edge)], floorDark.shaded(0.5))
         })
     }
 
-    /// 방 아트 좌표에서 에셋 텍셀 1칸의 길이 = 방 픽셀 0.5칸 (캐릭터·시설과 같은 밀도), 방향은 (dx, dy)
-    static func texelStep(_ dx: CGFloat, _ dy: CGFloat) -> CGVector {
-        let length = (dx * dx + dy * dy).squareRoot()
-        return CGVector(dx: dx / length / CGFloat(assetDensity), dy: dy / length / CGFloat(assetDensity))
+    /// 두 벽면을 테마 색으로 이어 그림. 벽면 좌표: u = 벽을 따라 가로 방 픽셀(0…length), v = 위에서 아래로(0…40)
+    private static func drawWalls(_ ctx: CGContext, palette w: WallPalette, leftEnd: CGPoint, corner: CGPoint, length: CGFloat) {
+        let height = CGFloat(wallHeight)
+        // 왼쪽 벽: leftEnd → corner (오른쪽으로 갈수록 올라감), 오른쪽 벽: corner → 오른쪽 끝 (내려감)
+        func leftPoint(_ u: CGFloat, _ v: CGFloat) -> CGPoint { CGPoint(x: leftEnd.x + u, y: leftEnd.y - u / 2 - height + v) }
+        func rightPoint(_ u: CGFloat, _ v: CGFloat) -> CGPoint { CGPoint(x: corner.x + u, y: corner.y + u / 2 - height + v) }
+
+        for (isLeft, point) in [(true, leftPoint), (false, rightPoint)] as [(Bool, (CGFloat, CGFloat) -> CGPoint)] {
+            func quad(_ u0: CGFloat, _ u1: CGFloat, _ v0: CGFloat, _ v1: CGFloat, _ color: RGB) {
+                fill(ctx, [point(u0, v0), point(u1, v0), point(u1, v1), point(u0, v1)], color)
+            }
+            quad(0, length, 0, height, w.upper)
+            if w.boardsOnUpper {
+                for u in stride(from: CGFloat(5), to: length, by: 6) { quad(u, u + 0.5, 1, 23, w.board) }
+            }
+            if w.tieHoles {
+                for u in stride(from: CGFloat(8), to: length, by: 16) {
+                    for v in [CGFloat(6), 15] { quad(u, u + 1, v, v + 1, w.board) }
+                }
+            }
+            // 오래된 얼룩 (위치는 고정 — 벽마다 다르게)
+            let stains: [(CGFloat, CGFloat, CGFloat, CGFloat)] = isLeft
+                ? [(14, 22, 2, 9), (60, 66, 12, 20), (80, 86, 3, 7)]
+                : [(8, 13, 4, 12), (70, 78, 2, 6), (88, 93, 10, 19)]
+            for (u0, u1, v0, v1) in stains { quad(u0, u1, v0, v1, w.stain) }
+            quad(0, length, 0, 1, w.cap)                         // 천장선
+            quad(0, length, 23, 24, w.rail)                      // 걸레받이 위 가로대
+            quad(0, length, 24, 38, w.wainscot)                  // 징두리
+            for u in stride(from: CGFloat(3), to: length, by: 4) { quad(u, u + 0.5, 24, 38, w.board) }
+            quad(0, length, 38, height, w.base)                  // 걸레받이
+            if isLeft {
+                quad(0, length, 0, height, RGB(0.10, 0.09, 0.14, 0.16))   // 창 반대편이라 그늘
+                quad(0, 0.5, 0, height, RGB(0.09, 0.10, 0.16))           // 바깥 끝 테두리
+            } else {
+                quad(0, 0.5, 0, height, RGB(0.09, 0.10, 0.16, 0.7))      // 모서리
+                quad(length - 0.5, length, 0, height, RGB(0.09, 0.10, 0.16))
+            }
+            quad(0, length, -0.5, 0, RGB(0.09, 0.10, 0.16))       // 윗면 테두리
+        }
+        drawWindow(ctx, frameColor: w.rail, light: w.cap, at: rightPoint, center: length / 2)
+    }
+
+    /// 오른쪽 벽 가운데 창문: 창틀 · 십자 창살 · 창턱, 유리는 투명 + 옅은 빛 반사
+    private static func drawWindow(_ ctx: CGContext, frameColor: RGB, light: RGB, at point: (CGFloat, CGFloat) -> CGPoint, center: CGFloat) {
+        func quad(_ u0: CGFloat, _ u1: CGFloat, _ v0: CGFloat, _ v1: CGFloat, _ color: RGB) {
+            fill(ctx, [point(u0, v0), point(u1, v0), point(u1, v1), point(u0, v1)], color)
+        }
+        let u0 = center - 11, u1 = center + 11, v0: CGFloat = 4, v1: CGFloat = 21
+        let outline = RGB(0.09, 0.10, 0.16)
+        quad(u0 - 0.5, u1 + 0.5, v0 - 0.5, v1 + 0.5, outline)
+        quad(u0, u1, v0, v1, frameColor)
+        quad(u0, u1, v0, v0 + 0.5, light)                        // 위 창틀이 빛을 받음
+        // 유리 네 칸 (창살 1px, 창틀 1px)
+        let mu = center, mv = (v0 + v1) / 2
+        let panes: [(CGFloat, CGFloat, CGFloat, CGFloat)] = [
+            (u0 + 1, mu - 0.5, v0 + 1, mv - 0.5), (mu + 0.5, u1 - 1, v0 + 1, mv - 0.5),
+            (u0 + 1, mu - 0.5, mv + 0.5, v1 - 1), (mu + 0.5, u1 - 1, mv + 0.5, v1 - 1)
+        ]
+        ctx.setBlendMode(.clear)
+        for (a, b, c, d) in panes { quad(a, b, c, d, RGB(0, 0, 0, 1)) }
+        ctx.setBlendMode(.normal)
+        // 빛 반사: 칸마다 짧은 사선 두 줄 (반투명 흰색)
+        let glint = RGB(1, 1, 1, 0.3)
+        for (a, _, _, d) in panes {
+            for k in 0..<4 {
+                let step = CGFloat(k) * 0.5
+                quad(a + 1.5 + step, a + 2 + step, d - 1.5 - CGFloat(k), d - 1 - CGFloat(k), glint)
+                if k < 2 { quad(a + 3.5 + step, a + 4 + step, d - 1.5 - CGFloat(k), d - 1 - CGFloat(k), glint) }
+            }
+        }
+        // 창턱
+        quad(u0 - 1, u1 + 1, v1 + 0.5, v1 + 1.5, light)
+        quad(u0 - 1, u1 + 1, v1 + 1.5, v1 + 2, outline)
+    }
+
+    /// 인테리어 서랍 견본: 외벽 테마를 평면으로 (가로 24 · 세로 20 방 픽셀 = 에셋 48×40)
+    static func wallSwatch(_ theme: WallTheme) -> CGImage? {
+        let w = wallPalette(theme)
+        return render(width: 48, height: 40) { ctx in
+            ctx.scaleBy(x: 2, y: 2)
+            rect(ctx, 0, 0, 24, 20, w.upper)
+            if w.boardsOnUpper { for x in stride(from: CGFloat(3), to: 24, by: 6) { rect(ctx, x, 1, 0.5, 10, w.board) } }
+            if w.tieHoles { for x in [CGFloat(5), 17] { rect(ctx, x, 4, 1, 1, w.board) } }
+            rect(ctx, 14, 2, 5, 6, w.stain)
+            rect(ctx, 0, 0, 24, 1, w.cap)
+            rect(ctx, 0, 11, 24, 1, w.rail)
+            rect(ctx, 0, 12, 24, 6, w.wainscot)
+            for x in stride(from: CGFloat(2), to: 24, by: 4) { rect(ctx, x, 12, 0.5, 6, w.board) }
+            rect(ctx, 0, 18, 24, 2, w.base)
+        }
     }
 
     /// 평평한 텍스처를 clip 면 안에 기울여 이어 깔기. 이미지 윗줄 왼쪽 끝이 origin, 가로 1텍셀 = across, 세로 1텍셀 = down
@@ -169,24 +274,6 @@ enum OfficePixelArt {
         ctx.restoreGState()
     }
 
-    /// 오른쪽 벽(row 0)의 창문 두 개 — (프레임 사각형, 유리 사각형) 아트 좌표
-    static func windowQuads() -> [(frame: [CGPoint], glass: [CGPoint])] {
-        let origin = roomGridOrigin
-        func top(_ c: Int) -> CGPoint {
-            CGPoint(x: origin.x + CGFloat(c * tileWidth / 2), y: origin.y + CGFloat(c * tileHeight / 2))
-        }
-        return [1, 4].map { column in
-            let a = top(column), b = top(column + 1)
-            func quad(_ inset: CGFloat, _ low: CGFloat, _ high: CGFloat) -> [CGPoint] {
-                let ax = a.x + inset, bx = b.x - inset
-                let ay = a.y + inset / 2, by = b.y - inset / 2
-                return [CGPoint(x: ax, y: ay - low), CGPoint(x: bx, y: by - low),
-                        CGPoint(x: bx, y: by - high), CGPoint(x: ax, y: ay - high)]
-            }
-            return (quad(1, 8, 36), quad(3, 10, 34))
-        }
-    }
-
     // MARK: - 시설 블록
 
     struct BlockStyle {
@@ -196,7 +283,7 @@ enum OfficePixelArt {
 
     static func style(for kind: FacilityKind) -> BlockStyle {
         switch kind {
-        case .researcherDesk: return BlockStyle(height: 10, top: RGB(0.66, 0.46, 0.28), left: RGB(0.50, 0.33, 0.20), right: RGB(0.42, 0.27, 0.16))
+        case .researcherDesk, .traineeDesk: return BlockStyle(height: 10, top: RGB(0.66, 0.46, 0.28), left: RGB(0.50, 0.33, 0.20), right: RGB(0.42, 0.27, 0.16))
         case .kanjiArchive: return BlockStyle(height: 28, top: RGB(0.48, 0.33, 0.21), left: RGB(0.38, 0.25, 0.15), right: RGB(0.32, 0.21, 0.13))
         case .copyRoom: return BlockStyle(height: 12, top: RGB(0.85, 0.82, 0.74), left: RGB(0.68, 0.64, 0.56), right: RGB(0.60, 0.56, 0.49))
         case .recordingBooth: return BlockStyle(height: 30, top: RGB(0.52, 0.72, 0.86), left: RGB(0.38, 0.56, 0.70), right: RGB(0.32, 0.48, 0.62))
@@ -269,7 +356,7 @@ enum OfficePixelArt {
                 rect(ctx, cx - 3, cy - h - 3, 5, 1, RGB(0.20, 0.20, 0.24))
                 rect(ctx, cx - 3, cy - h - 1, 3, 1, RGB(0.20, 0.20, 0.24))
                 rect(ctx, cx + 4, cy - h - 6, 1, 6, RGB(0.15, 0.15, 0.18))  // 붓
-            case .researcherDesk:
+            case .researcherDesk, .traineeDesk:
                 rect(ctx, cx - 8, cy - h - 6, 7, 5, RGB(0.85, 0.86, 0.90))   // 노트북
                 rect(ctx, cx - 7, cy - h - 5, 5, 3, frame == 0 ? RGB(0.45, 0.70, 0.95) : RGB(0.55, 0.78, 0.98))
                 rect(ctx, cx + 2, cy - h - 7, 5, 7, RGB(0.80, 0.24, 0.22))   // 책 더미
@@ -298,7 +385,7 @@ enum OfficePixelArt {
 
     private static func facilityAssetName(_ kind: FacilityKind) -> String {
         switch kind {
-        case .researcherDesk: return "facility_researcher_desk"
+        case .researcherDesk, .traineeDesk: return "facility_researcher_desk"   // 신입 책상도 같은 책상
         case .kanjiArchive: return "facility_kanji_archive"
         case .copyRoom: return "facility_copy_room"
         case .recordingBooth: return "facility_recording_booth"
@@ -356,14 +443,8 @@ enum OfficePixelArt {
         return ctx.makeImage()
     }
 
-    /// 벽가 장식 소품 (자리 고정, 그 칸에 시설이 놓이면 숨김). 쇠퇴한 연구소 분위기용
-    static let decorPlacements: [(asset: String, cell: GridPosition)] = [
-        ("prop_plant", GridPosition(column: 0, row: 0)),            // 안쪽 구석의 시든 화분
-        ("prop_bucket", GridPosition(column: 3, row: 0)),           // 창문 사이 천장 누수
-        ("prop_vending_machine", GridPosition(column: 5, row: 0)),  // 오른쪽 벽 끝 낡은 자판기
-        ("prop_cables", GridPosition(column: 0, row: 2)),           // 왼쪽 벽가 엉킨 전선
-        ("prop_boxes", GridPosition(column: 0, row: 5))             // 왼쪽 벽 끝 기록 상자
-    ]
+    /// 벽가 장식 소품 (자리 고정, 그 칸에 시설이 놓이면 숨김). 1단계 방 그림에 이미 그려져 있어 지금은 비어 있음 (소품 에셋은 다음 단계 방에서 재사용)
+    static let decorPlacements: [(asset: String, cell: GridPosition)] = []
 
     // MARK: - 주임 연구원 (단발 · 안경 · 흰 가운) 8×14, 걷기 두 장
 
@@ -416,12 +497,25 @@ enum OfficePixelArt {
     static let characterPixelRatio: CGFloat = 0.5
 
     static func characterFrames(_ role: ResearcherAgent.Role) -> CharacterFrames {
-        let name = role == .chief ? "chief_researcher" : "newcomer"
-        let images = ["idle_se", "walk_se_a", "walk_se_b", "idle_nw"].map { bundledImage("\(name)_\($0)") }
-        if images.allSatisfy({ $0 != nil }) {
-            let t = images.map { texture($0) }
+        characterFrames(named: role == .chief ? "chief_researcher" : "newcomer")
+    }
+
+    /// 음성 캐릭터 출연진 스프라이트 — 파일 이름은 voiceId (`VoiceProfile.gameCast`, GAME_DESIGN §2.2).
+    /// 아직 장면에 등장시키지 않음: 급수별 등장 조건(§2.2)이 정해지면 방문자로 씀
+    static let castVoiceIDs = ["ai_kuro", "master_gen", "citizen_mio", "courier_rin", "elder_tsuru",
+                               "craftsman_jin", "rival_reina", "inspector_ren", "announcer_ai"]
+
+    static func characterFrames(voiceID: String) -> CharacterFrames? {
+        let frames = characterFrames(named: voiceID)
+        return frames.artSize.width == CGFloat(characterArtSize) ? frames : nil
+    }
+
+    private static func characterFrames(named name: String) -> CharacterFrames {
+        // 걷기 프레임은 walk_se_a, _b, _c… 있는 만큼 (Pixellab 템플릿은 6프레임)
+        let walkImages = "abcdefghijkl".map { bundledImage("\(name)_walk_se_\($0)") }.prefix { $0 != nil }.compactMap { $0 }
+        if let idle = bundledImage("\(name)_idle_se"), let back = bundledImage("\(name)_idle_nw"), walkImages.count >= 2 {
             let side = CGFloat(characterArtSize)
-            return CharacterFrames(idleFront: t[0], walkFront: [t[1], t[2]], back: t[3], artSize: CGSize(width: side, height: side))
+            return CharacterFrames(idleFront: texture(idle), walkFront: walkImages.map { texture($0) }, back: texture(back), artSize: CGSize(width: side, height: side))
         }
         // 에셋을 못 찾으면 코드로 그린 임시 스프라이트 (두 사람 모두)
         let walk = [makeGuide(frame: 0), makeGuide(frame: 1)]
@@ -430,7 +524,7 @@ enum OfficePixelArt {
 
     static func bundledImage(_ name: String) -> CGImage? {
         for bundle in [Bundle.module, Bundle.main] {
-            for sub in [nil, "Art/Characters", "Art/Environment", "Resources/Art/Characters", "Resources/Art/Environment"] as [String?] {
+            for sub in [nil, "Art/Characters", "Art/Environment", "Art/UI", "Art/Effects", "Resources/Art/Characters", "Resources/Art/Environment", "Resources/Art/UI", "Resources/Art/Effects"] as [String?] {
                 guard let url = bundle.url(forResource: name, withExtension: "png", subdirectory: sub),
                       let source = CGImageSourceCreateWithURL(url as CFURL, nil),
                       let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { continue }
@@ -438,5 +532,54 @@ enum OfficePixelArt {
             }
         }
         return nil
+    }
+
+    // MARK: - 픽셀 이펙트 (Resources/Art/Effects, 가로 스트립) — 제작 스크립트: Docs/Art/Effects
+    // 투명도 대신 디더링으로 사라지게 그려서 픽셀이 끝까지 또렷함. 밀도는 에셋과 같음 (방 픽셀 1칸 = 2칸).
+
+    enum Effect: String, CaseIterable {
+        case dust = "fx_dust"         // 시설 착지 먼지
+        case sparkle = "fx_sparkle"   // 콤보 성립
+        case ink = "fx_ink"           // 한자 복원 완료 — 먹 번짐
+        case motes = "fx_motes"       // 연구P 정산 — 청록 입자
+        case drip = "fx_drip"         // 천장 누수 (양동이 위 반복)
+
+        /// 한 프레임의 에셋 픽셀 크기
+        var frameSize: CGSize {
+            switch self {
+            case .dust: return CGSize(width: 56, height: 24)
+            case .sparkle: return CGSize(width: 48, height: 48)
+            case .ink: return CGSize(width: 56, height: 56)
+            case .motes: return CGSize(width: 32, height: 40)
+            case .drip: return CGSize(width: 16, height: 48)
+            }
+        }
+
+        var timePerFrame: TimeInterval {
+            switch self {
+            case .dust: return 0.07
+            case .sparkle: return 0.08
+            case .ink: return 0.1
+            case .motes: return 0.1
+            case .drip: return 0.12
+            }
+        }
+    }
+
+    private static let effectFrameCache: [Effect: [SKTexture]] = {
+        var cache: [Effect: [SKTexture]] = [:]
+        for effect in Effect.allCases {
+            guard let strip = bundledImage(effect.rawValue) else { continue }
+            let w = Int(effect.frameSize.width), h = Int(effect.frameSize.height)
+            cache[effect] = (0..<(strip.width / w)).compactMap { i in
+                strip.cropping(to: CGRect(x: i * w, y: 0, width: w, height: h)).map { texture($0) }
+            }
+        }
+        return cache
+    }()
+
+    /// 에셋이 없으면 빈 배열 (장면은 이펙트 없이 그대로 동작)
+    static func effectFrames(_ effect: Effect) -> [SKTexture] {
+        effectFrameCache[effect] ?? []
     }
 }

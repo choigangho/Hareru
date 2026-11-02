@@ -12,6 +12,8 @@ final class OfficeScene: SKScene {
     private(set) var pixelScale: CGFloat = 1
 
     private var state = InstituteState()
+    /// 지금 방 텍스처의 인테리어 (테마가 바뀔 때만 방을 다시 그림)
+    private var roomThemes = (floor: FloorTheme.lightWood, wall: WallTheme.plasterTeal)
     private var comboMemberIDs: Set<String> = []
     private var selectedCell: GridPosition?
     private var isPlacing = false
@@ -27,6 +29,12 @@ final class OfficeScene: SKScene {
     private var facilityNodes: [String: SKSpriteNode] = [:]
     /// 벽가 장식 소품 (OfficePixelArt.decorPlacements 순서, 에셋이 없으면 비어 있음)
     private var decorNodes: [(node: SKSpriteNode, cell: GridPosition, artSize: CGSize)] = []
+    /// 양동이 위 천장 누수 (양동이 노드의 자식, 반복 재생)
+    private var dripNode: SKSpriteNode?
+    /// 착지 먼지를 이미 낸 시설 (낙하 연출 한 번에 한 번만)
+    private var landedDrops: Set<String> = []
+    /// 테스트·디버그용: 지금까지 재생한 일회성 이펙트 수
+    private(set) var effectsPlayed: [OfficePixelArt.Effect] = []
     private var bubbleNodes: [UUID: SKNode] = [:]
 
     private var textureCache: [String: SKTexture] = [:]
@@ -53,6 +61,17 @@ final class OfficeScene: SKScene {
             node.anchorPoint = CGPoint(x: 0.5, y: 4 / artSize.height)
             addChild(node)
             decorNodes.append((node, decor.cell, artSize))
+            if decor.asset == "prop_bucket" {
+                let frames = OfficePixelArt.effectFrames(.drip)
+                if !frames.isEmpty {
+                    let drip = SKSpriteNode(texture: frames[0])
+                    drip.anchorPoint = CGPoint(x: 0.5, y: 0)
+                    drip.zPosition = 0.5
+                    drip.run(.repeatForever(.animate(with: frames, timePerFrame: OfficePixelArt.Effect.drip.timePerFrame)))
+                    node.addChild(drip)
+                    dripNode = drip
+                }
+            }
         }
 
         selectionNode.zPosition = 5
@@ -86,6 +105,10 @@ final class OfficeScene: SKScene {
 
     func apply(state: InstituteState, comboMemberIDs: Set<String>, selectedCell: GridPosition?, isPlacing: Bool) {
         self.state = state
+        if !OfficePixelArt.usesStageRoom, roomThemes.floor != state.floorTheme || roomThemes.wall != state.wallTheme {
+            roomThemes = (state.floorTheme, state.wallTheme)
+            roomNode.texture = OfficePixelArt.makeRoom(floor: state.floorTheme, wall: state.wallTheme)
+        }
         self.comboMemberIDs = comboMemberIDs
         self.selectedCell = selectedCell
         self.isPlacing = isPlacing
@@ -107,6 +130,7 @@ final class OfficeScene: SKScene {
     /// 테스트·디버그용: 시설 노드 수와 앞뒤 순서
     var facilityNodeCount: Int { facilityNodes.count }
     func zPosition(ofFacility id: String) -> CGFloat? { facilityNodes[id]?.zPosition }
+    func isFacilityHidden(_ id: String) -> Bool? { facilityNodes[id]?.isHidden }
     var agentZPosition: CGFloat { agentNode.zPosition }
     var newcomerZPosition: CGFloat { newcomerNode.zPosition }
     /// 화면에 실제로 그려지는 연구원 크기 (배율 이중 적용 회귀 방지용)
@@ -122,20 +146,93 @@ final class OfficeScene: SKScene {
         layoutRoom()
     }
 
+    // MARK: - 환경광 (하늘 색온도를 방 그림 전체에 얹음 — 밤에는 창밖 한낮 풍경도 함께 어두워짐)
+
+    private var ambient = (color: SKColor.white, amount: CGFloat(0))
+
+    func setAmbient(red: Double, green: Double, blue: Double, amount: Double) {
+        ambient = (SKColor(red: red, green: green, blue: blue, alpha: 1), CGFloat(min(max(amount, 0), 0.8)))
+        tintLitNodes()
+    }
+
+    /// 방 · 시설 · 연구원에 같은 환경광 (시설과 사람은 조금 약하게 — 그림 속 가구보다 또렷하게 읽히도록)
+    private func tintLitNodes() {
+        roomNode.color = ambient.color
+        roomNode.colorBlendFactor = ambient.amount
+        for node in [agentNode, newcomerNode] + Array(facilityNodes.values) {
+            node.color = ambient.color
+            node.colorBlendFactor = ambient.amount * 0.8
+        }
+    }
+
+    // MARK: - 확대 · 축소 · 이동 (방 그림이 화면보다 커서 기본은 확대, 두 손가락 모으기와 끌기로 둘러봄)
+    // 확대는 정수 배율(1~4)로만 — 비정수 배율은 픽셀이 뭉개지거나 들쭉날쭉해짐
+
+    static let zoomLevels = 1...4
+    static let defaultZoom = 2
+    private(set) var zoomLevel = OfficeScene.defaultZoom
+    /// 방 그림의 왼쪽 위 모서리가 놓인 뷰 좌표. 사용자가 움직이기 전에는 nil → 열린 바닥이 가운데 오도록 자동 배치
+    private var roomTopLeft: CGPoint?
+
+    /// 화면 가운데에 둘 방 그림 속 지점 (아트 좌표) — 책상 앞 열린 바닥
+    private var focusPoint: CGPoint {
+        let origin = OfficePixelArt.roomGridOrigin
+        return CGPoint(x: origin.x, y: origin.y + CGFloat(InstituteState.gridRows * OfficePixelArt.tileHeight) / 2 + 4)
+    }
+
+    private func defaultTopLeft(scale: CGFloat) -> CGPoint {
+        CGPoint(x: size.width / 2 - focusPoint.x * scale, y: size.height / 2 - focusPoint.y * scale)
+    }
+
+    /// 방이 화면보다 크면 가장자리가 화면 안쪽으로 못 들어오게, 작으면 가운데로
+    private func clamped(_ topLeft: CGPoint, scale: CGFloat) -> CGPoint {
+        let art = OfficePixelArt.roomSize
+        func axis(_ value: CGFloat, room: CGFloat, view: CGFloat) -> CGFloat {
+            room <= view ? (view - room) / 2 : min(0, max(view - room, value))
+        }
+        return CGPoint(x: axis(topLeft.x, room: CGFloat(art.width) * scale, view: size.width),
+                       y: axis(topLeft.y, room: CGFloat(art.height) * scale, view: size.height))
+    }
+
+    /// 배율을 바꿈. anchor(뷰 좌표)가 가리키는 그림 속 지점은 제자리에 둠 (nil이면 화면 가운데)
+    func setZoom(_ level: Int, anchor: CGPoint? = nil) {
+        let next = min(Self.zoomLevels.upperBound, max(Self.zoomLevels.lowerBound, level))
+        guard next != zoomLevel else { return }
+        let point = anchor ?? CGPoint(x: size.width / 2, y: size.height / 2)
+        let old = roomTopLeft ?? defaultTopLeft(scale: CGFloat(zoomLevel))
+        let art = CGPoint(x: (point.x - old.x) / CGFloat(zoomLevel), y: (point.y - old.y) / CGFloat(zoomLevel))
+        zoomLevel = next
+        roomTopLeft = CGPoint(x: point.x - art.x * CGFloat(next), y: point.y - art.y * CGFloat(next))
+        layoutRoom()
+    }
+
+    /// 뷰 좌표로 delta만큼 끌기
+    func pan(by delta: CGPoint) {
+        let current = roomTopLeft ?? defaultTopLeft(scale: CGFloat(zoomLevel))
+        roomTopLeft = CGPoint(x: current.x + delta.x, y: current.y + delta.y)
+        layoutRoom()
+    }
+
+    /// 기본 배율과 위치로 되돌림
+    func resetView() {
+        zoomLevel = Self.defaultZoom
+        roomTopLeft = nil
+        layoutRoom()
+    }
+
     private func layoutRoom() {
         let art = OfficePixelArt.roomSize
-        let scale = max(1, min(size.width / CGFloat(art.width), size.height / CGFloat(art.height)).rounded(.down))
+        let scale = CGFloat(zoomLevel)
         pixelScale = scale
-        let drawnHeight = CGFloat(art.height) * scale
-        let topInset = ((size.height - drawnHeight) / 2).rounded()
-        let origin = CGPoint(
-            x: (size.width / 2).rounded(),
-            y: topInset + CGFloat(OfficePixelArt.wallHeight) * scale
-        )
+        let topLeft = clamped(roomTopLeft ?? defaultTopLeft(scale: scale), scale: scale)
+        if roomTopLeft != nil { roomTopLeft = topLeft }
+        let drawn = CGSize(width: CGFloat(art.width) * scale, height: CGFloat(art.height) * scale)
+        let gridOrigin = OfficePixelArt.roomGridOrigin
+        let origin = CGPoint(x: topLeft.x + gridOrigin.x * scale, y: topLeft.y + gridOrigin.y * scale)
         grid = IsoGrid(pixelScale: scale, origin: origin)
 
-        roomNode.size = CGSize(width: CGFloat(art.width) * scale, height: drawnHeight)
-        roomNode.position = scenePoint(CGPoint(x: origin.x, y: topInset + drawnHeight / 2))
+        roomNode.size = drawn
+        roomNode.position = scenePoint(CGPoint(x: topLeft.x + drawn.width / 2, y: topLeft.y + drawn.height / 2))
 
         // 크기는 항상 '아트 크기 × 픽셀 배율' 포인트로 직접 지정 (노드 배율은 좌우 반전 ±1에만 사용)
         syncFacilities(frame: 0)
@@ -189,7 +286,10 @@ final class OfficeScene: SKScene {
             node.size = CGSize(width: CGFloat(size.width) * pixelScale, height: CGFloat(size.height) * pixelScale)
             node.position = snappedScenePoint(column: CGFloat(facility.position.column), row: CGFloat(facility.position.row))
             node.zPosition = depthZ(CGFloat(facility.position.column + facility.position.row))
+            // 주임 연구원 책상은 방 그림 속 큰 책상 — 따로 그리지 않음 (칸 · 길찾기 · 콤보에는 그대로 쓰임)
+            node.isHidden = facility.kind == .researcherDesk && OfficePixelArt.usesStageRoom
         }
+        tintLitNodes()
     }
 
     private func syncDecor() {
@@ -201,6 +301,34 @@ final class OfficeScene: SKScene {
             // 같은 칸의 연구원(+1, +2)·시설(+0)보다 뒤
             decor.node.zPosition = depthZ(CGFloat(decor.cell.column + decor.cell.row)) - 1
         }
+        if let drip = dripNode {
+            let size = OfficePixelArt.Effect.drip.frameSize
+            let density = CGFloat(OfficePixelArt.assetDensity)
+            drip.size = CGSize(width: size.width / density * pixelScale, height: size.height / density * pixelScale)
+            // 물방울 착지점(스트립 아래 1.5px)이 양동이 테두리(소품 기준점 위 약 9px)에 오게
+            drip.position = CGPoint(x: 0, y: (9 - 1.5) * pixelScale)
+            drip.isHidden = runtime.reduceMotion
+        }
+    }
+
+    // MARK: - 픽셀 이펙트 (일회성)
+
+    /// lift: 타일 중심에서 위로 올릴 방 픽셀 수, grounded: true면 프레임 바닥을, false면 가운데를 그 점에 맞춤
+    private func playEffect(_ effect: OfficePixelArt.Effect, column: CGFloat, row: CGFloat, lift: CGFloat, grounded: Bool) {
+        guard !runtime.reduceMotion else { return }
+        let frames = OfficePixelArt.effectFrames(effect)
+        guard let first = frames.first else { return }
+        let node = SKSpriteNode(texture: first)
+        let density = CGFloat(OfficePixelArt.assetDensity)
+        node.size = CGSize(width: effect.frameSize.width / density * pixelScale, height: effect.frameSize.height / density * pixelScale)
+        node.anchorPoint = CGPoint(x: 0.5, y: grounded ? 0 : 0.5)
+        var point = snappedScenePoint(column: column, row: row)
+        point.y += lift * pixelScale
+        node.position = point
+        node.zPosition = 950   // 버블(1000) 아래, 장면의 모든 것 위
+        addChild(node)
+        node.run(.sequence([.animate(with: frames, timePerFrame: effect.timePerFrame), .removeFromParent()]))
+        effectsPlayed.append(effect)
     }
 
     /// 테스트·디버그용: 보이는 장식 소품 칸
@@ -244,12 +372,16 @@ final class OfficeScene: SKScene {
     private func updateFacilityAnimations(time: Double, frame: Int) {
         for facility in state.facilities {
             guard let node = facilityNodes[facility.id] else { continue }
-            if facility.kind == .serverRack || facility.kind == .researcherDesk || facility.kind == .recordingBooth {
+            if facility.kind == .serverRack || facility.kind.isDesk || facility.kind == .recordingBooth {
                 node.texture = facilityTexture(facility.kind, highlighted: comboMemberIDs.contains(facility.id), frame: frame)
             }
             // 설치 직후 낙하 · 착지 (아트 픽셀 단위)
             var base = snappedScenePoint(column: CGFloat(facility.position.column), row: CGFloat(facility.position.row))
             if let t = runtime.dropProgress(for: facility.id, time: time) {
+                if t >= 0.7, !landedDrops.contains(facility.id) {
+                    landedDrops.insert(facility.id)
+                    playEffect(.dust, column: CGFloat(facility.position.column), row: CGFloat(facility.position.row), lift: -4, grounded: true)
+                }
                 let fall = t < 0.7 ? 18 * (1 - t / 0.7) * (1 - t / 0.7) : 0
                 let bounce = t >= 0.7 ? 3 * sin((t - 0.7) / 0.3 * .pi) : 0
                 base.y += CGFloat(fall + bounce).rounded() * pixelScale
@@ -261,7 +393,7 @@ final class OfficeScene: SKScene {
     /// 연구원 한 명 그리기: 앞(남동·남서) / 뒤(북서·북동) 스프라이트 + 좌우 반전, 캐릭터 픽셀은 방 픽셀의 절반 크기
     private func draw(_ agent: ResearcherAgent, frames: OfficePixelArt.CharacterFrames, on node: SKSpriteNode, time: Double, tieBreak: CGFloat) {
         let position = agent.visualPosition
-        let step = Int(time * 8) % 2
+        let step = Int(time * 8) % frames.walkFront.count
         if agent.heading.showsFront {
             node.texture = agent.isWalking ? frames.walkFront[step] : frames.idleFront
         } else {
@@ -273,7 +405,8 @@ final class OfficeScene: SKScene {
         var point = snappedScenePoint(column: position.column, row: position.row)
         point.y -= 2 * pixelScale
         // 서 있을 때는 천천히 숨쉬기, 걸을 때는 통통 (뒷모습은 걷기 프레임이 없어 통통만)
-        let bob = agent.isWalking ? (step == 0 ? 0 : 1) : (Int(time * 1.5 + tieBreak * 0.5) % 2)
+        // 걷기 프레임이 여럿이면(Pixellab 6프레임) 프레임 자체에 흔들림이 있어 통통은 2프레임 에셋에서만
+        let bob = agent.isWalking ? (frames.walkFront.count > 2 ? 0 : step % 2) : (Int(time * 1.5 + tieBreak * 0.5) % 2)
         point.y += CGFloat(bob) * pixelScale
         node.position = point
         node.zPosition = depthZ(position.column + position.row) + tieBreak
@@ -284,7 +417,7 @@ final class OfficeScene: SKScene {
             gaugeNode.isHidden = true
             return
         }
-        let desk = InstituteState.deskPosition
+        let desk = state.facilities.first { $0.kind == .researcherDesk }?.position ?? InstituteState.deskPosition
         var anchor = snappedScenePoint(column: CGFloat(desk.column), row: CGFloat(desk.row))
         anchor.y += 34 * pixelScale
         gaugeNode.position = anchor
@@ -326,6 +459,13 @@ final class OfficeScene: SKScene {
     }
 
     private func makeBubbleNode(_ bubble: FloatingBubble) -> SKNode {
+        // 버블이 처음 생길 때 어울리는 이펙트를 함께 (같은 버블에 한 번)
+        switch bubble.style {
+        case .combo: playEffect(.sparkle, column: bubble.anchorColumn, row: bubble.anchorRow, lift: 14, grounded: false)
+        case .done: playEffect(.ink, column: bubble.anchorColumn, row: bubble.anchorRow, lift: 6, grounded: false)
+        case .points: playEffect(.motes, column: bubble.anchorColumn, row: bubble.anchorRow, lift: 4, grounded: true)
+        default: break
+        }
         let style = Self.bubbleStyle(bubble.style)
         let label = SKLabelNode(fontNamed: "HiraginoSans-W7")
         label.text = bubble.text

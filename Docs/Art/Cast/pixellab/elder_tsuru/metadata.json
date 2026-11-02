@@ -1,0 +1,47 @@
+{
+  "group_id": "d2e7b7b7-86f0-4b89-8d73-490c3d27d866",
+  "states": [
+    {
+      "character": {
+        "id": "f2122180-ed2f-41d4-8ecd-692c60fb4266",
+        "name": "Idle",
+        "prompt": "very old small kind grandmother, white hair tied in a neat bun with an amber kanzashi hairpin, faded teal-grey kimono with off-white haori jacket, slightly hunched, gentle smile, holding a small cloth-wrapped bundle. near-future decaying research institute, muted faded teal grey and off-white palette, single amber accent, no logos",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-11-01T17:00:52.880603+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "walk": {
+            "south-east": [
+              "Idle/animations/walk/south-east/frame_000.png",
+              "Idle/animations/walk/south-east/frame_001.png",
+              "Idle/animations/walk/south-east/frame_002.png",
+              "Idle/animations/walk/south-east/frame_003.png",
+              "Idle/animations/walk/south-east/frame_004.png",
+              "Idle/animations/walk/south-east/frame_005.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-11-01T17:08:33.590694"
+}

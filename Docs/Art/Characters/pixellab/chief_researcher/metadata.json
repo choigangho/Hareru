@@ -1,0 +1,47 @@
+{
+  "group_id": "7436b218-fe08-4ce7-8155-9a54a22055a3",
+  "states": [
+    {
+      "character": {
+        "id": "37016e74-e1d7-4966-b7d7-f97f99054a2c",
+        "name": "Idle",
+        "prompt": "chief researcher woman, navy blue bob hair, round glasses, worn off-white lab coat with patched elbows, black turtleneck, grey slacks, holding a thick paper dictionary full of amber sticky notes. near-future decaying research institute, muted faded teal grey and off-white palette, single amber accent, no logos",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-11-01T16:34:29.484223+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "walk": {
+            "south-east": [
+              "Idle/animations/walk/south-east/frame_000.png",
+              "Idle/animations/walk/south-east/frame_001.png",
+              "Idle/animations/walk/south-east/frame_002.png",
+              "Idle/animations/walk/south-east/frame_003.png",
+              "Idle/animations/walk/south-east/frame_004.png",
+              "Idle/animations/walk/south-east/frame_005.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-11-01T16:41:25.471179"
+}

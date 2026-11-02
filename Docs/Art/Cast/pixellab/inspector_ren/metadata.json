@@ -1,0 +1,47 @@
+{
+  "group_id": "5f9ea0ee-258b-440b-9606-6f1cbe819eba",
+  "states": [
+    {
+      "character": {
+        "id": "fc791b0d-c49e-4539-af8e-f990c5a78ead",
+        "name": "Idle",
+        "prompt": "slim young government budget inspector man, neat parted dark hair, charcoal grey suit, off-white shirt, amber necktie, small silver ID badge on lapel, holding a grey document folder, composed slightly aloof expression. near-future decaying research institute, muted faded teal grey and off-white palette, single amber accent, no logos",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-11-01T17:13:23.076907+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "walk": {
+            "south-east": [
+              "Idle/animations/walk/south-east/frame_000.png",
+              "Idle/animations/walk/south-east/frame_001.png",
+              "Idle/animations/walk/south-east/frame_002.png",
+              "Idle/animations/walk/south-east/frame_003.png",
+              "Idle/animations/walk/south-east/frame_004.png",
+              "Idle/animations/walk/south-east/frame_005.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-11-01T17:58:17.655106"
+}

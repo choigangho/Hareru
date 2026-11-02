@@ -1,0 +1,47 @@
+{
+  "group_id": "04ab1413-55bb-416f-8d13-58c09188d999",
+  "states": [
+    {
+      "character": {
+        "id": "bd1c2f20-af06-41c0-8efa-a85dff92ebab",
+        "name": "Idle",
+        "prompt": "gruff middle-aged sign restoration craftsman man, short buzz-cut grey hair, grey work overalls with faded teal patches, tool belt with brushes and pliers, amber work goggles hanging around his neck, carrying a small neon kanji sign frame. near-future decaying research institute, muted faded teal grey and off-white palette, single amber accent, no logos",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-11-01T17:04:49.714250+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "walk": {
+            "south-east": [
+              "Idle/animations/walk/south-east/frame_000.png",
+              "Idle/animations/walk/south-east/frame_001.png",
+              "Idle/animations/walk/south-east/frame_002.png",
+              "Idle/animations/walk/south-east/frame_003.png",
+              "Idle/animations/walk/south-east/frame_004.png",
+              "Idle/animations/walk/south-east/frame_005.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-11-01T17:09:30.960134"
+}

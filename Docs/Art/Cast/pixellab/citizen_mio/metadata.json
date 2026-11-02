@@ -1,0 +1,47 @@
+{
+  "group_id": "9661b385-6aa6-44bf-999f-5f86c0abfc0e",
+  "states": [
+    {
+      "character": {
+        "id": "72f9a3bd-a921-4593-b6d3-8185305ba656",
+        "name": "Idle",
+        "prompt": "teenage high school girl, short dark bob hair, faded teal-grey school blazer uniform, amber ribbon bow at collar, pleated grey skirt, small glowing neural-link port behind her ear, curious friendly look. near-future decaying research institute, muted faded teal grey and off-white palette, single amber accent, no logos",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-11-01T16:51:18.417508+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "walk": {
+            "south-east": [
+              "Idle/animations/walk/south-east/frame_000.png",
+              "Idle/animations/walk/south-east/frame_001.png",
+              "Idle/animations/walk/south-east/frame_002.png",
+              "Idle/animations/walk/south-east/frame_003.png",
+              "Idle/animations/walk/south-east/frame_004.png",
+              "Idle/animations/walk/south-east/frame_005.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-11-01T16:55:41.431359"
+}

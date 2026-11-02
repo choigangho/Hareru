@@ -28,6 +28,7 @@ public enum OfficePathfinder {
     public static func isWalkable(_ position: GridPosition, facilities: [PlacedFacility]) -> Bool {
         (0..<InstituteState.gridColumns).contains(position.column)
             && (0..<InstituteState.gridRows).contains(position.row)
+            && !InstituteState.fixedCells.contains(position)
             && !facilities.contains { $0.position == position }
     }
 
@@ -42,22 +43,43 @@ public enum OfficePathfinder {
         neighbors(of: target).filter { isWalkable($0, facilities: facilities) }
     }
 
-    /// 연구원이 책상에서 일하는 자리 (책상 앞 칸을 우선, 막혀 있으면 다른 옆 칸)
+    /// 주임 연구원이 책상에서 일하는 자리 (책상 앞 칸을 우선, 막혀 있으면 다른 옆 칸)
     public static func deskSpot(facilities: [PlacedFacility]) -> GridPosition? {
-        let desk = InstituteState.deskPosition
-        let preferred = GridPosition(column: desk.column, row: desk.row + 1)
-        if isWalkable(preferred, facilities: facilities) { return preferred }
-        return standingSpots(beside: desk, facilities: facilities).first
+        spot(inFrontOf: .researcherDesk, facilities: facilities, avoiding: nil)
     }
 
-    /// 인물별 돌아올 자리 — 주임 연구원은 책상 앞, 신입은 책상 오른편 (주임과 다른 칸을 우선)
+    /// 1인 1책상: 주임 연구원은 연구원 책상 앞, 신입은 신입 책상 앞 (책상을 옮기면 자리도 따라감).
+    /// 신입 책상이 없으면 연구원 책상 옆의 다른 칸
     public static func homeSpot(for role: ResearcherAgent.Role, facilities: [PlacedFacility]) -> GridPosition? {
         let chief = deskSpot(facilities: facilities)
         guard role == .newcomer else { return chief }
-        let desk = InstituteState.deskPosition
-        let preferred = GridPosition(column: desk.column + 1, row: desk.row)
-        if isWalkable(preferred, facilities: facilities), preferred != chief { return preferred }
-        return standingSpots(beside: desk, facilities: facilities).first { $0 != chief } ?? chief
+        return spot(inFrontOf: .traineeDesk, facilities: facilities, avoiding: chief)
+            ?? spot(inFrontOf: .researcherDesk, facilities: facilities, avoiding: chief)
+            ?? chief
+    }
+
+    private static func spot(inFrontOf kind: FacilityKind, facilities: [PlacedFacility], avoiding other: GridPosition?) -> GridPosition? {
+        let desk = facilities.first { $0.kind == kind }?.position
+            ?? (kind == .traineeDesk ? nil : InstituteState.deskPosition)
+        guard let desk else { return nil }
+        let preferred = GridPosition(column: desk.column, row: desk.row + 1)
+        if isWalkable(preferred, facilities: facilities), preferred != other { return preferred }
+        if let beside = standingSpots(beside: desk, facilities: facilities).first(where: { $0 != other }) { return beside }
+        return nearestFreeCell(to: desk, facilities: facilities, avoiding: other)
+    }
+
+    /// 책상 둘레가 모두 막혔을 때(방 그림의 고정 가구 + 시설) 가장 가까운 빈 칸
+    private static func nearestFreeCell(to target: GridPosition, facilities: [PlacedFacility], avoiding other: GridPosition?) -> GridPosition? {
+        var best: (distance: Int, cell: GridPosition)?
+        for row in 0..<InstituteState.gridRows {
+            for column in 0..<InstituteState.gridColumns {
+                let cell = GridPosition(column: column, row: row)
+                guard cell != other, isWalkable(cell, facilities: facilities) else { continue }
+                let distance = abs(cell.column - target.column) + abs(cell.row - target.row)
+                if best == nil || distance < best!.distance { best = (distance, cell) }
+            }
+        }
+        return best?.cell
     }
 
     /// start에서 goals 중 가장 가까운 칸까지의 경로 (start 제외, 도착 칸 포함). 이미 도착해 있으면 []. 길이 없으면 nil
@@ -126,6 +148,10 @@ public struct ResearcherAgent: Equatable, Sendable {
 
     public static let secondsPerTile = 0.35
     public static let workSeconds = 2.0
+    /// 쉬는 시간이 끝날 때 업무 때문에 시설로 가는 확률 — 10번 중 2번, 나머지는 자기 책상에서 계속 일함
+    public static let taskTripChance = 0.2
+    /// 복원 연출 중에는 더 자주 오감
+    public static let busyTripChance = 0.5
 
     public let role: Role
     public private(set) var tile: GridPosition
@@ -179,7 +205,19 @@ public struct ResearcherAgent: Equatable, Sendable {
                 activity = .idle(remaining: left)
                 return nil
             }
-            let targets = facilities.filter { $0.kind != .researcherDesk }
+            // 자기 자리가 아니면(시설이 옮겨지는 등) 먼저 책상으로
+            if let home = OfficePathfinder.homeSpot(for: role, facilities: facilities), home != tile,
+               let route = OfficePathfinder.path(from: tile, toAnyOf: [home], facilities: facilities), !route.isEmpty {
+                activity = .walking(path: route, progress: 0, toward: nil)
+                return nil
+            }
+            // 대부분은 책상에서 계속 일하고, 가끔(2할) 업무 때문에 시설로 감
+            let chance = isBusy ? Self.busyTripChance : Self.taskTripChance
+            guard Double.random(in: 0..<1, using: &rng) < chance else {
+                activity = .idle(remaining: isBusy ? 0.8 : Double.random(in: 3...6, using: &rng))
+                return nil
+            }
+            let targets = facilities.filter { !$0.kind.isDesk }
             guard let target = targets.randomElement(using: &rng),
                   let route = OfficePathfinder.path(
                     from: tile,
@@ -455,7 +493,7 @@ public final class OfficeSimulationRuntime {
         case .copyRoom: return "✍️"
         case .recordingBooth: return "🎙️"
         case .serverRack: return "⚙️"
-        case .researcherDesk: return "…"
+        case .researcherDesk, .traineeDesk: return "…"
         }
     }
 }

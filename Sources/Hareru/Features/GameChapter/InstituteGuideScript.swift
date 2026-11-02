@@ -44,6 +44,14 @@ enum InstituteGuideScript {
 
     static let cellOccupied = "그 자리는 이미 차 있어요. 빈 바닥을 골라 주세요."
 
+    static func moved(_ kind: FacilityKind) -> String {
+        kind.isDesk ? "책상 자리 옮기기 완료! 「よいしょ」 — 새 자리에서도 잘 부탁해요." : "\(kind.title)을(를) 옮겼어요. 동선이 좀 바뀌겠네요."
+    }
+
+    static func interiorChanged(_ title: String) -> String {
+        "「おおっ」 \(title)(으)로 바꿨더니 분위기가 확 달라졌네요."
+    }
+
     static func removed(_ kind: FacilityKind) -> String {
         "\(kind.title)를 치웠어요. 비용의 절반은 예산으로 돌려받았어요."
     }
