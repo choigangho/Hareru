@@ -1,0 +1,83 @@
+{
+ "facing": "all sprites face RIGHT; moving left = flip_h",
+ "spawn": "start fully outside the glass (x = glass_left - width or glass_right) and despawn only after fully past the other side; never pop in or out mid-window",
+ "occlusion": "draw under window frame/mullions and foreground props: use window_glass_mask.png",
+ "near": {
+  "files": [
+   "car_near_top.png (CAR6, upper lane, moves right)",
+   "car_near.png (CAR39, lower lane, moves left = flip_h)"
+  ],
+  "note": "both face right (headlight on the right)",
+  "speed_px_s": [
+   45,
+   70
+  ],
+  "y_band": [
+   60,
+   66
+  ],
+  "y_band_low": [
+   140,
+   150
+  ],
+  "every_s": [
+   18,
+   40
+  ]
+ },
+ "mid": {
+  "files": [
+   "car_mid.png"
+  ],
+  "speed_px_s": [
+   22,
+   35
+  ],
+  "y_band": [
+   72,
+   135
+  ],
+  "every_s": [
+   8,
+   16
+  ],
+  "modulate": 0.85
+ },
+ "far": {
+  "files": [
+   "car_far.png"
+  ],
+  "speed_px_s": [
+   10,
+   16
+  ],
+  "y_band": [
+   78,
+   150
+  ],
+  "every_s": [
+   5,
+   10
+  ],
+  "modulate": 0.6
+ },
+ "lights_only": {
+  "files": [
+   "car_lights.png"
+  ],
+  "speed_px_s": [
+   8,
+   14
+  ],
+  "y_band": [
+   80,
+   160
+  ],
+  "every_s": [
+   2,
+   6
+  ],
+  "modulate": 0.7,
+  "note": "far-away traffic: just head/tail lights"
+ }
+}

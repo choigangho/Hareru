@@ -1,0 +1,1 @@
+frames=6 size=46x25 fps=6 place_topleft=(217,102) in lab_section_day1 coords

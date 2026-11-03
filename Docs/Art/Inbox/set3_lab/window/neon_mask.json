@@ -1,0 +1,47 @@
+{
+ "amber_code": {
+  "rect": [
+   208,
+   74,
+   268,
+   101
+  ],
+  "mask_value": 40
+ },
+ "cat_picture": {
+  "rect": [
+   287,
+   112,
+   301,
+   133
+  ],
+  "mask_value": 80
+ },
+ "white_code": {
+  "rect": [
+   355,
+   130,
+   379,
+   140
+  ],
+  "mask_value": 120
+ },
+ "red_code": {
+  "rect": [
+   407,
+   102,
+   417,
+   136
+  ],
+  "mask_value": 160
+ },
+ "pink_small_b": {
+  "rect": [
+   331,
+   156,
+   339,
+   170
+  ],
+  "mask_value": 200
+ }
+}

@@ -94,11 +94,11 @@
 | `intro_city_v2.png` (옛 `intro_street_rain`) | 640×360 | 1장 — 고층 빌딩 숲 · 공중 다리 · 안개 (간판 · 사람 · 차 없음, 2026-11-04 오너 결정). 비 · 안개는 `코드` | T-0 도시 | ① | ✅ Pixellab Pro (오너 참고 이미지의 색 · 명암만) — `Docs/Art/Inbox/set5_intro/` |
 | `intro_sign_closeup.png` | 320×180 (×4 표시) | 1장 — 번화가 가게 앞: 코드 간판: 긴 가로 간판 · 얇고 긴 세로 막대 · 작은 판 2 · 라멘 그림 간판 안 짧은 빨간 코드 · 벽에 칠한 코드(오른쪽 위, 불빛 없음 · 가장자리 여백), 모서리 기준 네모 없는 불규칙 무늬 · 그릇 홀로그램 1 · 젖은 바닥. 번역 글자(라멘 · 식당 · 출입 금지 · 가격)는 `코드` | T-0 D1-006 · 007 · 015 확대 컷 | ① | ✅ Pixellab Pro 10회 + 부분 고침 10회 + `Claude` 코드 무늬 — `Docs/Art/Inbox/set5_intro/intro_sign_closeup_v4.png` |
 | `intro_building.png` | 320×180 (×4 표시) | 1장 — 비 오는 골목 끝 낡은 3층 벽돌 건물 · 담쟁이 · 불 켜진 창 1 · 문 위 등. 문 위 간판(약 135,78–186,93)은 `코드`가 모자이크로 덮음 | T-0 D1-023 골목 끝 · 목소리 고르기 배경 | ② | ✅ Pixellab Pro 10회 (연구소 단면 참고) — `Docs/Art/Inbox/set5_intro/intro_building_v1.png` |
-| `lab_section_day1.png` | 640×360 | 층 분리: 뒤(벽 · 창 · 선반) / 가운데(가구) / 앞(전선 · 담쟁이) / 잠긴 아래층 실루엣 | 연구소 단면 — D1 대부분 | ① | 오너 (구도) + `Claude` (층 분리 · 팔레트) |
+| `lab_section_day1.png` | 640×360 | 창밖 간판 다시 그림 (2026-11-04, Pixellab 부분 고침 60회 + 코드 무늬 · 고양이 그림 `Claude`): 왼쪽 호박 가로 코드(빛 낮춤) · 고양이 얼굴 그림 · 가운데 흰 가로 코드 · 오른쪽 빨간 세로 코드, 정사각형 QR · 라멘 없음. 잉어 홀로그램은 배경에서 빼서 `set3_lab/window/holo_koi_strip.png` (6프레임, 위치 `holo_koi.txt`). 창 유리 마스크 `window_glass_mask.png`, 네온 깜빡임 마스크 `neon_mask.png`+`.json`, 날아다니는 차 `car_near_top`(CAR6, 위쪽 길) · `car_near`(CAR39, 아래쪽 길, 오너 선택) · `car_mid` · `car_far` · `car_lights`(불빛만) + `cars.json` (모두 오른쪽을 봄 — 왼쪽으로 갈 때만 뒤집기, 창 밖에서 들어와 끝까지 지나감). 잉어 앞 분홍 간판 · 모니터 위 막대와 종이는 지움. 간판은 비 · 유리 너머로 보이게 대비를 낮추고 유리색을 30% 섞음. 원본 `lab_section_day1_qrsquare.png`. 층 분리: 뒤(벽 · 창 · 선반) / 가운데(가구) / 앞(전선 · 담쟁이) / 잠긴 아래층 실루엣 | 연구소 단면 — D1 대부분 | ① | 오너 (구도) + `Claude` (층 분리 · 팔레트) |
 | `lab_light_layers` | 640×360 층 3장 | **실내 밝기 층**: ① 스탠드 전(어두움 — 형광등 하나 · CRT 녹색 · 창밖 시안만) ② 스탠드 후(호박 불빛 웅덩이 + 실내 따뜻하게) ③ 밤(창 어둡게 · 창밖 간판 진하게). 그림 한 장 위에 곱하기/더하기로 얹음 | T-1~T-8 / T-8 끝 「あかるい!」 / T-9 (ART_STYLE_SHEET §3.1) | ① | `Claude` 층 + `코드` 전환 |
 | `prop_fluorescent.png` | 48×6 | 켜짐 / 깜빡임(꺼짐 1프레임) | 천장 형광등 하나 — 스탠드 전 유일한 실내등 | ② | `Claude` |
 | `desk_reader_bg.png` | **320×180 (×4 표시)** | 탑다운 책상 + 판독기 · 인쇄기 · 모니터 · 문서 더미 · 처리함이 붙은 바닥 층 (움직이는 부품 없음) | 판독 장면 배경 | ① | ✅ `Claude` — `Docs/Art/Inbox/set2_objects/topdown/detail_static_v1.png` (오른쪽 위 비스듬한 모니터 원래 크기` |
-| `window_outside_rain.png` | 160×120 | 낮(회청) / 밤(시안 간판) | 단면 창 너머 | ② | `Claude` |
+| `window_outside_rain.png` | 160×120 | 낮(회청) / 밤(시안 간판) | 단면 창 너머 | ② | 밤은 단면 배경에 포함 (2026-11-04). 낮은 아직. 원근 층 분리는 BACKLOG (카메라가 거의 고정이라 보류) |
 
 ## 3. 판독기 · 책상 물건 (판독 장면)
 
@@ -124,22 +124,22 @@
 
 | 파일 (제안) | 크기 | 상태 | 용도 | 우선 | 제작 |
 | :--- | :--- | :--- | :--- | :---: | :--- |
-| `prop_bucket.png` | 20×18 | 물 1/3 · 2/3 · 넘침 | 양동이 (T-1 · T-3) | ② | `Claude` |
-| `prop_ceiling_leak.png` | 40×16 | 누수 얼룩 / 패치 붙음 | 천장 (T-3 수리) | ② | `Claude` |
-| `prop_book_pile.png` | 40×36 | 쌓임 / 무너짐 (3프레임) | 주임 책상 앞 책 더미 (T-1) | ② | `Claude` |
-| `prop_board_staff.png` | 56×40 | 「常駐人員: 1」 / 「2」 | 벽 게시판 (T-1) | ② | `Claude` |
+| `prop_bucket.png` | 20×18 | 물 1/3 · 2/3 · 넘침 | 양동이 (T-1 · T-3) | ② | ✅ `Claude` 손그림 — `set7_props/final/prop_bucket_{low,mid,over}.png` |
+| `prop_ceiling_leak.png` | 40×16 | 누수 얼룩 / 패치 붙음 | 천장 (T-3 수리) | ② | ✅ `Claude` 손그림 (오너가 Pro판보다 이쪽을 고름, 2026-11-04) — `final/prop_ceiling_leak_{stain,patched}.png` |
+| `prop_book_pile.png` | 40×36 | 쌓임 / 무너짐 (3프레임) | 주임 책상 앞 책 더미 (T-1) | ② | ✅ Pixellab Pro(측면) + 무너짐 2프레임은 `Claude` — `final/prop_book_pile_{0,1,2}.png` |
+| `prop_board_staff.png` | 56×40 | 「常駐人員: 1」 / 「2」 | 벽 게시판 (T-1) | ② | ✅ Pixellab Pro + 분필 획 `Claude` — `final/prop_board_staff_{1,2}.png` (「常駐人員」 글자는 `코드`) |
 | `prop_desk_chief.png` | 80×44 | **뒤 층**(상판 · 뒤판 · CRT · 서류 · 이름표 자리) / **앞 층**(앞판 · 앞다리) 2장 | 주임 책상 — 앉은 주임 다리를 앞 층이 가림 (§1-2) | ① | 오너 또는 `Claude` |
 | `prop_desk_trainee.png` | 72×40 | 뒤 층 · 앞 층 2장 + 상판 위 상태: 비어 있음 / 판독기 덮개 / 상자 놓임 / 쪽지 파일 꽂힘 | 신입 책상 (단면에서 누르면 판독) | ① | `Claude` |
 | `prop_chair_office.png` | 28×36 | **좌판 · 다리 층** / **등받이 층** 2장 + `seat` 기준점 (바닥 위 14px) | 주임 · 신입 의자 (같은 의자 2개, 색만 다르게 가능) — §1-2 | ① | `Claude` |
-| `prop_box.png` | 24×18 | 닫힘 / 열림(머그 · 충전기 · 접힌 종이) | 짐 상자 (T-3) | ② | `Claude` |
-| `prop_memo_masked.png` | 확대 컷 200×120 + 소품 8×10 | 쪽지 「きみは、[■]らめろ」 연필 손글씨, [■] 모자이크 / 투명 파일 | T-3 확대 · 이후 상시 소품 | ② | `Claude` (손글씨는 오너 확인) |
-| `prop_mug_{new,old}.png` | 10×10 | 새 머그 / 이 나간 낡은 머그 (해 하나 · 사람 둘 그림) | T-4 · T-9 | ② | `Claude` |
+| `prop_box.png` | 24×18 | 닫힘 / 열림(머그 · 충전기 · 접힌 종이) | 짐 상자 (T-3) | ② | ✅ Pixellab Pro + 열림은 `Claude` — `final/prop_box_{closed,open}.png` |
+| `prop_memo_masked.png` | 확대 컷 200×120 + 소품 8×10 | 쪽지 「きみは、[■]らめろ」 연필 손글씨, [■] 모자이크 / 투명 파일 | T-3 확대 · 이후 상시 소품 | ② | 소품 8×10 ✅ `Claude` 손그림 (`_old_hand/prop_memo_file.png`, 다시 볼 것) · 확대 컷은 아직 (손글씨는 오너 확인) |
+| `prop_mug_{new,old}.png` | 10×10 | 새 머그 / 이 나간 낡은 머그 (해 하나 · 사람 둘 그림) | T-4 · T-9 | ② | ✅ Pixellab Pro + 낡은 머그는 `Claude` — `final/prop_mug_{new,old}.png` |
 | `prop_desk_lamp.png` | 16×24 | 없음 / 설치 꺼짐 / 켜짐 + 호박 빛 웅덩이(코드) | 스탠드 (T-7 보상 → T-8 설치) — Day 1 빛의 전환점 | ① | `Claude` |
-| `prop_task_sheet.png` | 32×40 + 확대 200×140 | 벽에 붙은 과제표 (한자 제목 모자이크 + 한국어 메모) | T-7 퀘스트 | ② | `Claude` |
+| `prop_task_sheet.png` | 32×40 + 확대 200×140 | 벽에 붙은 과제표 (한자 제목 모자이크 + 한국어 메모) | T-7 퀘스트 | ② | 소품 ✅ Pixellab Pro `final/prop_task_sheet.png` · 확대 컷은 아직 |
 | `prop_nameplate.png` | 확대 160×50 | 이름 한자 3자 블러 + 후리가나 「？？？」 | T-2 名前 카드 때 1초 | ③ | `Claude` |
-| `prop_research_ledger.png` | 40×30 | 넘김 숫자판 4자리 | 연구 포인트 장부 (T-3) | ② | `Claude` |
-| `prop_clipboard.png` | 24×32 | 벽에 걸림 (단면) | 기록 열기 | ② | `Claude` |
-| `prop_breaker_panel.png` | 32×40 | 닫힘 / 열림 | 단말 설정 열기 | ② | `Claude` |
+| `prop_research_ledger.png` | 40×30 | 넘김 숫자판 4자리 | 연구 포인트 장부 (T-3) | ② | ✅ Pixellab Pro — `final/prop_research_ledger.png` (숫자는 `코드`) |
+| `prop_clipboard.png` | 24×32 | 벽에 걸림 (단면) | 기록 열기 | ② | ✅ Pixellab Pro — `final/prop_clipboard.png` |
+| `prop_breaker_panel.png` | 32×40 | 닫힘 / 열림 | 단말 설정 열기 | ② | ✅ Pixellab Pro + 열림은 `Claude` — `final/prop_breaker_{closed,open}.png` |
 | `prop_crt_pile.png` | 96×80 | 꺼진 CRT 더미 + 담쟁이 (잎 2프레임 흔들림) | 구석 장식 | ③ | `Claude` |
 
 ## 5. 화면 (UI) — 물건 형태
