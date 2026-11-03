@@ -1,0 +1,4 @@
+size 200x140 art px (x2 on screen)
+layers: paper -> title(課題, blue pen; mosaic until learned)
+title_box=(40, 16, 100, 44)
+memo text area (Korean, drawn by code in chief handwriting): x 38..180, rows on ruled lines y=55,66,77,88,99,110,121 (text baseline 1px above line)

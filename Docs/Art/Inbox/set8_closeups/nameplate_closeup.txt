@@ -1,0 +1,5 @@
+size 160x50 art px
+layers: plate -> furigana(？？？) -> kanji1 言 / kanji2 継 / kanji3 晴 (each blurred by shader until learned; B4-5 kanji1 sharp)
+kanji1_box=(37, 19, 58, 42)
+kanji2_box=(69, 19, 91, 42)
+kanji3_box=(101, 19, 123, 42)

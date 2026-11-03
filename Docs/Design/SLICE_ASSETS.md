@@ -101,6 +101,7 @@
 | :--- | :--- | :--- | :--- | :---: | :--- |
 | `intro_crt_frame.png` + `intro_crt_screen_{off,on}.png` | 640×360 | 틀(유리 자리 투명) + 화면 꺼짐 / 켜짐(녹색 · 주사선 · 가장자리 어둡게) | T-0 타자 인트로의 화면 틀 — 글자는 `코드` | ① | ✅ `Claude` — `Docs/Art/Inbox/set5_intro/` |
 | `intro_city_v2.png` (옛 `intro_street_rain`) | 640×360 | 1장 — 고층 빌딩 숲 · 공중 다리 · 안개 (간판 · 사람 · 차 없음, 2026-11-04 오너 결정). 비 · 안개는 `코드` | T-0 도시 | ① | ✅ Pixellab Pro (오너 참고 이미지의 색 · 명암만) — `Docs/Art/Inbox/set5_intro/` |
+| `intro_neurolex_logo.png` | 640×360 | 1장 — NeuroLex 청록 L 로고 + 광고 문구 자리 「考えるだけで、伝わる。」(글자는 `코드`) · 창 없는 렉스코드 탑 실루엣 | T-0 인트로 1초 컷 (2026-11-04 대본 새로 씀, STORY_BIBLE §1.3) | ① | 아직 — 샘플부터 |
 | `intro_sign_closeup.png` | 320×180 (×4 표시) | 1장 — 번화가 가게 앞: 코드 간판: 긴 가로 간판 · 얇고 긴 세로 막대 · 작은 판 2 · 라멘 그림 간판 안 짧은 빨간 코드 · 벽에 칠한 코드(오른쪽 위, 불빛 없음 · 가장자리 여백), 모서리 기준 네모 없는 불규칙 무늬 · 그릇 홀로그램 1 · 젖은 바닥. 번역 글자(라멘 · 식당 · 출입 금지 · 가격)는 `코드` | T-0 D1-006 · 007 · 015 확대 컷 | ① | ✅ Pixellab Pro 10회 + 부분 고침 10회 + `Claude` 코드 무늬 — `Docs/Art/Inbox/set5_intro/intro_sign_closeup_v4.png` |
 | `intro_building.png` | 320×180 (×4 표시) | 1장 — 비 오는 골목 끝 낡은 3층 벽돌 건물 · 담쟁이 · 불 켜진 창 1 · 문 위 등. 문 위 간판(약 135,78–186,93)은 `코드`가 모자이크로 덮음 | T-0 D1-023 골목 끝 · 목소리 고르기 배경 | ② | ✅ Pixellab Pro 10회 (연구소 단면 참고) — `Docs/Art/Inbox/set5_intro/intro_building_v1.png` |
 | `lab_section_day1.png` | 640×360 | 창밖 간판 다시 그림 (2026-11-04, Pixellab 부분 고침 60회 + 코드 무늬 · 고양이 그림 `Claude`): 왼쪽 호박 가로 코드(빛 낮춤) · 고양이 얼굴 그림 · 가운데 흰 가로 코드 · 오른쪽 빨간 세로 코드, 정사각형 QR · 라멘 없음. 잉어 홀로그램은 배경에서 빼서 `set3_lab/window/holo_koi_strip.png` (6프레임, 위치 `holo_koi.txt`). 창 유리 마스크 `window_glass_mask.png`, 네온 깜빡임 마스크 `neon_mask.png`+`.json`, 날아다니는 차 `car_near_top`(CAR6, 위쪽 길) · `car_near`(CAR39, 아래쪽 길, 오너 선택) · `car_mid` · `car_far` · `car_lights`(불빛만) + `cars.json` (모두 오른쪽을 봄 — 왼쪽으로 갈 때만 뒤집기, 창 밖에서 들어와 끝까지 지나감). 잉어 앞 분홍 간판 · 모니터 위 막대와 종이는 지움. 간판은 비 · 유리 너머로 보이게 대비를 낮추고 유리색을 30% 섞음. 원본 `lab_section_day1_qrsquare.png`. 책상 3개는 배경에서 떼어 상판을 25px로 낮춤 (2026-11-04, §1-2) — 옛 높이 `lab_section_day1_tall_desks.png`. 층 분리: 뒤(벽 · 창 · 선반) / 가운데(가구) / 앞(전선 · 담쟁이) / 잠긴 아래층 실루엣 | 연구소 단면 — D1 대부분 | ① | 오너 (구도) + `Claude` (층 분리 · 팔레트) |
@@ -141,11 +142,11 @@
 | `prop_desk_trainee.png` | — | 배경에 포함 · 앞 층 없음(신입은 뒷모습으로 앉음) + 상판 위 상태 소품: 비어 있음 / 판독기 덮개 / 상자 놓임 / 쪽지 파일 꽂힘 (상태 소품은 아직) | 신입 책상 (단면에서 누르면 판독) | ① | 책상 낮춤 ✅ `Claude` (빈 벽 부분 고침 10회, 왼쪽 책상 포함) |
 | ~~`prop_chair_office.png`~~ | — | 만들지 않음 — 앉은 캐릭터 그림에 의자 포함 (§1-2) | — | — | — |
 | `prop_box.png` | 24×18 | 닫힘 / 열림(머그 · 충전기 · 접힌 종이) | 짐 상자 (T-3) | ② | ✅ Pixellab Pro + 열림은 `Claude` — `final/prop_box_{closed,open}.png` |
-| `prop_memo_masked.png` | 확대 컷 200×120 + 소품 8×10 | 쪽지 「きみは、[■]らめろ」 연필 손글씨, [■] 모자이크 / 투명 파일 | T-3 확대 · 이후 상시 소품 | ② | 소품 8×10 ✅ `Claude` 손그림 다시 그림 — `final/prop_memo_file.png` (투명 파일 + 연필 줄, 옛것 `_old_hand/`) · 확대 컷은 아직 (손글씨는 오너 확인) |
+| `prop_memo_kana.png` | 확대 컷 200×120 + 소품 8×10 | 쪽지 「ぜんぶ あきらめろ」 연필 손글씨, **전부 히라가나 · 가림 없음** (2026-11-04 오너 결정 — 종이는 안 바뀌고 읽는 뜻만 바뀜, STORY_BIBLE §2.3) / 투명 파일 | T-3 확대 · 이후 상시 소품 | ② | 소품 8×10 ✅ `Claude` — `final/prop_memo_file.png` · 확대 컷 ✅ `Claude` (획을 직접 찍음, 글꼴 안 씀) — `set8_closeups/memo_closeup_kana.png` · 「きみは、」 없음 오너 확정 |
 | `prop_mug_{new,old}.png` | 10×10 | 새 머그 / 이 나간 낡은 머그 (해 하나 · 사람 둘 그림) | T-4 · T-9 | ② | ✅ Pixellab Pro + 낡은 머그는 `Claude` — `final/prop_mug_{new,old}.png` |
 | `prop_desk_lamp.png` | 26×29 | 없음 / 설치 꺼짐 / 켜짐 + 호박 빛 웅덩이 | 스탠드 (T-7 보상 → T-8 설치) — Day 1 빛의 전환점. 주임 책상 왼쪽 끝, 그림 왼쪽 아래 = (331, 207−높이), 밑에 접지 그림자 1px | ① | ✅ Pixellab Pro (LP1) + 켜짐은 `Claude` — `final/prop_desk_lamp_{off,on}.png`. 빛 웅덩이 `set3_lab/lab_light_lamp_pool.png` (스탠드 중심으로 다시 그림, 더하기로 얹음) |
-| `prop_task_sheet.png` | 32×40 + 확대 200×140 | 벽에 붙은 과제표 (한자 제목 모자이크 + 한국어 메모) | T-7 퀘스트 | ② | 소품 ✅ Pixellab Pro `final/prop_task_sheet.png` · 확대 컷은 아직 |
-| `prop_nameplate.png` | 확대 160×50 | 이름 한자 3자 블러 + 후리가나 「？？？」 | T-2 名前 카드 때 1초 | ③ | `Claude` |
+| `prop_task_sheet.png` | 32×40 + 확대 200×140 | 벽에 붙은 과제표 (한자 제목 모자이크 + 한국어 메모) | T-7 퀘스트 | ② | 소품 ✅ Pixellab Pro `final/prop_task_sheet.png` · 확대 컷 ✅ `Claude` — `set8_closeups/task_closeup_{paper,title}.png` (줄 공책 + 테이프, 제목 「課題」 파란 펜 획 직접 찍음 · 학습 전엔 셰이더 모자이크, 한국어 메모는 `코드`가 줄 위에 씀 — 위치 `task_closeup.txt`) |
+| `prop_nameplate.png` | 확대 160×50 | 이름 한자 3자 「言継晴」 블러 + 후리가나 「？？？」 | T-2 名前 카드 때 1초 · B4-5 첫 글자만 선명 | ③ | ✅ `Claude` — `set8_closeups/nameplate_closeup_{plate,furigana,kanji1,kanji2,kanji3}.png` (호두나무 받침 + 놋쇠 판, 새긴 글자 획 직접 찍음 · 글자마다 따로라 셰이더가 하나씩 선명하게 — `nameplate_closeup.txt`) |
 | `prop_research_ledger.png` | 40×30 | 넘김 숫자판 4자리 | 연구 포인트 장부 (T-3) | ② | ✅ Pixellab Pro — `final/prop_research_ledger.png` (숫자는 `코드`) |
 | `prop_clipboard.png` | 24×32 | 벽에 걸림 (단면) | 기록 열기 | ② | ✅ Pixellab Pro — `final/prop_clipboard.png` |
 | `prop_breaker_panel.png` | 32×40 | 닫힘 / 열림 | 단말 설정 열기 | ② | ✅ Pixellab Pro + 열림은 `Claude` — `final/prop_breaker_{closed,open}.png` |
@@ -170,7 +171,7 @@
 
 | 효과 | 쓰는 곳 |
 | :--- | :--- |
-| 모자이크 해독 셰이더 (QR → 글자) | 판독 예문 · 쪽지 [■] · 간판 · 이름표 · 말 잃기 되찾음 |
+| 모자이크 해독 셰이더 (QR → 글자) | 판독 예문 · 간판 · 이름표 · 말 잃기 되찾음 |
 | 판독 헤드 녹색 스캔 빛줄 | 판독 |
 | CRT 주사선 · 부팅 · 커서 깜빡임 · 타자 | 인트로 · 대사창 · 부팅 |
 | 비 (창밖 · 거리) · 물방울 '똑' · 물 튐 | T-0 · T-1 · T-9 |
