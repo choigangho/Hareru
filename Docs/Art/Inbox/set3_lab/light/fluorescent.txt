@@ -1,0 +1,3 @@
+L: tube_off at (122,36) size 94x5
+R: tube_off at (425,36) size 93x5
+flicker: show tube_off + multiply glow_mask region by ~0.65 for 1-2 frames (code)
