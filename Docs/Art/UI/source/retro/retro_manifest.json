@@ -1,0 +1,1205 @@
+{
+ "rt_monitor_crt": {
+  "frame": [
+   52,
+   64
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": [
+   22,
+   20,
+   30,
+   20
+  ],
+  "use": "크림 CRT 모니터 — 둥근 몸체 · 파인 화면 홈 · 볼록 유리 · 명판 · 손잡이 둘 · 전원/디스크 LED",
+  "normal": "rt_monitor_crt_n.png"
+ },
+ "rt_monitor_crt_turned": {
+  "frame": [
+   59,
+   64
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": [
+   22,
+   20,
+   30,
+   27
+  ],
+  "use": "크림 CRT 모니터 — 둥근 몸체 · 파인 화면 홈 · 볼록 유리 · 명판 · 손잡이 둘 · 전원/디스크 LED · 오른쪽으로 틀어져 옆면(통풍 슬릿)이 보임",
+  "normal": "rt_monitor_crt_turned_n.png"
+ },
+ "rt_monitor_industrial": {
+  "frame": [
+   62,
+   57
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": [
+   27,
+   16,
+   18,
+   34
+  ],
+  "use": "산업용 퍼티색 모니터 — 오른쪽 조작 기둥(LED 셋 · 사각 단추 셋 · 골 판)",
+  "normal": "rt_monitor_industrial_n.png"
+ },
+ "rt_monitor_industrial_turned": {
+  "frame": [
+   69,
+   57
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": [
+   27,
+   23,
+   18,
+   34
+  ],
+  "use": "산업용 퍼티색 모니터 — 오른쪽 조작 기둥(LED 셋 · 사각 단추 셋 · 골 판) · 왼쪽으로 틀어짐",
+  "normal": "rt_monitor_industrial_turned_n.png"
+ },
+ "rt_monitor_term": {
+  "frame": [
+   50,
+   65
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": [
+   19,
+   14,
+   34,
+   24
+  ],
+  "use": "작은 크림 터미널 — 플로피 슬롯 턱 · 녹색 띠 명판 · LED",
+  "normal": "rt_monitor_term_n.png"
+ },
+ "rt_monitor_term_turned_right": {
+  "frame": [
+   57,
+   65
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": [
+   19,
+   14,
+   34,
+   31
+  ],
+  "use": "작은 크림 터미널 — 플로피 슬롯 턱 · 녹색 띠 명판 · LED · right쪽 옆면",
+  "normal": "rt_monitor_term_turned_right_n.png"
+ },
+ "rt_monitor_term_turned_left": {
+  "frame": [
+   57,
+   65
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": [
+   19,
+   21,
+   34,
+   24
+  ],
+  "use": "작은 크림 터미널 — 플로피 슬롯 턱 · 녹색 띠 명판 · LED · left쪽 옆면",
+  "normal": "rt_monitor_term_turned_left_n.png"
+ },
+ "rt_glass_glare": {
+  "frame": [
+   26,
+   18
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "볼록 유리 반사 26×18 — 화면 왼쪽 위에 얹음 (반투명)"
+ },
+ "rt_cable_bundle_v": {
+  "frame": [
+   32,
+   64
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "use": "세로 전선 뭉치 (높이 64 반복 타일) — 화면 가장자리를 따라 내려감, 케이블 타이 하나",
+  "normal": "rt_cable_bundle_v_n.png"
+ },
+ "rt_cable_loop_a": {
+  "frame": [
+   64,
+   30
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "모니터 사이로 처진 검은 전선 (64×30)",
+  "normal": "rt_cable_loop_a_n.png"
+ },
+ "rt_cable_dangle_b": {
+  "frame": [
+   44,
+   46
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "삐져나와 늘어진 크림 전선 + 플러그 (44×46)",
+  "normal": "rt_cable_dangle_b_n.png"
+ },
+ "rt_cable_loop_c": {
+  "frame": [
+   80,
+   26
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "빨간 신호선 처짐 (80×26)",
+  "normal": "rt_cable_loop_c_n.png"
+ },
+ "rt_cable_coil": {
+  "frame": [
+   72,
+   40
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "바닥 · 구석의 엉킨 전선 뭉치 (72×40)",
+  "normal": "rt_cable_coil_n.png"
+ },
+ "rt_key_cream_normal": {
+  "frame": [
+   40,
+   40
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   10,
+   10,
+   16,
+   10
+  ],
+  "use": "키캡 cream normal — 오목한 윗면 · 앞 두께 6px(눌림 2px, 4px 내려감) · 바닥 그림자",
+  "normal": "rt_key_cream_normal_n.png"
+ },
+ "rt_key_cream_pressed": {
+  "frame": [
+   40,
+   40
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   10,
+   10,
+   16,
+   10
+  ],
+  "use": "키캡 cream pressed — 오목한 윗면 · 앞 두께 6px(눌림 2px, 4px 내려감) · 바닥 그림자",
+  "normal": "rt_key_cream_pressed_n.png"
+ },
+ "rt_key_cream_disabled": {
+  "frame": [
+   40,
+   40
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   10,
+   10,
+   16,
+   10
+  ],
+  "use": "키캡 cream disabled — 오목한 윗면 · 앞 두께 6px(눌림 2px, 4px 내려감) · 바닥 그림자",
+  "normal": "rt_key_cream_disabled_n.png"
+ },
+ "rt_key_amber_normal": {
+  "frame": [
+   40,
+   40
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   10,
+   10,
+   16,
+   10
+  ],
+  "use": "키캡 amber normal — 오목한 윗면 · 앞 두께 6px(눌림 2px, 4px 내려감) · 바닥 그림자",
+  "normal": "rt_key_amber_normal_n.png"
+ },
+ "rt_key_amber_pressed": {
+  "frame": [
+   40,
+   40
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   10,
+   10,
+   16,
+   10
+  ],
+  "use": "키캡 amber pressed — 오목한 윗면 · 앞 두께 6px(눌림 2px, 4px 내려감) · 바닥 그림자",
+  "normal": "rt_key_amber_pressed_n.png"
+ },
+ "rt_key_charcoal_normal": {
+  "frame": [
+   40,
+   40
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   10,
+   10,
+   16,
+   10
+  ],
+  "use": "키캡 charcoal normal — 오목한 윗면 · 앞 두께 6px(눌림 2px, 4px 내려감) · 바닥 그림자",
+  "normal": "rt_key_charcoal_normal_n.png"
+ },
+ "rt_key_charcoal_pressed": {
+  "frame": [
+   40,
+   40
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   10,
+   10,
+   16,
+   10
+  ],
+  "use": "키캡 charcoal pressed — 오목한 윗면 · 앞 두께 6px(눌림 2px, 4px 내려감) · 바닥 그림자",
+  "normal": "rt_key_charcoal_pressed_n.png"
+ },
+ "rt_round_red_normal": {
+  "frame": [
+   30,
+   32
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "둥근 단추 red normal (30×32) — 볼록한 돔",
+  "normal": "rt_round_red_normal_n.png"
+ },
+ "rt_round_red_pressed": {
+  "frame": [
+   30,
+   32
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "둥근 단추 red pressed (30×32) — 볼록한 돔",
+  "normal": "rt_round_red_pressed_n.png"
+ },
+ "rt_round_charcoal_normal": {
+  "frame": [
+   30,
+   32
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "둥근 단추 charcoal normal (30×32) — 볼록한 돔",
+  "normal": "rt_round_charcoal_normal_n.png"
+ },
+ "rt_round_charcoal_pressed": {
+  "frame": [
+   30,
+   32
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "둥근 단추 charcoal pressed (30×32) — 볼록한 돔",
+  "normal": "rt_round_charcoal_pressed_n.png"
+ },
+ "rt_toggle_off": {
+  "frame": [
+   52,
+   26
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "토글 꺼짐 (52×26) — 금속 손잡이 왼쪽, LED 꺼짐",
+  "normal": "rt_toggle_off_n.png"
+ },
+ "rt_toggle_on": {
+  "frame": [
+   52,
+   26
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "토글 켜짐 — 손잡이 오른쪽, 녹색 LED",
+  "normal": "rt_toggle_on_n.png"
+ },
+ "rt_ledbar_1": {
+  "frame": [
+   22,
+   14
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "평가 키캡 위 LED 막대 1칸 (22×14) — 켜진 칸 끝이 숨 쉬듯 밝아짐"
+ },
+ "rt_ledbar_2": {
+  "frame": [
+   22,
+   14
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "평가 키캡 위 LED 막대 2칸 (22×14) — 켜진 칸 끝이 숨 쉬듯 밝아짐"
+ },
+ "rt_ledbar_3": {
+  "frame": [
+   22,
+   14
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "평가 키캡 위 LED 막대 3칸 (22×14) — 켜진 칸 끝이 숨 쉬듯 밝아짐"
+ },
+ "rt_ledbar_4": {
+  "frame": [
+   22,
+   14
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "평가 키캡 위 LED 막대 4칸 (22×14) — 켜진 칸 끝이 숨 쉬듯 밝아짐"
+ },
+ "rt_heat_0": {
+  "frame": [
+   10,
+   10
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "잔디 칸 0단계 (10×10, 화면 속 형광)"
+ },
+ "rt_heat_1": {
+  "frame": [
+   10,
+   10
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "잔디 칸 1단계 (10×10, 화면 속 형광)"
+ },
+ "rt_heat_2": {
+  "frame": [
+   10,
+   10
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "잔디 칸 2단계 (10×10, 화면 속 형광)"
+ },
+ "rt_heat_3": {
+  "frame": [
+   10,
+   10
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "잔디 칸 3단계 (10×10, 화면 속 형광)"
+ },
+ "rt_heat_4": {
+  "frame": [
+   10,
+   10
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "잔디 칸 4단계 (10×10, 화면 속 형광)"
+ },
+ "rt_heat_today": {
+  "frame": [
+   10,
+   10
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "오늘 칸 — 형광이 켜졌다 꺼짐 (번짐은 코드)"
+ },
+ "rt_bar_track": {
+  "frame": [
+   16,
+   10
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   0,
+   4,
+   0,
+   4
+  ],
+  "use": "막대 홈 자리 (투명 — 홈은 화면 바탕)"
+ },
+ "rt_bar_fill_1": {
+  "frame": [
+   16,
+   10
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": [
+   0,
+   4,
+   0,
+   4
+  ],
+  "use": "막대 채움 1단계 — 3px 칸 + 흐르는 빛"
+ },
+ "rt_bar_fill_2": {
+  "frame": [
+   16,
+   10
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": [
+   0,
+   4,
+   0,
+   4
+  ],
+  "use": "막대 채움 2단계 — 3px 칸 + 흐르는 빛"
+ },
+ "rt_bar_fill_3": {
+  "frame": [
+   16,
+   10
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": [
+   0,
+   4,
+   0,
+   4
+  ],
+  "use": "막대 채움 3단계 — 3px 칸 + 흐르는 빛"
+ },
+ "rt_bar_fill_4": {
+  "frame": [
+   16,
+   10
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": [
+   0,
+   4,
+   0,
+   4
+  ],
+  "use": "막대 채움 4단계 — 3px 칸 + 흐르는 빛"
+ },
+ "rt_cursor": {
+  "frame": [
+   8,
+   14
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "블록 커서 8×14 — 4프레임 켜짐 · 4프레임 꺼짐"
+ },
+ "rt_ivy_curtain_200": {
+  "frame": [
+   200,
+   90
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "늘어진 담쟁이 200×90 — 잎 7px · 3단 명암 · 잎맥 · 몇 장이 흔들림"
+ },
+ "rt_tab_terminal": {
+  "frame": [
+   22,
+   23
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "탭 아이콘 terminal — 크림 키캡에 찍힌 글리프 (눌림 자국 1px)"
+ },
+ "rt_tab_terminal_on": {
+  "frame": [
+   22,
+   22
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "탭 아이콘 terminal 선택 — 숯색 키캡 위 형광 녹색"
+ },
+ "rt_tab_institute": {
+  "frame": [
+   22,
+   23
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "탭 아이콘 institute — 크림 키캡에 찍힌 글리프 (눌림 자국 1px)"
+ },
+ "rt_tab_institute_on": {
+  "frame": [
+   22,
+   22
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "탭 아이콘 institute 선택 — 숯색 키캡 위 형광 녹색"
+ },
+ "rt_tab_records": {
+  "frame": [
+   22,
+   23
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "탭 아이콘 records — 크림 키캡에 찍힌 글리프 (눌림 자국 1px)"
+ },
+ "rt_tab_records_on": {
+  "frame": [
+   22,
+   22
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "탭 아이콘 records 선택 — 숯색 키캡 위 형광 녹색"
+ },
+ "rt_tab_settings": {
+  "frame": [
+   22,
+   23
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "탭 아이콘 settings — 크림 키캡에 찍힌 글리프 (눌림 자국 1px)"
+ },
+ "rt_tab_settings_on": {
+  "frame": [
+   22,
+   22
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "탭 아이콘 settings 선택 — 숯색 키캡 위 형광 녹색"
+ },
+ "rt_scanner": {
+  "frame": [
+   74,
+   61
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   19,
+   46,
+   30,
+   16
+  ],
+  "use": "스캐너 (평판) — 위 덮개 경첩 · 어두운 유리 판 · 앞 턱의 녹색 LCD · 호박 스캔 단추. 유리 위에 종이(rt_paper)를 얹음",
+  "normal": "rt_scanner_n.png"
+ },
+ "rt_paper": {
+  "frame": [
+   48,
+   48
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   14,
+   14,
+   14,
+   14
+  ],
+  "use": "스캔한 종이 (9-slice) — 섬유 결 · 누렇게 바랜 가장자리 · 말린 모서리. 글자는 명조체로 코드가 얹음"
+ },
+ "rt_tape": {
+  "frame": [
+   22,
+   10
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "종이를 붙인 테이프 (반투명)"
+ },
+ "rt_scan_bar": {
+  "frame": [
+   32,
+   16
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "use": "스캔 빛줄 (가로로 타일) — 종이 위를 위에서 아래로 지나감, 코드가 위치를 옮김"
+ },
+ "rt_code_term_a": {
+  "frame": [
+   180,
+   110
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "코드만 흐르는 장식 모니터 180×110 — 글줄이 위로 흐르고 커서 깜빡 (통계 · 설정 사이사이에 끼움)"
+ },
+ "rt_code_term_b": {
+  "frame": [
+   150,
+   100
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "코드만 흐르는 장식 모니터 150×100 — 글줄이 위로 흐르고 커서 깜빡 (통계 · 설정 사이사이에 끼움)"
+ },
+ "rt_code_crt_wide": {
+  "frame": [
+   380,
+   120
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "코드만 흐르는 장식 모니터 380×120 — 글줄이 위로 흐르고 커서 깜빡 (통계 · 설정 사이사이에 끼움)"
+ },
+ "rt_code_industrial": {
+  "frame": [
+   200,
+   104
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "코드만 흐르는 장식 모니터 200×104 — 글줄이 위로 흐르고 커서 깜빡 (통계 · 설정 사이사이에 끼움)"
+ },
+ "rt_plate_cream": {
+  "frame": [
+   40,
+   24
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "use": "크림 명판 칩 (9-slice) — 나사 넷 · 둥근 볼록 테. 글자는 짙은 갈색",
+  "normal": "rt_plate_cream_n.png"
+ },
+ "rt_plate_metal": {
+  "frame": [
+   40,
+   24
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "use": "금속 명판 (9-slice) — 이름표 · 배지",
+  "normal": "rt_plate_metal_n.png"
+ },
+ "rt_plate_amber": {
+  "frame": [
+   40,
+   24
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "use": "호박 강조 칩 (나사 없음) — 연속 일수 · 새 소식",
+  "normal": "rt_plate_amber_n.png"
+ },
+ "rt_lcd_field": {
+  "frame": [
+   32,
+   28
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "use": "LCD 입력란 (9-slice) — 파인 테 · 녹색 액정 점 격자",
+  "normal": "rt_lcd_field_n.png"
+ },
+ "rt_lcd_field_focus": {
+  "frame": [
+   32,
+   28
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "use": "LCD 입력란 입력 중 — 아래 녹색 밑줄 (커서는 rt_cursor)"
+ },
+ "rt_receipt": {
+  "frame": [
+   40,
+   36
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   6,
+   6,
+   10,
+   6
+  ],
+  "use": "영수증 토스트 (9-slice) — 프린터에서 나오는 감열지, 아래 톱니. 글자는 짙은 회색 고딕",
+  "normal": "rt_receipt_n.png"
+ },
+ "rt_printer_slot": {
+  "frame": [
+   60,
+   14
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "토스트용 작은 프린터 입구 (60×14) — 영수증이 여기서 내려옴",
+  "normal": "rt_printer_slot_n.png"
+ },
+ "rt_rail": {
+  "frame": [
+   12,
+   24
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   4,
+   0,
+   4,
+   0
+  ],
+  "use": "스크롤 표시 레일 (세로 9-slice) — 오른쪽 가장자리의 금속 홈"
+ },
+ "rt_rail_knob": {
+  "frame": [
+   12,
+   28
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "레일 손잡이 12×28 — 미끄럼 방지 홈",
+  "normal": "rt_rail_knob_n.png"
+ },
+ "rt_fader_track": {
+  "frame": [
+   24,
+   14
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   0,
+   6,
+   0,
+   6
+  ],
+  "use": "페이더 홈 (가로 9-slice) — 눈금 6px마다 (슬라이더)"
+ },
+ "rt_fader_knob": {
+  "frame": [
+   22,
+   30
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "페이더 손잡이 22×30 — 숯색 + 흰 기준선",
+  "normal": "rt_fader_knob_n.png"
+ },
+ "rt_piano_normal": {
+  "frame": [
+   28,
+   40
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   10,
+   8,
+   16,
+   8
+  ],
+  "use": "피아노 키 세그먼트 칸 normal (9-slice) — 여러 개를 붙여 세그먼트(시간대 · 급수 고르기)",
+  "normal": "rt_piano_normal_n.png"
+ },
+ "rt_piano_pressed": {
+  "frame": [
+   28,
+   40
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   10,
+   8,
+   16,
+   8
+  ],
+  "use": "피아노 키 세그먼트 칸 pressed (9-slice) — 여러 개를 붙여 세그먼트(시간대 · 급수 고르기)",
+  "normal": "rt_piano_pressed_n.png"
+ },
+ "rt_glyph_play": {
+  "frame": [
+   20,
+   16
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "키캡에 찍는 글리프 play (20×16, 짙은 크림) — 형광판은 코드가 색만 바꿈"
+ },
+ "rt_glyph_eye": {
+  "frame": [
+   20,
+   16
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "키캡에 찍는 글리프 eye (20×16, 짙은 크림) — 형광판은 코드가 색만 바꿈"
+ },
+ "rt_glyph_speaker": {
+  "frame": [
+   20,
+   16
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "키캡에 찍는 글리프 speaker (20×16, 짙은 크림) — 형광판은 코드가 색만 바꿈"
+ },
+ "rt_glyph_back": {
+  "frame": [
+   20,
+   16
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "키캡에 찍는 글리프 back (20×16, 짙은 크림) — 형광판은 코드가 색만 바꿈"
+ },
+ "rt_glyph_check": {
+  "frame": [
+   20,
+   16
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "키캡에 찍는 글리프 check (20×16, 짙은 크림) — 형광판은 코드가 색만 바꿈"
+ },
+ "rt_flip_0": {
+  "frame": [
+   24,
+   34
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "넘버 시계 칸 「0」 24×34"
+ },
+ "rt_flip_1": {
+  "frame": [
+   24,
+   34
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "넘버 시계 칸 「1」 24×34"
+ },
+ "rt_flip_2": {
+  "frame": [
+   24,
+   34
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "넘버 시계 칸 「2」 24×34"
+ },
+ "rt_flip_3": {
+  "frame": [
+   24,
+   34
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "넘버 시계 칸 「3」 24×34"
+ },
+ "rt_flip_4": {
+  "frame": [
+   24,
+   34
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "넘버 시계 칸 「4」 24×34"
+ },
+ "rt_flip_5": {
+  "frame": [
+   24,
+   34
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "넘버 시계 칸 「5」 24×34"
+ },
+ "rt_flip_6": {
+  "frame": [
+   24,
+   34
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "넘버 시계 칸 「6」 24×34"
+ },
+ "rt_flip_7": {
+  "frame": [
+   24,
+   34
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "넘버 시계 칸 「7」 24×34"
+ },
+ "rt_flip_8": {
+  "frame": [
+   24,
+   34
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "넘버 시계 칸 「8」 24×34"
+ },
+ "rt_flip_9": {
+  "frame": [
+   24,
+   34
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "넘버 시계 칸 「9」 24×34"
+ },
+ "rt_flip_D": {
+  "frame": [
+   24,
+   34
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "넘버 시계 칸 「D」 24×34"
+ },
+ "rt_flip_dash": {
+  "frame": [
+   24,
+   34
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "넘버 시계 칸 「-」 24×34"
+ },
+ "rt_flip_flap": {
+  "frame": [
+   24,
+   34
+  ],
+  "frames": 3,
+  "frame_ms": 150,
+  "use": "넘버 시계 넘어가는 날개 3프레임 (숫자 칸 위에 얹어 씀)"
+ },
+ "rt_gauge": {
+  "frame": [
+   72,
+   44
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "아날로그 계기판 72×44 — 바늘이 떨림, 빨간 부족 구간 (학습 속도)",
+  "normal": "rt_gauge_n.png"
+ },
+ "rt_audio_wave": {
+  "frame": [
+   16,
+   20
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "음성 단추 옆 소리 파동 16×20 — 호가 하나씩 퍼짐"
+ },
+ "rt_phosphor_sun": {
+  "frame": [
+   64,
+   64
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "晴れる 형광 해 64×64 — 빛살이 천천히 돌고 번갈아 길어짐"
+ },
+ "rt_dialog_body": {
+  "frame": [
+   138,
+   51
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   21,
+   100,
+   18,
+   26
+  ],
+  "use": "인터콤 대사창 (9-slice) — 왼쪽 98px = 초상 CRT 자리, 오른쪽 스피커 구멍, 가운데 녹색 글자 화면",
+  "normal": "rt_dialog_body_n.png"
+ },
+ "rt_portrait_crt": {
+  "frame": [
+   84,
+   92
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "초상 CRT 84×92 — 64×64 구멍(10,14부터)에 초상, 위에 rt_scanline_overlay",
+  "normal": "rt_portrait_crt_n.png"
+ },
+ "rt_scanline_overlay": {
+  "frame": [
+   64,
+   64
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "초상 위 주사선 + 반사 64×64 (반투명)"
+ },
+ "rt_clipboard": {
+  "frame": [
+   40,
+   48
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   14,
+   12,
+   12,
+   12
+  ],
+  "use": "퀘스트 클립보드 (9-slice) — 나무판. 위에 종이(rt_paper) · 집게(rt_clip)",
+  "normal": "rt_clipboard_n.png"
+ },
+ "rt_clip": {
+  "frame": [
+   44,
+   18
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "클립보드 집게 44×18 (금속)",
+  "normal": "rt_clip_n.png"
+ },
+ "rt_checkbox": {
+  "frame": [
+   14,
+   14
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "연필 체크칸 (빈 칸)"
+ },
+ "rt_checkbox_done": {
+  "frame": [
+   14,
+   14
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "연필 체크칸 + 빨간 체크"
+ },
+ "rt_warning_monitor": {
+  "frame": [
+   44,
+   51
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": [
+   21,
+   16,
+   18,
+   16
+  ],
+  "use": "경고 모니터 (9-slice) — 숯색 몸체 + 위 빨강/검정 사선 띠. 바깥 세계(뉴럴링크) 경고",
+  "normal": "rt_warning_monitor_n.png"
+ },
+ "rt_glitch": {
+  "frame": [
+   64,
+   64
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "글리치 겹침 64×64 (타일) — 시안 띠가 어긋나고 빨간 점 노이즈 (렉스코드 침입)"
+ },
+ "rt_boot_logo": {
+  "frame": [
+   152,
+   28
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "부팅 로고 「NJL-OS」 도트 매트릭스 (꺼진 점까지 · 번짐)"
+ },
+ "rt_tab_ring": {
+  "frame": [
+   104,
+   78
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "탭 강조 꺾쇠 104×78 — 형광 녹색, 깜빡이며 2px 오므라듦 (탭 키 둘레)"
+ },
+ "rt_pointer": {
+  "frame": [
+   20,
+   20
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "탭 위 안내 화살표 20×20 — 3px 통통 (호박)"
+ }
+}

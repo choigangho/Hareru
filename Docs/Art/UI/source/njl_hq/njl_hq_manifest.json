@@ -1,0 +1,171 @@
+{
+ "hq_panel": {
+  "frame": [
+   32,
+   32
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": 12,
+  "use": "판 — 단말기 본체(나사 4 · 통풍 슬릿 · 명판) + 파인 화면(주사선). 위 cap의 LED 셋이 엇갈려 깜빡임"
+ },
+ "hq_tile": {
+  "frame": [
+   24,
+   24
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": 9,
+  "use": "작은 판 — 통계 숫자 칸 · 설정 줄. 오른쪽 위 시안 LED 천천히 깜빡"
+ },
+ "hq_heat_0": {
+  "frame": [
+   8,
+   8
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "잔디 칸 0단계 (정지 1프레임)"
+ },
+ "hq_heat_1": {
+  "frame": [
+   8,
+   8
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "잔디 칸 1단계 (정지 1프레임)"
+ },
+ "hq_heat_2": {
+  "frame": [
+   8,
+   8
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "잔디 칸 2단계 (정지 1프레임)"
+ },
+ "hq_heat_3": {
+  "frame": [
+   8,
+   8
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "잔디 칸 3단계 (정지 1프레임)"
+ },
+ "hq_heat_4": {
+  "frame": [
+   8,
+   8
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "잔디 칸 4단계 (정지 1프레임)"
+ },
+ "hq_heat_today": {
+  "frame": [
+   8,
+   8
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "오늘 칸 — 밝기가 맥박처럼 오르내림 (8프레임)"
+ },
+ "hq_icon_cards_24": {
+  "frame": [
+   24,
+   24
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "외운 단어 — 맨 위 카드에 글자가 한 칸씩 찍힘 + 커서"
+ },
+ "hq_icon_gauge_24": {
+  "frame": [
+   24,
+   24
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "기억 유지율 — 계기판 바늘이 92% 근처에서 떨림"
+ },
+ "hq_icon_stopwatch_24": {
+  "frame": [
+   24,
+   24
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "반응 시간 — 초시계 바늘 한 바퀴"
+ },
+ "hq_icon_counter_24": {
+  "frame": [
+   24,
+   24
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "누적 평가 — 계수기 단추가 눌리고 끝자리가 67→68로 굴러감"
+ },
+ "hq_meter_track": {
+  "frame": [
+   16,
+   8
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": 4,
+  "use": "평가 막대 빈 홈 (가로 9-slice)"
+ },
+ "hq_meter_fill_1": {
+  "frame": [
+   16,
+   8
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": 4,
+  "use": "평가 막대 채움 1단계 색 — 3px 칸 + 8px마다 흐르는 빛 (8프레임)"
+ },
+ "hq_meter_fill_2": {
+  "frame": [
+   16,
+   8
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": 4,
+  "use": "평가 막대 채움 2단계 색 — 3px 칸 + 8px마다 흐르는 빛 (8프레임)"
+ },
+ "hq_meter_fill_3": {
+  "frame": [
+   16,
+   8
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": 4,
+  "use": "평가 막대 채움 3단계 색 — 3px 칸 + 8px마다 흐르는 빛 (8프레임)"
+ },
+ "hq_meter_fill_4": {
+  "frame": [
+   16,
+   8
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": 4,
+  "use": "평가 막대 채움 4단계 색 — 3px 칸 + 8px마다 흐르는 빛 (8프레임)"
+ },
+ "from_pack/desk_pc_r1_teal": {
+  "frame": [
+   94,
+   91
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "Tech Lab desk_pc를 청록으로 다시 칠함 — 통계 헤더 그림 (git 제외)"
+ }
+}

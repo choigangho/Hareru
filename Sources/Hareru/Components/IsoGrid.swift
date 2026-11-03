@@ -5,9 +5,9 @@ import CoreGraphics
 public struct IsoGrid: Equatable, Sendable {
     /// 아트 픽셀 1칸을 몇 pt로 그릴지 (정수 배율이어야 픽셀이 뭉개지지 않음)
     public let pixelScale: CGFloat
-    /// 바닥 타일 크기 (아트 픽셀) — 2:1
-    public static let tileArtWidth: CGFloat = 32
-    public static let tileArtHeight: CGFloat = 16
+    /// 바닥 타일 크기 (아트 픽셀) — 2:1. v2(2026-11-03): UI와 같은 1px = 1pt 밀도라 한 칸 64×32 (ART_BIBLE §9)
+    public static let tileArtWidth: CGFloat = 64
+    public static let tileArtHeight: CGFloat = 32
     /// 격자 (0, 0) 타일 윗꼭짓점의 화면 위치
     public let origin: CGPoint
 

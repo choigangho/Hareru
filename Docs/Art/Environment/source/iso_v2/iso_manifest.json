@@ -1,0 +1,104 @@
+{
+ "room_stage1_v2": {
+  "frame": [
+   420,
+   330
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "1단계 방 (420×330, 1px=1pt) — 잘린 콘크리트 벽 · 비 오는 도시 창(시안 렉스코드 간판) · 게시판 · 화이트보드 · 문 · 케이블 트레이 · 구석 CRT 더미 · 전선 · 책 더미 · 양동이와 물방울 · 담쟁이",
+  "grid_origin_top_vertex": [
+   210,
+   126
+  ],
+  "tile": [
+   64,
+   32
+  ],
+  "normal": "room_stage1_v2_n.png"
+ },
+ "fac_researcher_desk": {
+  "frame": [
+   68,
+   100
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "주임 연구원 책상 — 크림 CRT(코드) · 책 더미 · 키보드 · 쪽지 · 머그 · 켜진 스탠드 · 서랍장",
+  "anchor_bottom_vertex": [
+   34,
+   98
+  ],
+  "normal": "fac_researcher_desk_n.png"
+ },
+ "fac_trainee_desk": {
+  "frame": [
+   68,
+   100
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "신입 책상 — 작은 터미널 · 열린 짐 상자(청록 머그)",
+  "anchor_bottom_vertex": [
+   34,
+   98
+  ],
+  "normal": "fac_trainee_desk_n.png"
+ },
+ "fac_kanji_archive": {
+  "frame": [
+   68,
+   124
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "한자 서고 — 서랍 빽빽한 나무 카드 목록함 · 놋쇠 손잡이 · 종이 묶음 · 호박 램프 · 담쟁이",
+  "anchor_bottom_vertex": [
+   34,
+   122
+  ],
+  "normal": "fac_kanji_archive_n.png"
+ },
+ "fac_copy_room": {
+  "frame": [
+   68,
+   110
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "필사실 — 다다미 깔개 위 좌식 상 · 화선지 붓글씨 · 벼루 · 붓꽂이 · 매달린 갓 등",
+  "anchor_bottom_vertex": [
+   34,
+   108
+  ],
+  "normal": "fac_copy_room_n.png"
+ },
+ "fac_recording_booth": {
+  "frame": [
+   68,
+   124
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "녹음 부스 — 흡음재 상자 · 창 너머 마이크 · 오픈릴 녹음기(릴이 돎) · VU 바늘 · 「録音」 빨간 등",
+  "anchor_bottom_vertex": [
+   34,
+   122
+  ],
+  "normal": "fac_recording_booth_n.png"
+ },
+ "fac_server_rack": {
+  "frame": [
+   68,
+   132
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "서버 랙 — 크림 랙 · 테이프 드라이브(릴이 돎) · LED 줄 · 위로 올라가는 전선 다발",
+  "anchor_bottom_vertex": [
+   34,
+   130
+  ],
+  "normal": "fac_server_rack_n.png"
+ }
+}

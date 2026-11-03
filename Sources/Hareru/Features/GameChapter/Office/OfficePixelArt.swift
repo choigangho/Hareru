@@ -29,15 +29,34 @@ enum OfficePixelArt {
     static let tileHeight = Int(IsoGrid.tileArtHeight)  // 16
     static let wallHeight = 40
 
-    // MARK: 1단계 방 그림 (Docs/Art/Environment/stage1)
-    // Pixellab /unzoom으로 4배 격자를 되찾은 381×244 픽셀 그림 한 장. 그림 1픽셀 = 아트 픽셀 1칸 (시설 에셋은 그 절반 크기의 픽셀 밀도).
+    // MARK: 1단계 방 그림 v2 (Docs/Art/Environment/tools/iso_room.py, ART_BIBLE §9)
+    // 420×330 프레임 8장을 가로로 이은 스트립 (비 · 간판 · 화면 · 물방울 · 담쟁이가 움직임). 그림 1픽셀 = 아트 픽셀 1칸 = 시설 · 캐릭터와 같은 밀도.
 
-    static let stageRoomName = "room_stage1"
-    static let stageRoomImage: CGImage? = bundledImage(stageRoomName)
+    static let stageRoomName = "room_stage1_v2"
+    static let stageRoomFrameWidth = 420
+    static let stageRoomFrames: [CGImage] = bundledImage(stageRoomName).map { frames(of: $0, frameWidth: stageRoomFrameWidth) } ?? []
+    static var stageRoomImage: CGImage? { stageRoomFrames.first }
     static var usesStageRoom: Bool { stageRoomImage != nil }
+    /// v1 방 그림에는 큰 책상이 그려져 있어 주임 책상 스프라이트를 숨겼음. v2 방에는 없음 → 책상도 일반 시설처럼 그림
+    static let roomIncludesResearcherDesk = false
+    /// 애니메이션 한 프레임 (팩 · UI 키트와 같은 150ms)
+    static let animationFrameDuration = 0.15
 
-    /// 방 그림 안에서 격자 (0, 0) 타일 윗꼭짓점의 위치 (위-왼쪽 기준 아트 좌표) — 그림의 열린 바닥에 6×6 마름모를 맞춘 값
-    static let stageRoomGridOrigin = CGPoint(x: 166, y: 84)
+    /// 방 그림 안에서 격자 (0, 0) 타일 윗꼭짓점의 위치 (위-왼쪽 기준 아트 좌표) — iso_manifest.json의 grid_origin_top_vertex
+    static let stageRoomGridOrigin = CGPoint(x: 210, y: 126)
+
+    /// 가로 스트립을 프레임 폭으로 잘라 나눔
+    static func frames(of strip: CGImage, frameWidth: Int) -> [CGImage] {
+        guard frameWidth > 0, strip.width >= frameWidth else { return [strip] }
+        return (0..<(strip.width / frameWidth)).compactMap {
+            strip.cropping(to: CGRect(x: $0 * frameWidth, y: 0, width: frameWidth, height: strip.height))
+        }
+    }
+
+    static func roomTexture(frame: Int) -> SKTexture? {
+        guard !stageRoomFrames.isEmpty else { return nil }
+        return texture(stageRoomFrames[frame % stageRoomFrames.count])
+    }
 
     /// 방 텍스처의 아트 크기
     static var roomSize: (width: Int, height: Int) {
@@ -296,9 +315,9 @@ enum OfficePixelArt {
     static func facilitySize(_ kind: FacilityKind) -> (width: Int, height: Int, anchor: CGPoint) {
         if let canvas = facilityCanvas(kind) {
             let height = canvas.height / assetDensity
-            // 스프라이트 바닥 = 발판 마름모의 아래 꼭짓점, 타일 중심은 그보다 8px(+ 테두리 여백) 위
+            // 발판 마름모의 아래 꼭짓점 = 그림 바닥 + 여백 + 기준선, 타일 중심은 그보다 반 칸 위
             return (canvas.width / assetDensity, height,
-                    CGPoint(x: 0.5, y: CGFloat(tileHeight / 2 + facilityPadding / assetDensity) / CGFloat(height)))
+                    CGPoint(x: 0.5, y: CGFloat(tileHeight / 2 + (facilityPadding + facilityBaseline) / assetDensity) / CGFloat(height)))
         }
         let height = style(for: kind).height + tileHeight + 12   // 위쪽 소품 여유 12
         return (tileWidth, height, CGPoint(x: 0.5, y: CGFloat(tileHeight / 2) / CGFloat(height)))
@@ -306,8 +325,9 @@ enum OfficePixelArt {
 
     /// LED 깜빡임 등 프레임 차이가 있는 시설은 frame 0/1 두 장
     static func makeFacility(_ kind: FacilityKind, highlighted: Bool, frame: Int = 0) -> SKTexture {
-        if let image = facilityImages[kind] {
-            return texture(composeFacility(image, highlighted: highlighted, glow: frame % 2 == 1))
+        if let frames = facilityFrames[kind], !frames.isEmpty {
+            // v2 그림은 움직임이 프레임에 들어 있어 따로 밝히지 않음
+            return texture(composeFacility(frames[frame % frames.count], highlighted: highlighted, glow: frames.count == 1 && frame % 2 == 1))
         }
         let s = style(for: kind)
         let size = facilitySize(kind)
@@ -377,24 +397,33 @@ enum OfficePixelArt {
     }
 
     // MARK: - 환경 에셋 (Resources/Art/Environment) — 원본·제작 기록: Docs/Art/Environment
-    // 방 픽셀 1칸 = 에셋 2칸 (캐릭터와 같은 밀도). 시설 스프라이트는 바닥이 발판의 아래 꼭짓점.
+    // v2: 방 픽셀 1칸 = 에셋 1칸 (방 · 시설 · 캐릭터 · UI 모두 1px = 1pt). 시설 스프라이트는 바닥 2px 위가 발판의 아래 꼭짓점.
 
-    static let assetDensity = 2
+    static let assetDensity = 1
+    /// 시설 그림에서 칸 마름모 아래 꼭짓점이 그림 바닥보다 몇 px 위인지 (접지 그림자 여유)
+    static let facilityBaseline = 2
+    /// 시설 스트립 한 프레임 폭 (iso_room.py: 68)
+    static let facilityFrameWidth = 68
     /// 콤보 금색 테두리가 잘리지 않게 시설 캔버스 둘레에 두는 여백 (에셋 픽셀)
     static let facilityPadding = 2
 
     private static func facilityAssetName(_ kind: FacilityKind) -> String {
         switch kind {
-        case .researcherDesk, .traineeDesk: return "facility_researcher_desk"   // 신입 책상도 같은 책상
-        case .kanjiArchive: return "facility_kanji_archive"
-        case .copyRoom: return "facility_copy_room"
-        case .recordingBooth: return "facility_recording_booth"
-        case .serverRack: return "facility_server_rack"
+        case .researcherDesk: return "fac_researcher_desk"
+        case .traineeDesk: return "fac_trainee_desk"
+        case .kanjiArchive: return "fac_kanji_archive"
+        case .copyRoom: return "fac_copy_room"
+        case .recordingBooth: return "fac_recording_booth"
+        case .serverRack: return "fac_server_rack"
         }
     }
 
-    private static let facilityImages: [FacilityKind: CGImage] = Dictionary(
-        uniqueKeysWithValues: FacilityKind.allCases.compactMap { kind in bundledImage(facilityAssetName(kind)).map { (kind, $0) } })
+    /// 시설마다 8프레임 (화면 글줄 · LED · 릴 · 램프가 움직임)
+    private static let facilityFrames: [FacilityKind: [CGImage]] = Dictionary(
+        uniqueKeysWithValues: FacilityKind.allCases.compactMap { kind in
+            bundledImage(facilityAssetName(kind)).map { (kind, frames(of: $0, frameWidth: facilityFrameWidth)) }
+        })
+    private static var facilityImages: [FacilityKind: CGImage] { facilityFrames.compactMapValues(\.first) }
 
     /// 시설 캔버스 = 타일 폭(64) + 여백, 높이는 짝수로 맞춰 방 픽셀 정수 크기가 되게
     private static func facilityCanvas(_ kind: FacilityKind) -> (width: Int, height: Int)? {
@@ -493,8 +522,8 @@ enum OfficePixelArt {
     }
 
     static let characterArtSize = 48
-    /// 캐릭터 픽셀 1칸 = 방 픽셀 0.5칸. 48px 그대로면 벽(40px)보다 커서, 키를 방 기준 24px로 맞춤
-    static let characterPixelRatio: CGFloat = 0.5
+    /// v2: 캐릭터 픽셀 1칸 = 방 픽셀 1칸 (한 칸 64×32 · 벽 100px 기준으로 48px 캐릭터가 알맞은 키)
+    static let characterPixelRatio: CGFloat = 1
 
     static func characterFrames(_ role: ResearcherAgent.Role) -> CharacterFrames {
         characterFrames(named: role == .chief ? "chief_researcher" : "newcomer")

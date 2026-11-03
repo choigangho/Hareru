@@ -1,0 +1,304 @@
+{
+ "njl_frame_panel_dark": {
+  "size": [
+   24,
+   24
+  ],
+  "cap": 8,
+  "use": "판 — 단말 화면 · 서랍 · 대사 창 · 어둠"
+ },
+ "njl_frame_panel_light": {
+  "size": [
+   24,
+   24
+  ],
+  "cap": 8,
+  "use": "판 — 단말 화면 · 서랍 · 대사 창 · 밝음"
+ },
+ "njl_frame_card_dark": {
+  "size": [
+   24,
+   24
+  ],
+  "cap": 8,
+  "use": "단어 카드 · 통계 카드 (꺾쇠 = 판독 창) · 어둠"
+ },
+ "njl_frame_card_light": {
+  "size": [
+   24,
+   24
+  ],
+  "cap": 8,
+  "use": "단어 카드 · 통계 카드 (꺾쇠 = 판독 창) · 밝음"
+ },
+ "njl_frame_chip_dark": {
+  "size": [
+   16,
+   16
+  ],
+  "cap": 6,
+  "use": "작은 정보 칩 · 배지 · 어둠"
+ },
+ "njl_frame_chip_light": {
+  "size": [
+   16,
+   16
+  ],
+  "cap": 6,
+  "use": "작은 정보 칩 · 배지 · 밝음"
+ },
+ "njl_frame_field_dark": {
+  "size": [
+   24,
+   24
+  ],
+  "cap": 8,
+  "use": "입력란 (파인 홈 + 밑줄) · 어둠"
+ },
+ "njl_frame_field_light": {
+  "size": [
+   24,
+   24
+  ],
+  "cap": 8,
+  "use": "입력란 (파인 홈 + 밑줄) · 밝음"
+ },
+ "njl_button_normal": {
+  "size": [
+   24,
+   24
+  ],
+  "cap": 8,
+  "use": "버튼 기본 — 위 빛 · 아래 2px 두께"
+ },
+ "njl_button_pressed": {
+  "size": [
+   24,
+   24
+  ],
+  "cap": 8,
+  "use": "버튼 눌림 — 2px 내려감 · 호박색 테두리"
+ },
+ "njl_button_disabled": {
+  "size": [
+   24,
+   24
+  ],
+  "cap": 8,
+  "use": "버튼 비활성 — 회색 · 사선 빗금"
+ },
+ "njl_signal_1_16": {
+  "size": [
+   16,
+   16
+  ],
+  "use": "평가 버튼 신호 막대 1칸 — 판독 불가"
+ },
+ "njl_signal_1_24": {
+  "size": [
+   24,
+   24
+  ],
+  "use": "평가 버튼 신호 막대 1칸 — 판독 불가"
+ },
+ "njl_signal_2_16": {
+  "size": [
+   16,
+   16
+  ],
+  "use": "평가 버튼 신호 막대 2칸 — 흐림"
+ },
+ "njl_signal_2_24": {
+  "size": [
+   24,
+   24
+  ],
+  "use": "평가 버튼 신호 막대 2칸 — 흐림"
+ },
+ "njl_signal_3_16": {
+  "size": [
+   16,
+   16
+  ],
+  "use": "평가 버튼 신호 막대 3칸 — 판독"
+ },
+ "njl_signal_3_24": {
+  "size": [
+   24,
+   24
+  ],
+  "use": "평가 버튼 신호 막대 3칸 — 판독"
+ },
+ "njl_signal_4_16": {
+  "size": [
+   16,
+   16
+  ],
+  "use": "평가 버튼 신호 막대 4칸 — 선명"
+ },
+ "njl_signal_4_24": {
+  "size": [
+   24,
+   24
+  ],
+  "use": "평가 버튼 신호 막대 4칸 — 선명"
+ },
+ "njl_tab_terminal_normal": {
+  "size": [
+   24,
+   24
+  ],
+  "use": "탭바 학습 → 판독 단말 · 보통"
+ },
+ "njl_tab_terminal_selected": {
+  "size": [
+   24,
+   24
+  ],
+  "use": "탭바 학습 → 판독 단말 · 선택"
+ },
+ "njl_tab_institute_normal": {
+  "size": [
+   24,
+   24
+  ],
+  "use": "탭바 연구소 · 보통"
+ },
+ "njl_tab_institute_selected": {
+  "size": [
+   24,
+   24
+  ],
+  "use": "탭바 연구소 · 선택"
+ },
+ "njl_tab_records_normal": {
+  "size": [
+   24,
+   24
+  ],
+  "use": "탭바 통계 → 판독 기록 · 보통"
+ },
+ "njl_tab_records_selected": {
+  "size": [
+   24,
+   24
+  ],
+  "use": "탭바 통계 → 판독 기록 · 선택"
+ },
+ "njl_tab_settings_normal": {
+  "size": [
+   24,
+   24
+  ],
+  "use": "탭바 설정 → 단말 설정 · 보통"
+ },
+ "njl_tab_settings_selected": {
+  "size": [
+   24,
+   24
+  ],
+  "use": "탭바 설정 → 단말 설정 · 선택"
+ },
+ "njl_toggle_off": {
+  "size": [
+   32,
+   16
+  ],
+  "use": "토글 꺼짐 (32×16)"
+ },
+ "njl_toggle_on": {
+  "size": [
+   32,
+   16
+  ],
+  "use": "토글 켜짐 (32×16) — 손잡이 오른쪽, 시안 표시등"
+ },
+ "njl_segment_track": {
+  "size": [
+   16,
+   16
+  ],
+  "cap": 6,
+  "use": "세그먼트 바깥 홈 (9-slice)"
+ },
+ "njl_segment_thumb": {
+  "size": [
+   16,
+   16
+  ],
+  "cap": 6,
+  "use": "세그먼트 고른 칸 (9-slice, 홈 위에 겹침)"
+ },
+ "njl_slider_track": {
+  "size": [
+   16,
+   8
+  ],
+  "cap": 3,
+  "use": "슬라이더 빈 홈 (가로 9-slice, 높이 고정)"
+ },
+ "njl_slider_fill": {
+  "size": [
+   16,
+   8
+  ],
+  "cap": 3,
+  "use": "슬라이더 채운 부분 (가로 9-slice)"
+ },
+ "njl_slider_knob": {
+  "size": [
+   12,
+   16
+  ],
+  "use": "슬라이더 손잡이 (12×16) — 위 호박색 표시"
+ },
+ "njl_heat_0": {
+  "size": [
+   8,
+   8
+  ],
+  "use": "잔디 칸 0단계 (8×8, 칸 사이 간격은 코드에서)"
+ },
+ "njl_heat_1": {
+  "size": [
+   8,
+   8
+  ],
+  "use": "잔디 칸 1단계 (8×8, 칸 사이 간격은 코드에서)"
+ },
+ "njl_heat_2": {
+  "size": [
+   8,
+   8
+  ],
+  "use": "잔디 칸 2단계 (8×8, 칸 사이 간격은 코드에서)"
+ },
+ "njl_heat_3": {
+  "size": [
+   8,
+   8
+  ],
+  "use": "잔디 칸 3단계 (8×8, 칸 사이 간격은 코드에서)"
+ },
+ "njl_heat_4": {
+  "size": [
+   8,
+   8
+  ],
+  "use": "잔디 칸 4단계 (8×8, 칸 사이 간격은 코드에서)"
+ },
+ "njl_marker_bar": {
+  "size": [
+   8,
+   8
+  ],
+  "use": "막대 그래프 끝 마커 (호박색 마름모)"
+ },
+ "njl_marker_line": {
+  "size": [
+   8,
+   8
+  ],
+  "use": "선 그래프 점 마커 (시안 고리)"
+ }
+}

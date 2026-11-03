@@ -28,13 +28,23 @@ public enum HareruMainTab: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
-// MARK: - iOS 26 플로팅 Liquid Glass 캡슐 탭 바
-// 기본 TabView 바 대신 화면 하단에 떠 있는 유리 필(Pill)을 두고,
-// 선택된 탭 뒤의 굴곡진 유리 인디케이터가 `matchedGeometryEffect`로 미끄러지듯 이동합니다.
+public extension HareruMainTab {
+    /// 레트로 키캡 아이콘 (rt_tab_*): 판독 단말 · 연구소 · 판독 기록 · 단말 설정
+    var retroIcon: String {
+        switch self {
+        case .study: return "terminal"
+        case .game: return "institute"
+        case .insights: return "records"
+        case .settings: return "settings"
+        }
+    }
+}
+
+// MARK: - 하단 탭 바 = 크림 키보드 위 키캡 넷 (ART_BIBLE §7 — 글자 대신 아이콘)
+// 고른 탭은 숯색 키가 눌린 채로 있고 아이콘이 형광 녹색 · 오른쪽 위 LED가 켜짐. 이름은 VoiceOver 라벨로만.
 public struct FloatingGlassTabBar: View {
     @Binding private var selection: HareruMainTab
     private let palette: WeatherSkyPalette
-    @Namespace private var indicatorNamespace
 
     public init(selection: Binding<HareruMainTab>, palette: WeatherSkyPalette) {
         _selection = selection
@@ -42,65 +52,41 @@ public struct FloatingGlassTabBar: View {
     }
 
     public var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 6) {
             ForEach(HareruMainTab.allCases) { tab in
                 let isActive = selection == tab
                 Button {
                     guard selection != tab else { return }
-                    withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
-                        selection = tab
-                    }
+                    withAnimation(.easeOut(duration: 0.12)) { selection = tab }
                 } label: {
-                    VStack(spacing: 3) {
-                        Image(systemName: tab.systemImage)
-                            .font(.system(size: 17, weight: .semibold))
-                            .symbolEffect(.bounce, value: isActive)
-                        Text(tab.title)
-                            .font(.caption2.weight(.bold))
-                    }
-                    .foregroundStyle(isActive ? palette.primaryTextColor : palette.secondaryTextColor)
-                    .frame(width: 70, height: 50)
-                    .background {
-                        if isActive {
-                            activeIndicator
-                                .matchedGeometryEffect(id: "activeTabIndicator", in: indicatorNamespace)
+                    RetroSprite(name: "rt_tab_\(tab.retroIcon)\(isActive ? "_on" : "")", animated: false, scale: 2)
+                        .shadow(color: isActive ? RetroColor.phosphor.opacity(0.7) : .clear, radius: 4)
+                        .frame(maxWidth: .infinity, minHeight: 46)
+                        .overlay(alignment: .topTrailing) {
+                            if isActive {
+                                Circle().fill(RetroColor.phosphor).frame(width: 5, height: 5)
+                                    .shadow(color: RetroColor.phosphor, radius: 2)
+                                    .offset(x: -2, y: -4)
+                            }
                         }
-                    }
-                    .contentShape(Capsule())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(RetroKeyStyle(tone: isActive ? .charcoal : .cream, latched: isActive))
                 .accessibilityLabel(tab.title)
                 .accessibilityAddTraits(isActive ? .isSelected : [])
             }
         }
-        .padding(5)
-        .hareruGlass(in: Capsule(), tint: palette.glassTintColor, interactive: true)
-        .shadow(color: .black.opacity(0.22), radius: 18, y: 8)
-    }
-
-    /// 볼록한 유리 렌즈처럼 위쪽은 밝고 아래쪽은 살짝 그늘진 굴곡 인디케이터
-    private var activeIndicator: some View {
-        Capsule()
-            .fill(palette.accentColor.opacity(0.22))
-            .overlay {
-                Capsule().fill(
-                    LinearGradient(
-                        colors: [.white.opacity(0.38), .white.opacity(0.04), .black.opacity(0.06)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-            }
-            .overlay {
-                Capsule().strokeBorder(
-                    LinearGradient(
-                        colors: [.white.opacity(0.75), .white.opacity(0.1)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    ),
-                    lineWidth: 0.8
-                )
-            }
-            .shadow(color: palette.accentColor.opacity(0.3), radius: 6, y: 2)
+        .padding(.horizontal, 10)
+        .padding(.top, 9)
+        .padding(.bottom, 11)
+        .background {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(RetroColor.cream)
+                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(
+                    LinearGradient(colors: [Color(red: 1, green: 0.97, blue: 0.86), Color(red: 0.55, green: 0.49, blue: 0.37)],
+                                   startPoint: .top, endPoint: .bottom), lineWidth: 3))
+                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(RetroColor.ink, lineWidth: 1))
+        }
+        .shadow(color: .black.opacity(0.7), radius: 6, y: 6)
+        .padding(.horizontal, 8)
     }
 }

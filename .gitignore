@@ -29,3 +29,9 @@ Docs/Art/ThirdParty/*/pack/
 # 생성물 · 빌드 찌꺼기
 Tools/build/all/
 Hareru.xcodeproj/-Xcc/
+Docs/Art/UI/source/*/from_pack/
+# 오너 참고 사진 (출처 불명 · 상표 포함) — 저장소에 올리지 않음
+Docs/Art/StyleRef/refs/
+# Tech Lab 팩 그림이 찍힌 시안 (공개 저장소 재배포 금지)
+Docs/Art/UI/previews/preview_hq_stats_mock.*
+Docs/Art/UI/previews/preview_phosphor_stats_mock.*

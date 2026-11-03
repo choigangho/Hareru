@@ -1,0 +1,218 @@
+{
+ "ph_panel": {
+  "frame": [
+   32,
+   32
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": 12,
+  "use": "판 — 크림 단말 몸체 + 녹색 CRT(주사선 · 볼록 유리 가장자리 · 반사). 전원 LED · 디스크 램프가 깜빡"
+ },
+ "ph_tile": {
+  "frame": [
+   24,
+   24
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": 9,
+  "use": "작은 판 — 숫자 칸 · 설정 줄. 오른쪽 위 녹색 LED"
+ },
+ "ph_key": {
+  "frame": [
+   24,
+   24
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": 8,
+  "use": "키캡 버튼 기본 (9-slice, 아래 3px = 키 두께)"
+ },
+ "ph_key_pressed": {
+  "frame": [
+   24,
+   24
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": 8,
+  "use": "키캡 눌림 — 2px 내려가고 녹색 표시등"
+ },
+ "ph_heat_0": {
+  "frame": [
+   8,
+   8
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "잔디 칸 0단계 (화면 속 형광 밝기)"
+ },
+ "ph_heat_1": {
+  "frame": [
+   8,
+   8
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "잔디 칸 1단계 (화면 속 형광 밝기)"
+ },
+ "ph_heat_2": {
+  "frame": [
+   8,
+   8
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "잔디 칸 2단계 (화면 속 형광 밝기)"
+ },
+ "ph_heat_3": {
+  "frame": [
+   8,
+   8
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "잔디 칸 3단계 (화면 속 형광 밝기)"
+ },
+ "ph_heat_4": {
+  "frame": [
+   8,
+   8
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "use": "잔디 칸 4단계 (화면 속 형광 밝기)"
+ },
+ "ph_heat_today": {
+  "frame": [
+   8,
+   8
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "오늘 칸 — 형광이 숨 쉬듯 밝아짐"
+ },
+ "ph_icon_cards_24": {
+  "frame": [
+   24,
+   24
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "외운 단어 — 카드에 글자가 찍히고 블록 커서 깜빡"
+ },
+ "ph_icon_gauge_24": {
+  "frame": [
+   24,
+   24
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "기억 유지율 — 바늘 떨림"
+ },
+ "ph_icon_stopwatch_24": {
+  "frame": [
+   24,
+   24
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "반응 시간 — 초침 한 바퀴"
+ },
+ "ph_icon_counter_24": {
+  "frame": [
+   24,
+   24
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "누적 평가 — 단추 눌림 · 67→68"
+ },
+ "ph_meter_track": {
+  "frame": [
+   16,
+   8
+  ],
+  "frames": 1,
+  "frame_ms": 150,
+  "cap": 4,
+  "use": "화면 속 막대 빈 칸 (3px 칸)"
+ },
+ "ph_meter_fill_1": {
+  "frame": [
+   16,
+   8
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": 4,
+  "use": "막대 채움 1단계 — 1 분홍(판독 불가) · 2 호박 · 3 녹 · 4 밝은 녹, 흐르는 빛"
+ },
+ "ph_meter_fill_2": {
+  "frame": [
+   16,
+   8
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": 4,
+  "use": "막대 채움 2단계 — 1 분홍(판독 불가) · 2 호박 · 3 녹 · 4 밝은 녹, 흐르는 빛"
+ },
+ "ph_meter_fill_3": {
+  "frame": [
+   16,
+   8
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": 4,
+  "use": "막대 채움 3단계 — 1 분홍(판독 불가) · 2 호박 · 3 녹 · 4 밝은 녹, 흐르는 빛"
+ },
+ "ph_meter_fill_4": {
+  "frame": [
+   16,
+   8
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "cap": 4,
+  "use": "막대 채움 4단계 — 1 분홍(판독 불가) · 2 호박 · 3 녹 · 4 밝은 녹, 흐르는 빛"
+ },
+ "ph_cursor": {
+  "frame": [
+   6,
+   10
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "블록 커서 — 4프레임 켜짐 · 4프레임 꺼짐 (입력란 · 제목 끝 · 빈 화면)"
+ },
+ "ph_typing": {
+  "frame": [
+   48,
+   6
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "한 줄씩 타자되는 가짜 글 — 빈 화면 · 로딩 · 대사 대기"
+ },
+ "ph_scan_sweep": {
+  "frame": [
+   8,
+   64
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "화면 위를 위에서 아래로 지나가는 밝은 띠 (가로로 타일, 높이 64 반복)"
+ },
+ "ph_ivy_hang_96": {
+  "frame": [
+   96,
+   40
+  ],
+  "frames": 8,
+  "frame_ms": 150,
+  "use": "늘어지는 담쟁이 96×40 — 판 · 화면 위 가장자리에 걸침. 잎 몇 장이 1px 흔들림"
+ }
+}
