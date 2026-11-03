@@ -42,6 +42,8 @@ public struct InstituteView: View {
     @State private var runtime: OfficeSimulationRuntime
     @State private var scene: OfficeScene
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage(DayOneDirector.doneKey) private var dayOneDone = false
+    private var isStoryPlaying: Bool { !dayOneDone }
 
     public init(
         sessionEngine: StudySessionEngine,
@@ -92,7 +94,9 @@ public struct InstituteView: View {
                 .frame(maxHeight: .infinity)
 
                 HStack(alignment: .bottom, spacing: 8) {
+                    // 스토리 장면이 대사창을 띄우는 동안은 주임 팝업을 숨김 (같은 사람이 두 곳에서 말하지 않게)
                     secretaryPopup
+                        .opacity(isStoryPlaying ? 0 : 1)
                     menuButton
                 }
             }

@@ -98,6 +98,15 @@ public struct HareruSettingsView: View {
                 }
             }
 
+            // 1일차 스토리를 처음부터 (데모 · 확인용)
+            Button {
+                DayOneDirector.clearStoredProgress()
+            } label: {
+                Text("1일차 다시 보기").font(.subheadline.weight(.bold))
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(RetroKeyStyle(tone: .cream))
+
             Button(role: .destructive) {
                 showSignOutConfirmation = true
             } label: {
