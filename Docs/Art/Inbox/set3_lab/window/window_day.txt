@@ -1,0 +1,4 @@
+window_day.png 640x360 RGBA — daytime overcast rain over the window glass of lab_section_day1.png. Draw at (0,0) above the background, under cars / rain / koi holo.
+Only glass + window signs are painted (bbox 190,58 – 467,184). Signs are unlit by day (dull, hazed). Lit windows turned off.
+By day (code): hide car_lights.png, koi holo at ~40% alpha, skip neon flicker, rain unchanged.
+Night = background as-is (+ light_night_* layers, see ../light/light_layers.txt).

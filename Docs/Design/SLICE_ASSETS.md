@@ -108,7 +108,7 @@
 | `lab_light_layers` | 640×360 층 3장 | **실내 밝기 층**: ① 스탠드 전(어두움 — 형광등 하나 · CRT 녹색 · 창밖 시안만) ② 스탠드 후(호박 불빛 웅덩이 + 실내 따뜻하게) ③ 밤(창 어둡게 · 창밖 간판 진하게). 그림 한 장 위에 곱하기/더하기로 얹음 | T-1~T-8 / T-8 끝 「あかるい!」 / T-9 (ART_STYLE_SHEET §3.1) | ① | ✅ 2026-11-04 `Claude` — `set3_lab/light/light_dark_mul.png` (①) · 스탠드 빛 `lab_light_lamp_pool.png` (②) · `light_night_mul.png` + `light_night_neon_add.png` (③), 순서 `light_layers.txt`. 전환은 `코드` |
 | `prop_fluorescent.png` | 관 94×5 · 93×5 | 켜짐(배경 그대로) / 꺼짐 관 + 빛 마스크 | 천장 형광등 2개(배경에 그려져 있음) — 깜빡일 때 꺼진 관을 얹고 빛 마스크 영역을 곱하기 0.65 (`코드`) | ② | ✅ `Claude` — `set3_lab/light/fluorescent_{L,R}_off.png` · `_glow_mask.png` · 위치 `fluorescent.txt` |
 | `desk_reader_bg.png` | **320×180 (×4 표시)** | 탑다운 책상 + 판독기 · 인쇄기 · 모니터 · 문서 더미 · 처리함이 붙은 바닥 층 (움직이는 부품 없음) | 판독 장면 배경 | ① | ✅ `Claude` — `Docs/Art/Inbox/set2_objects/topdown/detail_static_v1.png` (오른쪽 위 비스듬한 모니터 원래 크기` |
-| `window_outside_rain.png` | 160×120 | 낮(회청) / 밤(시안 간판) | 단면 창 너머 | ② | 밤은 단면 배경에 포함 (2026-11-04). 낮은 아직. 원근 층 분리는 BACKLOG (카메라가 거의 고정이라 보류) |
+| `window_outside_rain.png` | 160×120 | 낮(회청) / 밤(시안 간판) | 단면 창 너머 | ② | ✅ 2026-11-04 `Claude` — 낮: `set3_lab/window/window_day.png` (640×360 창 유리 층, 흐린 낮 · 간판 꺼짐, `window_day.txt`). 밤은 단면 배경에 포함. 원근 층 분리는 BACKLOG |
 
 ## 3. 판독기 · 책상 물건 (판독 장면)
 
