@@ -16,7 +16,7 @@
 | :--- | :--- | :--- | :--- | :---: | :--- |
 | `chief_portrait_{표정}.png` | 96×96 | 8장: 기본 · 미소 · 반짝(안경 반사) · 당황 · 난감 · 울컥 · 진지 · 뿌듯 | 대사창 초상 — D1 주임 줄 전부 | ① | ✅ Pixellab Pro 후보 4장 → 기본(P1) · 미소(P2) · 진지(P3) · 반짝(P4), 나머지 4장은 `Claude`가 P1 눈 · 입만 고침 — `Docs/Art/Inbox/set4_portraits/chief/` |
 | `hero_portrait_{표정}.png` | 96×96 | 7장: 기본 · 멍 · 뻘짓 · 놀람(개그) · 한심·귀찮(`meh`) · 민망 · 진지 | 대사창 초상 | ① | ✅ Pixellab Pro 후보 8장 중 H5 기본(눈 좌우 대칭으로 맞춤), 나머지 6장은 `Claude`가 눈 · 입만 고침 — `Docs/Art/Inbox/set4_portraits/hero/` |
-| `kuro_fallen.png` | 64×40 | 쓰러진 외눈 로봇 + 렌즈 꺼짐 / 호박 깜빡 2상태 | T-1 · T-3 탭 반응 "……zz" | ② | 오너 1장 → 렌즈 `Claude` |
+| `kuro_off.png` · `kuro_amber_dim.png` · `kuro_amber_on.png` | 64×40 | 쓰러진 외눈 로봇. 렌즈 꺼짐 / 호박 어둑 / 호박 켜짐 (깜빡임은 코드로 dim↔on) | T-1 · T-3 탭 반응 "……zz" | ② | ✅ 2026-11-04 K1 **임시안** (`Docs/Art/Inbox/set6_kuro/`) — 나중에 다시 |
 
 - 단면 스프라이트(서기 · 걷기 · 앉기 · 단발 동작)는 §1-1 **인물 행동** 표로.
 - 주임 · 주인공 **기본 초상 + 서 있는 대기 1장씩**이 ART_STYLE_SHEET 샘플 확인용 (MOCKUPS M-0).
