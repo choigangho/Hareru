@@ -7,6 +7,7 @@ extends SceneTree
 var failures := 0
 var passed := 0
 var current := ""
+var checks := 0
 
 
 func _initialize() -> void:
@@ -18,15 +19,21 @@ func _initialize() -> void:
 	files.sort()
 	for f in files:
 		var script: GDScript = load("res://tests/" + f)
+		if script == null or not script.can_instantiate():
+			failures += 1
+			printerr("  FAIL ", f, " — script did not compile")
+			continue
 		var suite = script.new()
 		suite.set("t", self)
 		for m in script.get_script_method_list():
 			if str(m.name).begins_with("test_"):
 				current = "%s::%s" % [f, m.name]
 				var before := failures
-				var r = suite.call(m.name)
-				if r is Object and r.has_method("is_valid"):
-					pass
+				checks = 0
+				suite.call(m.name)
+				if checks == 0:
+					failures += 1
+					printerr("  FAIL ", current, " — no checks ran (script error?)")
 				if failures == before:
 					passed += 1
 					print("  ok   ", current)
@@ -37,6 +44,7 @@ func _initialize() -> void:
 
 
 func check(cond: bool, msg := "") -> void:
+	checks += 1
 	if not cond:
 		failures += 1
 		printerr("  FAIL ", current, " — ", msg)

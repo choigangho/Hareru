@@ -2,8 +2,10 @@ extends Node
 ## Root: owns the GameFlow, swaps the screen node on each state change.
 ## Test/screenshot args (after `--`): --screen=lab|dialog|reader|leave --light=before|after|night
 ##   --day --shot=path.png [--wait=frames]
+##   dialog: --scene=T-1 (D1 scene key) [--line=D1-108] [--typed] [--meaning]
 
 const ART_SCALE := 2
+const STORY := "res://data/story_n5.json"
 
 var flow := GameFlow.new()
 var world: Node2D
@@ -17,6 +19,7 @@ func _ready() -> void:
 	world.scale = Vector2(ART_SCALE, ART_SCALE)
 	add_child(world)
 	flow.changed.connect(_on_flow_changed)
+	EventBus.dialog_finished.connect(func(_k): flow.go_to(GameFlow.Screen.LAB))
 	args = parse_args(OS.get_cmdline_user_args())
 	_show(flow.current)
 	_apply_args()
@@ -42,6 +45,10 @@ func _show(s: int) -> void:
 		screen.queue_free()
 	if s == GameFlow.Screen.LAB:
 		screen = LabScreen.new()
+	elif s == GameFlow.Screen.DIALOG:
+		var key := str(args.get("scene", "T-1"))
+		screen = DialogScreen.new()
+		screen.setup(DialogueRunner.scene_from_file(STORY, "D1", key), key)
 	else:
 		screen = preload("res://scenes/placeholder/placeholder_screen.gd").new()
 		screen.title = GameFlow.Screen.keys()[s]
@@ -54,6 +61,14 @@ func _apply_args() -> void:
 		var s := GameFlow.screen_from_name(str(args.screen))
 		if s >= 0 and s != flow.current:
 			flow.go_to(s)
+	if screen is DialogScreen:
+		if args.has("line"):
+			screen.runner.jump_to(str(args.line))
+			screen._refresh()
+		if args.has("typed"):
+			screen.runner.revealed = screen.runner.total_chars()
+		if args.has("meaning"):
+			screen.runner.meaning_open = true
 	if screen is LabScreen:
 		var lights := {"before": LabScreen.LightState.BEFORE_LAMP, "after": LabScreen.LightState.AFTER_LAMP, "night": LabScreen.LightState.NIGHT}
 		if args.has("light") and lights.has(str(args.light)):

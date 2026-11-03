@@ -43,6 +43,13 @@ PROPS = ["prop_ceiling_leak_stain", "prop_ceiling_leak_patched", "prop_bucket_lo
          "prop_board_staff_1", "prop_board_staff_2", "prop_book_pile_0", "prop_book_pile_1", "prop_book_pile_2"]
 for p in PROPS:
     FILES[f"props/{p}.png"] = f"set7_props/final/{p}.png"
+for e in ["default", "smile", "glint", "flustered", "troubled", "teary", "serious", "proud"]:
+    FILES[f"portraits/chief_{e}.png"] = f"set4_portraits/chief/chief_portrait_{e}.png"
+for e in ["default", "daze", "goof", "surprised", "meh", "awkward", "serious"]:
+    FILES[f"portraits/hero_{e}.png"] = f"set4_portraits/hero/hero_portrait_{e}.png"
+for u in ["ui_dialog_dock", "ui_dialog_portrait_crt", "ui_dialog_scanlines_96", "ui_keycap_choice_idle",
+          "ui_keycap_choice_select", "ui_keycap_choice_press", "ui_blank_word"]:
+    FILES[f"ui/{u}.png"] = f"set9_ui/{u}.png"
 
 
 def main() -> None:
