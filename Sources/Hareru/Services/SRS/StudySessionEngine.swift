@@ -137,6 +137,8 @@ public final class StudySessionEngine {
     public private(set) var earnedTicketsInSession: [GameTicket] = []
     public private(set) var lastOutcome: SessionEvaluationOutcome?
     public private(set) var stateRevision: Int = 0
+    /// 앱을 켠 뒤 평가한 카드 수 (스토리 진행 — 1일차 '새 단어 15개' 과제)
+    public private(set) var submittedEvaluationCount: Int = 0
 
     // ContinuousClock 기반 반응 시간 측정 상태 (카드 등장 ~ '정답 보기' 클릭)
     private let clock = ContinuousClock()
@@ -549,6 +551,7 @@ public final class StudySessionEngine {
         }
 
         lastOutcome = outcome
+        submittedEvaluationCount += 1
         stateRevision += 1
 
         if !queue.isEmpty {

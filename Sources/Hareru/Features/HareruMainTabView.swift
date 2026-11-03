@@ -7,6 +7,9 @@ public struct HareruMainTabView: View {
     @State private var selectedTab: HareruMainTab = .study
     // 연구소 상태는 학습 기록과 별도 파일(Application Support/Hareru/institute.json)에 저장
     @State private var instituteEngine = InstituteEngine(store: JSONFileInstituteStore())
+    // 1일차 스토리 (Docs/Story/lines/N5_D1.md) — 끝내면 다시 뜨지 않음, 설정의 '1일차 다시 보기'로 처음부터
+    @State private var dayOne = DayOneDirector()
+    @AppStorage(DayOneDirector.doneKey) private var dayOneDone = false
     private let weatherEngine: WeatherAtmosphereEngine
 
     public init(sessionEngine: StudySessionEngine? = nil, weatherEngine: WeatherAtmosphereEngine = .shared) {
@@ -48,6 +51,32 @@ public struct HareruMainTabView: View {
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 FloatingGlassTabBar(selection: $selectedTab, palette: palette)
                     .padding(.bottom, 6)
+            }
+            .overlay {
+                if !dayOneDone {
+                    StoryOverlayView(
+                        director: dayOne,
+                        onWeatherSync: { weatherEngine.requestLocationPermission() },
+                        onSkipStudy: { dayOne.studySessionEnded() }
+                    )
+                    .transition(.opacity)
+                }
+            }
+            .onAppear {
+                dayOne.configure(profile: sessionEngine.userProfile)
+                if !dayOneDone { selectedTab = dayOne.tab }
+            }
+            .onChange(of: dayOne.tab) { _, tab in selectedTab = tab }
+            .onChange(of: sessionEngine.submittedEvaluationCount) { _, _ in
+                dayOne.recordStudy(sessionCompleted: sessionEngine.isSessionCompleted)
+            }
+            .onChange(of: dayOneDone) { _, done in
+                // 설정에서 진행을 지우면 새 진행으로 처음부터
+                if !done {
+                    dayOne = DayOneDirector()
+                    dayOne.configure(profile: sessionEngine.userProfile)
+                    selectedTab = dayOne.tab
+                }
             }
             // 하늘 명도에 맞춰 시스템 재질·보조 텍스트 대비를 함께 맞춤
             // environment만 바꾸면 팝오버·시트의 시스템 배경은 라이트로 남아 흰 바탕에 흰 글씨가 되므로 창 전체에 적용
