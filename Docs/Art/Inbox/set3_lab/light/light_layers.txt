@@ -1,0 +1,7 @@
+Lab light states over lab_section_day1.png (640x360). Multiply layers are stepped (8 levels + Bayer).
+① before lamp (T-1..T-8): draw fluorescent_R_off.png at (425,36); multiply light_dark_mul.png. No lamp sprite.
+   Left tube stays lit (pool under it); CRT screens = 1.0 with green spill; window glass ~0.9.
+② after lamp (T-8 「あかるい!」): tween ① multiply -> none over 0.6s; draw prop_desk_lamp_on at (331, 207-h); add lab_light_lamp_pool.png.
+③ night (T-9~): multiply light_night_mul.png (room 0.8, window glass darker blue), then add lab_light_lamp_pool.png, then add light_night_neon_add.png (signs brighter in their own colours).
+CRT screen rects used: (67,177,89,205) (183,173,207,199) (354,175,375,197) (512,118,537,140) (512,151,538,179) (545,159,570,183) (523,198,551,222)
+Old layer lab_light_glow_mask.png and preview_before/after/night.png are from the old background (before window signs and desks changed) — do not use.
