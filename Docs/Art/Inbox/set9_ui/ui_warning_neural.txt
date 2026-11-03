@@ -1,0 +1,5 @@
+ui_warning_neural.png 300x120 — all text by code.
+  title bar (5,5)-(294,20): small white/cream system label
+  icon baked at (12,26)-(32,44); main text box x 40..290, y 26..88 (2-3 lines; ⚠ icon is baked, so drop ⚠ from the string; (1日 400件))
+  ad scroll strip (5,92)-(294,114): small text scrolls right->left, clip to strip
+  flash: modulate whole sprite + screen red tint by code

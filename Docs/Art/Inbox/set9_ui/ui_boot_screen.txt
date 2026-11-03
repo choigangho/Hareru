@@ -1,0 +1,4 @@
+ui_boot_screen.png 640x360 — NJL-OS logo dots baked (no font). Text by code, phosphor (150,240,150).
+  progress: 12 slots, slot i at x=236+i*14, y=300 (6x6 outline). ui_boot_dot_on.png 8x8 drawn at (slot-1, 299) as boot advances.
+  setup rows (응시 회차 / 목표 급수): row bullets at (166,188) and (166,236); text from x=180, baseline y~200 / ~248; dashed underline y=208 / 256.
+  cursor ui_boot_cursor.png 8x14, blink by code.

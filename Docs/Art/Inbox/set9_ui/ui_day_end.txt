@@ -1,0 +1,2 @@
+ui_day_end_bg.png 640x360 — dark, stand-lamp pool lower right (lamp left on, D1-918), faint rain.
+ui_day_end_title.png 262x62 — 「1日目 了」 hand strokes (mincho-ish), centre at (320,170); fade in after the D1-918 fade.
