@@ -1,0 +1,46 @@
+{
+  "group_id": "cdd2c9ea-744c-4956-936e-c6ab18657d8a",
+  "states": [
+    {
+      "character": {
+        "id": "a128c612-4316-4f3a-b385-fb49f00ca3a3",
+        "name": "Idle",
+        "prompt": "chibi young man, messy black hair, grey-blue hoodie, dark grey pants, white sneakers",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-11-03T09:28:48.217407+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "hero_sit_down_west": {
+            "west": [
+              "Idle/animations/hero_sit_down_west/west/frame_000.png",
+              "Idle/animations/hero_sit_down_west/west/frame_001.png",
+              "Idle/animations/hero_sit_down_west/west/frame_002.png",
+              "Idle/animations/hero_sit_down_west/west/frame_003.png",
+              "Idle/animations/hero_sit_down_west/west/frame_004.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-11-03T09:33:15.130200"
+}
