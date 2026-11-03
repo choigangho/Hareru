@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - 단일 단어 카드 (앞면: 표제어 + 후리가나 없는 예문만 / 뒷면: 발음·뜻·후리가나·해석·다의어·한자)
+// MARK: - 단일 단어 카드 = 스캐너 위 종이 (앞면: 표제어 + 후리가나 없는 예문만 / 뒷면: 발음·뜻·후리가나·해석·다의어·한자)
 // - 하단 액션 슬롯은 카드 내부에 위치·크기가 고정되어 있고,
 //   '정답 보기' 한 개 버튼이 같은 자리에서 '모르겠음 · 애매함 · 알고있음 · 쉬움' 4개로 갈라지며 변합니다.
 // - 다의어처럼 내용이 길어져도 스크롤은 상단 콘텐츠 영역에서만 일어나고 버튼은 움직이지 않습니다.
@@ -23,9 +23,11 @@ public struct WordCardView: View {
     @State private var detailSheetUsage: WordKanjiUsage?
 
     @State private var speaker = SpeechPlayer()
+    /// 스캔 빛줄 위치 (카드가 나올 때 · 정답을 볼 때 위 → 아래 한 번)
+    @State private var scanProgress: CGFloat = 2
     @Namespace private var actionSlotNamespace
 
-    private static let actionSlotHeight: CGFloat = 58
+    private static let actionSlotHeight: CGFloat = 66
     private static let timing = CardTimingConfig.standard
 
     public init(
@@ -56,11 +58,13 @@ public struct WordCardView: View {
 
     private var word: Word { item.word }
     private var quizzedSense: WordSense { item.presentedSense }
-    private var accentColor: Color { palette.accentColor }
+    /// 종이 위 강조는 붉은 펜 (하늘 팔레트 대신 — 카드는 스캐너 위 종이, ART_BIBLE §7)
+    private var accentColor: Color { RetroColor.paperRed }
 
     public var body: some View {
-        VStack(spacing: 0) {
-            // 1) 콘텐츠 영역 (내용이 길면 이 영역 안에서만 스크롤)
+        VStack(spacing: 8) {
+            // 1) 콘텐츠 영역 = 스캐너 위 종이 (내용이 길면 종이 안에서만 스크롤)
+            RetroScannedPaper(scanProgress: scanProgress) {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 20) {
                     termHeader
@@ -80,30 +84,26 @@ public struct WordCardView: View {
                 .frame(maxWidth: .infinity)
             }
             .scrollBounceBehavior(.basedOnSize)
+            }
+            .overlay {
+                CardGlassRaindropOverlay(isRaining: isRaining, isRevealed: isRevealed)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .allowsHitTesting(false)
+            }
 
-            // 2) 고정 액션 슬롯 (위치·크기 불변)
+            // 2) 고정 액션 슬롯 (위치·크기 불변) — 입체 키캡
             actionSlot
                 .frame(height: Self.actionSlotHeight)
-                .padding(.horizontal, 14)
-                .padding(.bottom, 14)
-                .padding(.top, 6)
+                .padding(.horizontal, 4)
         }
         .frame(maxWidth: 380)
         .frame(maxHeight: .infinity)
-        .foregroundStyle(palette.primaryTextColor)
-        .hareruGlass(
-            in: RoundedRectangle(cornerRadius: 38, style: .continuous),
-            tint: palette.glassTintColor
-        )
-        .overlay {
-            CardGlassRaindropOverlay(isRaining: isRaining, isRevealed: isRevealed)
-                .clipShape(RoundedRectangle(cornerRadius: 38, style: .continuous))
-        }
-        .shadow(color: .black.opacity(0.16), radius: 26, y: 14)
+        .foregroundStyle(RetroColor.paperInk)
         .onAppear {
             isRevealed = false
             exampleVisible = false
             voiceNicknameVisible = false
+            runScan()
             // 음성 캐릭터 별명(6.5초)이 먼저, 순수 예문(10초)이 더 천천히 선명해짐
             withAnimation(Self.slowRevealCurve(duration: Self.timing.voiceTagDuration)) {
                 voiceNicknameVisible = true
@@ -125,6 +125,12 @@ public struct WordCardView: View {
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
         }
+    }
+
+    /// 스캔 빛줄을 종이 위에서 아래로 한 번 지나가게 함
+    private func runScan() {
+        scanProgress = -0.04
+        withAnimation(.linear(duration: 1.1)) { scanProgress = 1.04 }
     }
 
     // MARK: - 표제어 (JLPT 명조체) + 정답 공개 후에만 발음·음성 노출
@@ -151,7 +157,7 @@ public struct WordCardView: View {
                         Image(systemName: "speaker.wave.2.fill")
                             .font(.subheadline)
                             .padding(7)
-                            .background(.white.opacity(0.16), in: Circle())
+                            .background(RetroColor.paperInk.opacity(0.08), in: Circle())
                     }
 
                     if !word.hasKanji, let note = word.nonKanjiNote {
@@ -162,7 +168,7 @@ public struct WordCardView: View {
                                 .font(.caption2.weight(.semibold))
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
-                                .background(.white.opacity(0.16), in: Capsule())
+                                .background(RetroColor.paperInk.opacity(0.08), in: Capsule())
                         }
                         .buttonStyle(.plain)
                         .popover(isPresented: $showNonKanjiPopover) {
@@ -181,10 +187,10 @@ public struct WordCardView: View {
         let isShown = isRevealed || voiceNicknameVisible
         return Label(quizzedSense.voice.label, systemImage: "mic.fill")
             .font(.caption.weight(.semibold))
-            .foregroundStyle(palette.secondaryTextColor)
+            .foregroundStyle(RetroColor.paperInkDim)
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
-            .background(.white.opacity(0.12), in: Capsule())
+            .background(RetroColor.paperInk.opacity(0.07), in: Capsule())
             .opacity(isShown ? 1 : 0)
             .blur(radius: isShown ? 0 : 4)
             .accessibilityLabel("음성 캐릭터 \(quizzedSense.voice.label)")
@@ -198,7 +204,7 @@ public struct WordCardView: View {
                 VStack(spacing: 0) {
                     Text(run.reading ?? " ")
                         .jlptFuriganaFont(size: 15)
-                        .foregroundStyle(palette.secondaryTextColor)
+                        .foregroundStyle(RetroColor.paperInkDim)
                         .fixedSize()
                         .opacity(isRevealed && run.reading != nil ? 1 : 0)
 
@@ -257,10 +263,10 @@ public struct WordCardView: View {
             if let pos = quizzedSense.partOfSpeech {
                 Text(pos)
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(palette.secondaryTextColor)
+                    .foregroundStyle(RetroColor.paperInkDim)
             }
             Text(quizzedSense.meaning)
-                .font(.title2.weight(.bold))
+                .font(.system(.title2, design: .serif).weight(.bold))
                 .multilineTextAlignment(.center)
         }
     }
@@ -272,7 +278,7 @@ public struct WordCardView: View {
             if !quizzedSense.hasExample {
                 Text(WordSense.examplePendingNotice)
                     .font(.callout)
-                    .foregroundStyle(palette.secondaryTextColor)
+                    .foregroundStyle(RetroColor.paperInkDim)
             } else if isRevealed {
                 // 예문은 카드 폭 전체를 쓰고(스피커가 옆에서 줄 배치를 밀지 않도록), 스피커는 해석 줄 오른쪽에 둠
                 PhraseBoxFuriganaView(
@@ -292,7 +298,7 @@ public struct WordCardView: View {
                         accentColor: accentColor
                     )
                     .font(.callout)
-                    .foregroundStyle(palette.secondaryTextColor)
+                    .foregroundStyle(RetroColor.paperInkDim)
                     .frame(maxWidth: .infinity)
 
                     SpeakerHitButton(accessibilityLabel: "예문 듣기") {
@@ -315,14 +321,14 @@ public struct WordCardView: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity)
-        .background(.white.opacity(0.09), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .background(RetroColor.paperInk.opacity(0.05), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
     }
 
     private var supplementarySensesSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("함께 쓰이는 다른 의미")
                 .font(.caption.weight(.bold))
-                .foregroundStyle(palette.secondaryTextColor)
+                .foregroundStyle(RetroColor.paperInkDim)
 
             ForEach(item.supplementarySenses) { sense in
                 VStack(alignment: .leading, spacing: 5) {
@@ -331,7 +337,7 @@ public struct WordCardView: View {
                             .font(.caption2.weight(.bold))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(.white.opacity(0.16), in: Capsule())
+                            .background(RetroColor.paperInk.opacity(0.08), in: Capsule())
 
                         Text(sense.meaning)
                             .font(.subheadline.weight(.semibold))
@@ -344,7 +350,7 @@ public struct WordCardView: View {
                             } label: {
                                 Image(systemName: "speaker.wave.2.fill")
                                     .font(.subheadline)
-                                    .foregroundStyle(palette.secondaryTextColor)
+                                    .foregroundStyle(RetroColor.paperInkDim)
                             }
                         }
                     }
@@ -355,16 +361,16 @@ public struct WordCardView: View {
 
                         Text(sense.translation.fullText)
                             .font(.caption2)
-                            .foregroundStyle(palette.secondaryTextColor)
+                            .foregroundStyle(RetroColor.paperInkDim)
                     } else {
                         Text(WordSense.examplePendingNotice)
                             .font(.caption2)
-                            .foregroundStyle(palette.secondaryTextColor)
+                            .foregroundStyle(RetroColor.paperInkDim)
                     }
                 }
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .background(RetroColor.paperInk.opacity(0.05), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
             }
         }
     }
@@ -372,63 +378,46 @@ public struct WordCardView: View {
     // MARK: - 고정 액션 슬롯: '정답 보기' ➔ 같은 자리에서 4개 평가 버튼으로 분할 모핑
 
     private var actionSlot: some View {
-        HareruGlassGroup(spacing: 8) {
-            HStack(spacing: 8) {
-                if !isRevealed {
-                    Button {
-                        revealAnswer()
-                    } label: {
-                        Label("정답 보기", systemImage: "eye.fill")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        HStack(spacing: 6) {
+            if !isRevealed {
+                Button {
+                    revealAnswer()
+                } label: {
+                    HStack(spacing: 10) {
+                        RetroSprite(name: "rt_glyph_eye", animated: false)
+                        Text("정답 보기").font(.headline)
                     }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(palette.primaryTextColor)
-                    .lensGlass(in: RoundedRectangle(cornerRadius: 20, style: .continuous), tint: palette.glassTintColor)
-                    .matchedGeometryEffect(id: "slot.good", in: actionSlotNamespace)
-                    .transition(.opacity)
-                } else {
-                    evaluationButton(.again, icon: .symbol("xmark"))
-                    evaluationButton(.hard, icon: .symbol("questionmark"))
-                    evaluationButton(.good, icon: .symbol("checkmark"))
-                        .matchedGeometryEffect(id: "slot.good", in: actionSlotNamespace)
-                    evaluationButton(.easy, icon: .emoji("😎"))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
+                .buttonStyle(RetroKeyStyle(tone: .cream))
+                .matchedGeometryEffect(id: "slot.good", in: actionSlotNamespace)
+                .transition(.opacity)
+            } else {
+                evaluationButton(.again)
+                evaluationButton(.hard)
+                evaluationButton(.good)
+                    .matchedGeometryEffect(id: "slot.good", in: actionSlotNamespace)
+                evaluationButton(.easy)
             }
         }
     }
 
-    private enum GradeIcon {
-        case symbol(String)
-        case emoji(String)
-    }
-
-    /// '정답 보기'와 같은 렌즈 유리·같은 색. '모르겠음'이 부정적으로 느껴지지 않도록 네 버튼 모두 색 차이 없이
-    /// 아이콘과 글자로만 구분합니다.
-    private func evaluationButton(_ button: ReviewButton, icon: GradeIcon) -> some View {
+    /// 네 버튼 모두 같은 숯색 키캡 — 색으로 좋고 나쁨을 가르지 않고, 키 위 LED 막대 칸 수(1~4)로만 강도를 보여 줌
+    private func evaluationButton(_ button: ReviewButton) -> some View {
         Button {
             speaker.stop()
             onEvaluate?(button)
         } label: {
-            VStack(spacing: 3) {
-                switch icon {
-                case .symbol(let name):
-                    Image(systemName: name)
-                        .font(.subheadline.weight(.bold))
-                case .emoji(let emoji):
-                    Text(emoji)
-                        .font(.subheadline)
-                }
+            VStack(spacing: 4) {
+                RetroSprite(name: "rt_ledbar_\(button.retroLevel)")
                 Text(button.koreanTitle)
                     .font(.caption.weight(.bold))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .minimumScaleFactor(0.7)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .foregroundStyle(palette.primaryTextColor)
         }
-        .buttonStyle(.plain)
-        .lensGlass(in: RoundedRectangle(cornerRadius: 20, style: .continuous), tint: palette.glassTintColor)
+        .buttonStyle(RetroKeyStyle(tone: .charcoal))
         .transition(.scale(scale: 0.4).combined(with: .opacity))
     }
 
@@ -436,6 +425,7 @@ public struct WordCardView: View {
 
     private func revealAnswer() {
         onReveal?()
+        runScan()
         withAnimation(.spring(response: 0.42, dampingFraction: 0.78)) {
             isRevealed = true
         }

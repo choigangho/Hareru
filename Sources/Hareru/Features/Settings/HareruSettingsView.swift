@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - 탭 3 설정 (계정 · 목표 급수/시험일 D-Day · 날씨 시뮬레이터)
+// MARK: - 탭 4 설정 = 「단말 설정」 (목표 급수/시험일 넘버 시계 · 날씨 시뮬레이터 · 계정) — 레트로 모니터 · 키캡 · 토글
 public struct HareruSettingsView: View {
     private let sessionEngine: StudySessionEngine
     private let weatherEngine: WeatherAtmosphereEngine
@@ -16,25 +16,33 @@ public struct HareruSettingsView: View {
 
     public var body: some View {
         NavigationStack {
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 18) {
-                    if let profile = sessionEngine.userProfile {
-                        accountCard(profile: profile)
-                        goalCard(profile: profile)
-                    }
-                    weatherSimulatorCard
-                }
-                .padding(16)
-            }
-            .background {
+            RetroScrollScreen(windowHeight: 120) {
                 WeatherSkyCanvasView(
                     condition: weatherEngine.activeCondition,
                     timeOfDay: weatherEngine.activeTimeOfDay,
                     palette: palette,
                     isHareruCleared: weatherEngine.isHareruClearedToday
                 )
+            } content: {
+                VStack(alignment: .leading, spacing: 14) {
+                    header
+                        .retroHangingCable(.dangle, x: 220)
+                    if let profile = sessionEngine.userProfile {
+                        goalCard(profile: profile)
+                            .retroHangingCable(.loop, x: 230)
+                    }
+                    weatherSimulatorCard
+                        .retroHangingCable(.dangle, x: 40)
+                    if let profile = sessionEngine.userProfile {
+                        accountCard(profile: profile)
+                    }
+                    HStack { Spacer(minLength: 0); RetroCodeMonitor(kind: .termA).offset(x: 6) }
+                }
+                .padding(.horizontal, 14)
+                .padding(.top, 96)
+                .padding(.bottom, 40)
             }
-            .navigationTitle("설정")
+            .retroHidesNavigationBar()
         }
         .sheet(isPresented: $showGoalResetOnboarding) {
             OnboardingFlowView(engine: sessionEngine, initialStep: .targetGoal) { _ in
@@ -51,45 +59,52 @@ public struct HareruSettingsView: View {
         }
     }
 
-    // MARK: - 계정 정보
+    /// 머리: 작은 터미널에 「단말 설정」 + 커서
+    private var header: some View {
+        HStack(alignment: .bottom, spacing: 6) {
+            RetroMonitor(style: .term, glow: 0.18) {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Text("단말 설정").font(.title2.bold()).phosphor()
+                        RetroCursor(height: 22)
+                    }
+                    Text("NJL-OS 2.94 · CONFIG").font(.caption2.monospaced()).phosphor(RetroColor.phosphorDim, glow: 2)
+                }
+            }
+            RetroCodeMonitor(kind: .termB)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isHeader)
+    }
+
+    // MARK: - 계정 정보 — 작은 터미널 + 금속 명판
 
     private func accountCard(profile: UserStudyProfile) -> some View {
-        settingsCard(title: "계정") {
+        settingsCard(title: "계정", style: .termLeft) {
             HStack(spacing: 12) {
-                Circle()
-                    .fill(palette.accentColor.opacity(0.25))
-                    .frame(width: 46, height: 46)
-                    .overlay(
-                        Text(String(profile.displayName.prefix(1)))
-                            .font(.headline.bold())
-                            .foregroundStyle(palette.primaryTextColor)
-                    )
+                Text(String(profile.displayName.prefix(1)))
+                    .font(.headline.bold())
+                    .frame(width: 44, height: 44)
+                    .background(RetroNineSlice(name: "rt_plate_cream", animated: false))
+                    .foregroundStyle(RetroColor.ink)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(profile.displayName)
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(palette.primaryTextColor)
-                    Text(profile.email)
-                        .font(.caption)
-                        .foregroundStyle(palette.secondaryTextColor)
+                    Text(profile.displayName).font(.subheadline.weight(.bold)).phosphor()
+                    Text(profile.email).font(.caption).phosphor(RetroColor.phosphorDim, glow: 1)
                 }
                 Spacer()
-                Label(profile.authProvider.rawValue, systemImage: providerIcon(profile.authProvider))
-                    .font(.caption2.weight(.bold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(palette.secondaryTextColor.opacity(0.16), in: Capsule())
-                    .foregroundStyle(palette.primaryTextColor)
+                RetroPlate(tone: .metal) {
+                    Label(profile.authProvider.rawValue, systemImage: providerIcon(profile.authProvider))
+                        .font(.caption2.weight(.bold))
+                }
             }
 
             Button(role: .destructive) {
                 showSignOutConfirmation = true
             } label: {
-                Text("로그아웃")
-                    .font(.subheadline.weight(.semibold))
+                Text("로그아웃").font(.subheadline.weight(.bold)).foregroundStyle(Color(red: 0.62, green: 0.16, blue: 0.14))
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 4)
             }
-            .hareruSecondaryButtonStyle()
+            .buttonStyle(RetroKeyStyle(tone: .cream))
         }
     }
 
@@ -101,7 +116,7 @@ public struct HareruSettingsView: View {
         }
     }
 
-    // MARK: - 목표 급수 & 시험일 D-Day
+    // MARK: - 목표 급수 & 시험일 D-Day — 넘버 시계
 
     private func goalCard(profile: UserStudyProfile) -> some View {
         let remainingDays = sessionEngine.currentStudyPlanProjection()?.remainingDays
@@ -111,60 +126,49 @@ public struct HareruSettingsView: View {
                 to: sessionEngine.calendar.startOfDay(for: profile.examDate)
             ).day ?? 0)
 
-        return settingsCard(title: "목표") {
-            HStack(alignment: .firstTextBaseline) {
+        return settingsCard(title: "목표", style: .crtTurned) {
+            HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("JLPT \(profile.targetLevel.rawValue)")
-                        .font(.title2.bold())
-                        .foregroundStyle(palette.primaryTextColor)
+                    Text("JLPT \(profile.targetLevel.rawValue)").font(.title.bold()).phosphor()
                     Text(profile.examDate.formatted(.dateTime.year().month().day().weekday(.wide).locale(Locale(identifier: "ko_KR"))))
-                        .font(.caption)
-                        .foregroundStyle(palette.secondaryTextColor)
+                        .font(.caption).phosphor(RetroColor.phosphorDim, glow: 1)
                 }
                 Spacer()
-                Text("D-\(remainingDays)")
-                    .font(.system(size: 34, weight: .heavy, design: .rounded).monospacedDigit())
-                    .foregroundStyle(palette.accentColor)
+                RetroFlipCounter(text: "D-\(remainingDays)")
+                    .accessibilityLabel("시험까지 \(remainingDays)일")
             }
 
             Button {
                 showGoalResetOnboarding = true
             } label: {
                 Label("목표 급수 · 시험일 재설정", systemImage: "slider.horizontal.3")
-                    .font(.subheadline.weight(.semibold))
+                    .font(.subheadline.weight(.bold))
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 4)
             }
-            .hareruSecondaryButtonStyle()
+            .buttonStyle(RetroKeyStyle(tone: .amber))
         }
     }
 
-    // MARK: - 날씨 시뮬레이터 (자동 위치 날씨 ↔ 수동 분위기)
+    // MARK: - 날씨 시뮬레이터 (자동 위치 날씨 ↔ 수동 분위기) — 산업용 모니터
 
     private var weatherSimulatorCard: some View {
         @Bindable var weather = weatherEngine
 
-        return settingsCard(title: "날씨") {
+        return settingsCard(title: "날씨", style: .industrial) {
             HStack(spacing: 10) {
                 Image(systemName: weatherEngine.activeCondition.sfSymbolName(for: weatherEngine.activeTimeOfDay))
-                    .symbolRenderingMode(.multicolor)
                     .font(.title2)
+                    .phosphor(RetroColor.phosphorBright)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(weatherEngine.weatherSummaryLine)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(palette.primaryTextColor)
-                    Text(weatherEngine.authorizationStatusDescription)
-                        .font(.caption2)
-                        .foregroundStyle(palette.secondaryTextColor)
+                    Text(weatherEngine.weatherSummaryLine).font(.subheadline.weight(.semibold)).phosphor()
+                    Text(weatherEngine.authorizationStatusDescription).font(.caption2).phosphor(RetroColor.phosphorDim, glow: 1)
                 }
             }
 
             Toggle(isOn: $weather.isAutomaticMode.animation(.easeInOut(duration: 0.6))) {
-                Text("현재 위치 날씨 자동 적용")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(palette.primaryTextColor)
+                Text("현재 위치 날씨 자동 적용").font(.subheadline.weight(.semibold)).phosphor()
             }
-            .tint(palette.accentColor)
+            .toggleStyle(RetroToggleStyle())
 
             if weatherEngine.isAutomaticMode {
                 if !weatherEngine.locationAuthorized {
@@ -172,38 +176,40 @@ public struct HareruSettingsView: View {
                         weatherEngine.requestLocationPermission()
                     } label: {
                         Label("위치 권한 허용하기", systemImage: "location.fill")
-                            .font(.caption.weight(.semibold))
+                            .font(.caption.weight(.bold))
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 4)
                     }
-                    .hareruSecondaryButtonStyle()
+                    .buttonStyle(RetroKeyStyle(tone: .cream))
                 }
             } else {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 4), spacing: 6) {
                     ForEach(WeatherCondition.allCases) { condition in
                         weatherChip(condition)
                     }
                 }
 
-                Picker("시간대", selection: $weather.manualTimeOfDay.animation(.easeInOut(duration: 0.6))) {
+                HStack(spacing: 3) {                                         // 시간대 = 피아노 키
                     ForEach(SkyTimeOfDay.allCases) { time in
-                        Text(time.koreanLabel).tag(time)
+                        let isActive = weatherEngine.manualTimeOfDay == time
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.6)) { weather.manualTimeOfDay = time }
+                        } label: {
+                            Text(time.koreanLabel).font(.caption2.weight(.bold)).lineLimit(1).minimumScaleFactor(0.6)
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(RetroKeyStyle(tone: .cream, latched: isActive))
+                        .accessibilityAddTraits(isActive ? .isSelected : [])
                     }
                 }
-                .pickerStyle(.segmented)
             }
 
             Toggle(isOn: $weather.isHareruClearedToday.animation(.easeInOut(duration: 0.8))) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("晴れる 맑게 갬 미리보기")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(palette.primaryTextColor)
-                    Text("오늘의 목표를 끝내면 자동으로 켜집니다")
-                        .font(.caption2)
-                        .foregroundStyle(palette.secondaryTextColor)
+                    Text("晴れる 맑게 갬 미리보기").font(.subheadline.weight(.semibold)).phosphor()
+                    Text("오늘의 목표를 끝내면 자동으로 켜집니다").font(.caption2).phosphor(RetroColor.phosphorDim, glow: 1)
                 }
             }
-            .tint(palette.accentColor)
+            .toggleStyle(RetroToggleStyle())
         }
     }
 
@@ -215,44 +221,26 @@ public struct HareruSettingsView: View {
                 weatherEngine.isHareruClearedToday = false
             }
         } label: {
-            VStack(spacing: 4) {
-                Image(systemName: condition.sfSymbolName(for: weatherEngine.manualTimeOfDay))
-                    .symbolRenderingMode(.multicolor)
-                    .font(.title3)
-                Text(condition.koreanTitle)
-                    .font(.caption2.weight(.semibold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+            VStack(spacing: 2) {
+                Image(systemName: condition.sfSymbolName(for: weatherEngine.manualTimeOfDay)).font(.subheadline)
+                Text(condition.koreanTitle).font(.caption2.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.6)
             }
-            .foregroundStyle(palette.primaryTextColor)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .background {
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(isActive ? palette.accentColor.opacity(0.28) : palette.secondaryTextColor.opacity(0.1))
-            }
-            .overlay {
-                if isActive {
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .strokeBorder(palette.accentColor.opacity(0.8), lineWidth: 1)
-                }
-            }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(RetroKeyStyle(tone: isActive ? .charcoal : .cream, latched: isActive))
+        .accessibilityAddTraits(isActive ? .isSelected : [])
     }
 
-    // MARK: - 공용 카드 컨테이너
+    // MARK: - 공용 판 = 레트로 모니터
 
-    private func settingsCard<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text(title)
-                .font(.caption.weight(.bold))
-                .foregroundStyle(palette.secondaryTextColor)
-            content()
+    private func settingsCard<Content: View>(title: String, style: RetroMonitorStyle, @ViewBuilder content: () -> Content) -> some View {
+        let body = content()
+        return RetroMonitor(style: style, glow: 0.2) {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(title).font(.caption.weight(.bold)).phosphor(RetroColor.phosphorDim, glow: 1)
+                body
+            }
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .hareruGlass(in: RoundedRectangle(cornerRadius: 22, style: .continuous), tint: palette.glassTintColor)
     }
 }
 

@@ -1,0 +1,135 @@
+{
+ "insert_notice_saiyou": {
+  "size": [
+   68,
+   88
+  ],
+  "use": "D1-019 「採用通知」 인서트 — 기관명 모자이크 · 손글씨 「출근일: 오늘」 · 붉은 직인"
+ },
+ "insert_box_open": {
+  "size": [
+   64,
+   56
+  ],
+  "use": "D1-342 짐 상자를 엶 — 청록 머그 · 충전기와 감긴 선 · 바닥에 접힌 종이"
+ },
+ "insert_memo": {
+  "size": [
+   84,
+   28
+  ],
+  "use": "D1-345 쪽지 확대 — 연필 「きみは、[■]らめろ」, [■] 모자이크 (번역 레이어 깨짐은 코드)"
+ },
+ "insert_memo_file": {
+  "size": [
+   92,
+   36
+  ],
+  "use": "D1-357 · D2-200 투명 파일에 꽂힌 쪽지 (반투명 PNG)"
+ },
+ "prop_memo_masked": {
+  "size": [
+   18,
+   11
+  ],
+  "use": "신입 책상 위 상시 소품 — 투명 파일 속 쪽지 (방 소품 크기)"
+ },
+ "insert_mug_new": {
+  "size": [
+   24,
+   24
+  ],
+  "use": "D1-414 새 머그 — 깨끗한 오프화이트 + 청록 띠"
+ },
+ "insert_mug_old": {
+  "size": [
+   24,
+   24
+  ],
+  "use": "D1-414 · R2 낡은 머그 — 이 나간 입구 · 바랜 해 하나 · 손잡은 사람 둘"
+ },
+ "insert_board_resident_1": {
+  "size": [
+   68,
+   30
+  ],
+  "use": "D1-135 벽 게시판 「常駐人員: 1」 (분필)"
+ },
+ "insert_board_resident_2": {
+  "size": [
+   68,
+   30
+  ],
+  "use": "D1-135 이후 「常駐人員: 2」 — 1을 지운 번짐 + 서툰 분필 2"
+ },
+ "prop_desk_lamp_off": {
+  "size": [
+   26,
+   28
+  ],
+  "use": "책상 스탠드 꺼짐 (D1-704 퀘스트 보상 전)"
+ },
+ "prop_desk_lamp_on": {
+  "size": [
+   26,
+   28
+  ],
+  "use": "책상 스탠드 켜짐 — 노란 전구 + 반투명 불빛 (D1-802 · D1-900 · D2-100)"
+ },
+ "prop_ceiling_patch": {
+  "size": [
+   30,
+   26
+  ],
+  "use": "D1-312 천장 누수 막기 퀘스트 후 — 물 자국 위 X자 테이프"
+ },
+ "prop_ceiling_patch_loose": {
+  "size": [
+   30,
+   26
+  ],
+  "use": "R4 덜렁거리는 패치 — 테이프 한 줄이 떨어져 매달림 + 물방울"
+ },
+ "prop_bucket_overflow": {
+  "size": [
+   55,
+   42
+  ],
+  "use": "D1-308 넘친 양동이 — 기존 prop_bucket + 찬 수면 · 넘쳐 흐르는 물 · 웅덩이"
+ },
+ "prop_whiteboard": {
+  "size": [
+   64,
+   58
+  ],
+  "use": "이동식 화이트보드 (빈 판)"
+ },
+ "prop_whiteboard_curve": {
+  "size": [
+   64,
+   58
+  ],
+  "use": "D2-308~314 망각 곡선 — 사다리까지 그려져 미끄럼틀처럼 보임"
+ },
+ "prop_marker_cap": {
+  "size": [
+   8,
+   6
+  ],
+  "use": "D2-306 날아간 마커 뚜껑 · D2-327 주워 건넴"
+ },
+ "prop_nameplate_chief_blur": {
+  "size": [
+   48,
+   24
+  ],
+  "use": "D1-249 주임 책상 이름표 — 이름 3글자 블러 · 후리가나 「？？？」"
+ },
+ "prop_nameplate_chief_first": {
+  "size": [
+   48,
+   24
+  ],
+  "use": "B4 첫 글자 「言」만 선명 (言継 晴 — STORY_BIBLE §3), 나머지 블러"
+ }
+}

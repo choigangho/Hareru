@@ -168,8 +168,9 @@ final class OfficeScene: SKScene {
     // MARK: - 확대 · 축소 · 이동 (방 그림이 화면보다 커서 기본은 확대, 두 손가락 모으기와 끌기로 둘러봄)
     // 확대는 정수 배율(1~4)로만 — 비정수 배율은 픽셀이 뭉개지거나 들쭉날쭉해짐
 
-    static let zoomLevels = 1...4
-    static let defaultZoom = 2
+    static let zoomLevels = 1...3
+    /// v2 방은 1px = 1pt로 그려 기본 1배 (한 칸 64pt, 방 420pt)
+    static let defaultZoom = 1
     private(set) var zoomLevel = OfficeScene.defaultZoom
     /// 방 그림의 왼쪽 위 모서리가 놓인 뷰 좌표. 사용자가 움직이기 전에는 nil → 열린 바닥이 가운데 오도록 자동 배치
     private var roomTopLeft: CGPoint?
@@ -286,8 +287,8 @@ final class OfficeScene: SKScene {
             node.size = CGSize(width: CGFloat(size.width) * pixelScale, height: CGFloat(size.height) * pixelScale)
             node.position = snappedScenePoint(column: CGFloat(facility.position.column), row: CGFloat(facility.position.row))
             node.zPosition = depthZ(CGFloat(facility.position.column + facility.position.row))
-            // 주임 연구원 책상은 방 그림 속 큰 책상 — 따로 그리지 않음 (칸 · 길찾기 · 콤보에는 그대로 쓰임)
-            node.isHidden = facility.kind == .researcherDesk && OfficePixelArt.usesStageRoom
+            // v1 방 그림에는 큰 책상이 그려져 있어 숨겼음 — v2 방에는 없어서 그대로 그림
+            node.isHidden = facility.kind == .researcherDesk && OfficePixelArt.roomIncludesResearcherDesk
         }
         tintLitNodes()
     }
@@ -361,20 +362,32 @@ final class OfficeScene: SKScene {
     override func update(_ currentTime: TimeInterval) {
         let time = Date().timeIntervalSinceReferenceDate
         runtime.update(time: time, facilities: state.facilities)
-        let blinkFrame = Int(time * 2) % 2
-        updateFacilityAnimations(time: time, frame: blinkFrame)
+        let animFrame = Int(time / OfficePixelArt.animationFrameDuration) % 8
+        updateRoomAnimation(frame: animFrame)
+        updateFacilityAnimations(time: time, frame: animFrame)
         draw(runtime.agent, frames: chiefFrames, on: agentNode, time: time, tieBreak: 1)
         draw(runtime.newcomer, frames: newcomerFrames, on: newcomerNode, time: time, tieBreak: 2)
         updateGauge(time: time)
         updateBubbles(time: time)
     }
 
+    /// 방 그림 8프레임 (비 · 간판 · 화면 · 물방울 · 담쟁이) — 프레임이 바뀔 때만 텍스처 교체
+    private var roomFrame = -1
+    private var roomTextures: [SKTexture] = []
+
+    private func updateRoomAnimation(frame: Int) {
+        guard OfficePixelArt.stageRoomFrames.count > 1, frame != roomFrame else { return }
+        if roomTextures.isEmpty {
+            roomTextures = OfficePixelArt.stageRoomFrames.map { OfficePixelArt.texture($0) }
+        }
+        roomFrame = frame
+        roomNode.texture = roomTextures[frame % roomTextures.count]
+    }
+
     private func updateFacilityAnimations(time: Double, frame: Int) {
         for facility in state.facilities {
             guard let node = facilityNodes[facility.id] else { continue }
-            if facility.kind == .serverRack || facility.kind.isDesk || facility.kind == .recordingBooth {
-                node.texture = facilityTexture(facility.kind, highlighted: comboMemberIDs.contains(facility.id), frame: frame)
-            }
+            node.texture = facilityTexture(facility.kind, highlighted: comboMemberIDs.contains(facility.id), frame: frame)
             // 설치 직후 낙하 · 착지 (아트 픽셀 단위)
             var base = snappedScenePoint(column: CGFloat(facility.position.column), row: CGFloat(facility.position.row))
             if let t = runtime.dropProgress(for: facility.id, time: time) {

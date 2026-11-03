@@ -58,8 +58,10 @@ public struct WordDeckView: View {
         ZStack {
             // 요약 화면은 NavigationStack이 자체 배경을 칠하므로 그 안쪽에서 하늘을 그림 (중복 캔버스 방지)
             if isStudyingCards {
-                skyCanvas
-                    .animation(.easeInOut(duration: 0.45), value: cardPresentationId)
+                RetroBackground(windowHeight: 70) {
+                    skyCanvas
+                        .animation(.easeInOut(duration: 0.45), value: cardPresentationId)
+                }
             }
 
             if showClearCelebration && isStudyingCards {
@@ -114,12 +116,23 @@ public struct WordDeckView: View {
         let hasActiveQueue = !sessionEngine.queue.isEmpty
 
         return NavigationStack {
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 18) {
+            RetroScrollScreen(windowHeight: 120) {
+                ZStack {
+                    skyCanvas
+                    if showClearCelebration {
+                        HareruClearCelebrationView(palette: palette)
+                    }
+                }
+            } content: {
+                VStack(alignment: .leading, spacing: 16) {
+                    dashboardHeader
+                        .retroHangingCable(.dangle, x: 214)
+
                     // A. 사용자 목표 급수 & 시험 D-Day 동적 암기 계획 카드
                     if let profile = sessionEngine.userProfile,
                        let plan = sessionEngine.currentStudyPlanProjection() {
                         examPlanSummaryCard(profile: profile, plan: plan)
+                            .retroHangingCable(.loop, x: 120)
                     }
 
                     // B. 이전 학습 요약 & 오늘 진행 현황 카드
@@ -132,19 +145,33 @@ public struct WordDeckView: View {
                         dueReviewCount: dueReviewCount,
                         recentLogsCount: logs.count
                     )
+
+                    HStack { RetroCodeMonitor(kind: .industrial).offset(x: -6); Spacer(minLength: 0) }
                 }
-                .padding(18)
+                .padding(.horizontal, 14)
+                .padding(.top, 96)
+                .padding(.bottom, 40)
             }
-            .background {
-                ZStack {
-                    skyCanvas
-                    if showClearCelebration {
-                        HareruClearCelebrationView(palette: palette)
-                    }
-                }
-            }
-            .navigationTitle("오늘의 단어 학습")
+            .retroHidesNavigationBar()
         }
+    }
+
+    /// 머리: 작은 터미널에 「오늘의 판독」 + 커서, 옆에 코드만 흐르는 모니터
+    private var dashboardHeader: some View {
+        HStack(alignment: .bottom, spacing: 6) {
+            RetroMonitor(style: .termRight, glow: 0.18) {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Text("오늘의 판독").font(.title2.bold()).phosphor()
+                        RetroCursor(height: 22)
+                    }
+                    Text("NJL-OS 2.94 · STUDY").font(.caption2.monospaced()).phosphor(RetroColor.phosphorDim, glow: 2)
+                }
+            }
+            RetroCodeMonitor(kind: .termB)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isHeader)
     }
 
     private func examPlanSummaryCard(
@@ -153,61 +180,49 @@ public struct WordDeckView: View {
     ) -> some View {
         let badgeColor: Color = {
             switch plan.feasibility {
-            case .comfortable: return .teal
-            case .achievable: return .orange
-            case .tight: return .red
+            case .comfortable: return RetroColor.phosphor
+            case .achievable: return RetroColor.amber
+            case .tight: return RetroColor.alert
             }
         }()
 
-        return VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Label("\(profile.displayName) · \(profile.targetLevel.rawValue) 목표", systemImage: "flag.checkered")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.indigo)
-                Spacer()
-                Text("시험 D-\(plan.remainingDays)일")
-                    .font(.caption.monospacedDigit().weight(.bold))
-                    .padding(.horizontal, 9)
-                    .padding(.vertical, 4)
-                    .background(Color.indigo.opacity(0.14), in: Capsule())
-                    .foregroundStyle(.indigo)
-            }
-
-            HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("오늘의 권장 암기량")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text("하루 \(plan.requiredDailyNewWords)단어")
-                        .font(.title2.bold().monospacedDigit())
+        return RetroMonitor(style: .crt, glow: 0.24) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("\(profile.displayName) · \(profile.targetLevel.rawValue) 목표")
+                            .font(.caption.weight(.bold)).phosphor(RetroColor.phosphorDim, glow: 1)
+                        Text("오늘의 권장 판독량").font(.caption).phosphor(RetroColor.phosphorDim, glow: 1)
+                        Text("하루 \(plan.requiredDailyNewWords)단어")
+                            .font(.title.bold().monospacedDigit()).phosphor(RetroColor.phosphorBright)
+                    }
+                    Spacer()
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text("시험까지").font(.caption2.weight(.bold)).phosphor(RetroColor.phosphorDim, glow: 1)
+                        RetroFlipCounter(text: "D-\(plan.remainingDays)")
+                            .accessibilityLabel("시험까지 \(plan.remainingDays)일")
+                    }
                 }
-                Spacer()
-                VStack(alignment: .trailing, spacing: 3) {
-                    Text(plan.isUsingLiveLearningTrend ? "실시간 학습 속도 동향" : "진단 기반 예상 속도")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+
+                HStack(spacing: 6) {
+                    Text(plan.isUsingLiveLearningTrend ? "실시간 판독 속도" : "진단 기반 예상 속도")
+                        .font(.caption).phosphor(RetroColor.phosphorDim, glow: 1)
+                    Spacer()
                     Text("일 \(plan.estimatedDailyPaceCapacity)단어 소화 가능")
-                        .font(.subheadline.weight(.bold).monospacedDigit())
-                        .foregroundStyle(badgeColor)
+                        .font(.subheadline.weight(.bold).monospacedDigit()).phosphor(badgeColor, glow: 2)
                 }
-            }
 
-            HStack(spacing: 8) {
-                Circle()
-                    .fill(badgeColor)
-                    .frame(width: 8, height: 8)
-                Text(plan.statusHeadline)
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(badgeColor)
-            }
+                HStack(spacing: 8) {
+                    Circle().fill(badgeColor).frame(width: 7, height: 7).shadow(color: badgeColor, radius: 3)
+                    Text(plan.statusHeadline).font(.caption.weight(.bold)).phosphor(badgeColor, glow: 2)
+                }
 
-            Text(plan.statusDetail)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+                Text(plan.statusDetail)
+                    .font(.caption2)
+                    .phosphor(RetroColor.phosphorDim, glow: 1)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
-        .padding(18)
-        .hareruGlassCard(cornerRadius: 24)
     }
 
     private func previousProgressSummaryCard(
@@ -219,102 +234,84 @@ public struct WordDeckView: View {
         dueReviewCount: Int,
         recentLogsCount: Int
     ) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Label("이전 학습 기록 요약", systemImage: "clock.arrow.circlepath")
-                    .font(.subheadline.weight(.bold))
-                Spacer()
-                if hasActiveQueue {
-                    Text("진행 중인 세션 있음")
-                        .font(.caption2.weight(.bold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(Color.teal.opacity(0.16), in: Capsule())
-                        .foregroundStyle(.teal)
-                }
-            }
+        VStack(alignment: .leading, spacing: 14) {
+            RetroMonitor(style: .industrialTurned, glow: 0.2) {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("이전 판독 기록").font(.subheadline.weight(.bold)).phosphor()
+                        Spacer()
+                        if hasActiveQueue {
+                            Text("진행 중인 세션").font(.caption2.weight(.bold)).phosphor(RetroColor.amber, glow: 2)
+                        }
+                    }
 
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                miniMetric(title: "외운 단어", value: "\(totalGraduatedCount)단어")
-                miniMetric(title: "오늘 학습", value: "\(todayReviewedWordsCount)단어")
-                miniMetric(title: "복습 대기", value: "\(dueReviewCount)단어")
+                    HStack(spacing: 6) {
+                        miniMetric(title: "외운 단어", value: "\(totalGraduatedCount)")
+                        miniMetric(title: "오늘 판독", value: "\(todayReviewedWordsCount)")
+                        miniMetric(title: "복습 대기", value: "\(dueReviewCount)")
+                    }
+
+                    Group {
+                        if hasActiveQueue {
+                            Text("직전 세션에서 \(sessionGraduatedCount)단어를 외우고, 현재 \(remainingInQueue)장의 카드가 큐에 남아 있습니다.")
+                        } else if recentLogsCount > 0 {
+                            Text("누적 \(recentLogsCount)회의 카드 평가 기록이 판독 속도에 반영되어 있습니다.")
+                        } else {
+                            Text("아직 판독 기록이 없습니다. 첫 세션을 시작하면 실제 정답률에 맞춰 일일 계획이 정교해집니다.")
+                        }
+                    }
+                    .font(.caption)
+                    .phosphor(RetroColor.phosphorDim, glow: 1)
+                }
             }
 
             if hasActiveQueue {
-                Text("직전 세션에서 \(sessionGraduatedCount)단어를 외우고, 현재 \(remainingInQueue)장의 카드가 큐에 남아 있습니다.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } else if recentLogsCount > 0 {
-                Text("누적 \(recentLogsCount)회의 카드 평가 기록이 학습 속도 동향에 반영되어 있습니다.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } else {
-                Text("아직 카드 학습 기록이 없습니다. 첫 세션을 시작하면 실제 정답률에 맞춰 일일 암기 계획이 실시간으로 정교해집니다.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            VStack(spacing: 10) {
-                if hasActiveQueue {
-                    Button {
-                        sessionEngine.resumeReactionTimer()
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-                            isStudyingCards = true
-                        }
-                    } label: {
-                        HStack {
-                            Image(systemName: "play.fill")
-                            Text("이어서 학습하기 (남은 \(remainingInQueue)장)")
-                                .fontWeight(.bold)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
+                Button {
+                    sessionEngine.resumeReactionTimer()
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                        isStudyingCards = true
                     }
-                    .hareruProminentButtonStyle()
-                    .tint(.indigo)
-
-                    Button {
-                        startFreshSessionAndEnterDeck()
-                    } label: {
-                        Text("새 세션으로 처음부터 다시 편성하기")
-                            .font(.caption.weight(.semibold))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 4)
+                } label: {
+                    HStack(spacing: 12) {
+                        RetroSprite(name: "rt_glyph_play", animated: false)
+                        Text("이어서 판독하기 (남은 \(remainingInQueue)장)").font(.headline)
                     }
-                    .hareruSecondaryButtonStyle()
-                    .tint(.secondary)
-                } else {
-                    Button {
-                        startFreshSessionAndEnterDeck()
-                    } label: {
-                        HStack {
-                            Image(systemName: "play.circle.fill")
-                            Text(totalGraduatedCount > 0 ? "이어서 오늘의 학습 시작하기" : "첫 단어 학습 시작하기")
-                                .fontWeight(.bold)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                    }
-                    .hareruProminentButtonStyle()
-                    .tint(.indigo)
+                    .frame(maxWidth: .infinity, minHeight: 40)
                 }
+                .buttonStyle(RetroKeyStyle(tone: .amber))
+
+                Button {
+                    startFreshSessionAndEnterDeck()
+                } label: {
+                    Text("새 세션으로 처음부터 다시 편성하기").font(.caption.weight(.bold)).frame(maxWidth: .infinity)
+                }
+                .buttonStyle(RetroKeyStyle(tone: .cream))
+            } else {
+                Button {
+                    startFreshSessionAndEnterDeck()
+                } label: {
+                    HStack(spacing: 12) {
+                        RetroSprite(name: "rt_glyph_play", animated: false)
+                        Text(totalGraduatedCount > 0 ? "이어서 오늘의 판독 시작" : "첫 판독 시작하기").font(.headline)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 40)
+                }
+                .buttonStyle(RetroKeyStyle(tone: .amber))
             }
         }
-        .padding(18)
-        .hareruGlassCard(cornerRadius: 24)
     }
 
+    /// 작은 칸: 금속 명판 위 숫자 (가로 셋)
     private func miniMetric(title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(title)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-            Text(value)
-                .font(.subheadline.bold().monospacedDigit())
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title).font(.caption2.weight(.semibold)).foregroundStyle(RetroColor.creamInk)
+            Text(value).font(.title3.bold().monospacedDigit()).foregroundStyle(RetroColor.ink)
         }
-        .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(RetroNineSlice(name: "rt_plate_metal", animated: false))
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - 2) 실제 단어 카드 학습 화면 본체
@@ -328,10 +325,11 @@ public struct WordDeckView: View {
             ZStack {
                 if let banner = feedbackBanner {
                     Text(banner)
-                        .font(.caption.weight(.semibold))
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(RetroColor.ink)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 6)
-                        .hareruGlass(in: Capsule())
+                        .background(RetroNineSlice(name: "rt_plate_cream", animated: false))
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
             }
@@ -379,12 +377,10 @@ public struct WordDeckView: View {
                     isStudyingCards = false
                 }
             } label: {
-                Image(systemName: "chevron.left")
-                    .font(.subheadline.weight(.bold))
-                    .frame(width: 36, height: 36)
-                    .hareruGlass(in: Circle(), tint: palette.glassTintColor)
+                RetroSprite(name: "rt_glyph_back", animated: false)
+                    .frame(width: 24, height: 22)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(RetroKeyStyle(tone: .cream))
             .accessibilityLabel("학습 요약으로")
 
             Spacer()
@@ -393,45 +389,52 @@ public struct WordDeckView: View {
                 Text("\(resolved)")
                     .contentTransition(.numericText())
                 Text("/")
-                    .foregroundStyle(palette.secondaryTextColor)
+                    .foregroundStyle(RetroColor.creamInk)
                 Text("\(total)")
-                    .foregroundStyle(palette.secondaryTextColor)
+                    .foregroundStyle(RetroColor.creamInk)
             }
             .font(.headline.monospacedDigit())
+            .foregroundStyle(RetroColor.ink)
             .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .hareruGlass(in: Capsule(), tint: palette.glassTintColor)
+            .padding(.vertical, 6)
+            .background(RetroNineSlice(name: "rt_plate_metal", animated: false))
             .animation(.spring(response: 0.4, dampingFraction: 0.82), value: resolved)
             .accessibilityLabel("전체 \(total)장 중 \(resolved)장 완료")
 
             Spacer()
 
             // 좌우 대칭을 위한 투명 자리 표시
-            Color.clear.frame(width: 36, height: 36)
+            Color.clear.frame(width: 52, height: 36)
         }
-        .foregroundStyle(palette.primaryTextColor)
     }
 
     // MARK: - 세션 완료 카드
 
     private var sessionCompletedCard: some View {
-        VStack(spacing: 18) {
-            Text("晴れる")
-                .font(JLPTFont.termMincho(size: 44))
-                .foregroundStyle(palette.primaryTextColor)
+        VStack(spacing: 14) {
+            RetroMonitor(style: .crt, glow: 0.35) {
+                VStack(spacing: 10) {
+                    RetroSprite(name: "rt_phosphor_sun", scale: 2)
+                    Text("晴れる").font(JLPTFont.termMincho(size: 44)).phosphor(RetroColor.phosphorBright, glow: 5)
+                    Text("흐릿하던 기억이 맑게 갰어요!").font(.headline).phosphor()
+                }
+                .frame(maxWidth: .infinity)
+            }
 
-            Text("흐릿하던 기억이 맑게 갰어요!")
-                .font(.title3.bold())
-                .foregroundStyle(palette.primaryTextColor)
-
-            VStack(spacing: 6) {
-                Text("오늘 외운 단어 \(sessionEngine.graduatedWordIds.count)개")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(palette.primaryTextColor)
-                if !sessionEngine.deferredTodayWordIds.isEmpty {
-                    Text("내일 다시 만날 단어 \(sessionEngine.deferredTodayWordIds.count)개")
-                        .font(.caption)
-                        .foregroundStyle(palette.secondaryTextColor)
+            RetroPlate(tone: .metal) {
+                HStack {
+                    Text("오늘 외운 단어").font(.subheadline.weight(.semibold))
+                    Spacer()
+                    Text("\(sessionEngine.graduatedWordIds.count)개").font(.headline.monospacedDigit())
+                }
+            }
+            if !sessionEngine.deferredTodayWordIds.isEmpty {
+                RetroPlate(tone: .metal) {
+                    HStack {
+                        Text("내일 다시 만날 단어").font(.subheadline.weight(.semibold))
+                        Spacer()
+                        Text("\(sessionEngine.deferredTodayWordIds.count)개").font(.headline.monospacedDigit())
+                    }
                 }
             }
 
@@ -441,28 +444,23 @@ public struct WordDeckView: View {
                         isStudyingCards = false
                     }
                 } label: {
-                    Text("학습 요약으로")
-                        .font(.subheadline.weight(.semibold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
+                    HStack(spacing: 8) {
+                        RetroSprite(name: "rt_glyph_back", animated: false)
+                        Text("학습 요약으로").font(.subheadline.weight(.bold))
+                    }
+                    .frame(maxWidth: .infinity)
                 }
-                .hareruSecondaryButtonStyle()
+                .buttonStyle(RetroKeyStyle(tone: .cream))
 
                 Button {
                     startFreshSessionAndEnterDeck()
                 } label: {
-                    Label("다음 세션 시작", systemImage: "arrow.clockwise")
-                        .font(.subheadline.weight(.semibold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
+                    Text("다음 세션 시작").font(.subheadline.weight(.bold)).frame(maxWidth: .infinity)
                 }
-                .hareruProminentButtonStyle()
-                .tint(.indigo)
+                .buttonStyle(RetroKeyStyle(tone: .amber))
             }
         }
-        .padding(32)
-        .frame(maxWidth: 360)
-        .hareruGlass(in: RoundedRectangle(cornerRadius: 30, style: .continuous), tint: palette.glassTintColor)
+        .frame(maxWidth: 380)
     }
 
     // MARK: - 내부 동작 헬퍼

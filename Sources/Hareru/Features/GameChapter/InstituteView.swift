@@ -348,7 +348,7 @@ public struct InstituteView: View {
                 Text(facility.kind.title).font(.caption.weight(.bold))
                 Text(facility.kind.summary).font(.caption2).foregroundStyle(PixelUI.textDim).lineLimit(1)
             }
-            if !(facility.kind == .researcherDesk && OfficePixelArt.usesStageRoom) {   // 큰 책상은 방 그림의 일부
+            if !(facility.kind == .researcherDesk && OfficePixelArt.roomIncludesResearcherDesk) {   // v1 방 그림의 큰 책상만 고정
                 Button("이동") {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
                         movingFacility = facility
