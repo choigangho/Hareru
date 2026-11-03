@@ -1,0 +1,6 @@
+rec_logbook.png 480x300 (+4px shadow)
+  header text (출근부 · month) by code above line y=92, x 64..416
+  attendance grid origin (64,104) cell 34x26, 7 cols x 5 rows; today stamp rec_stamp_today.png centered in cell
+  stability dots: rec_dot_0..4.png (empty..full), slots at x=342, y=118+i*24 (5 slots)
+  corrupted 2079.07 cell: rec_noise_cell.png (33x25) placed at cell+1, then grey (code)
+  older pages under the top sheet are drawn; flipping is code

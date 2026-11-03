@@ -1,0 +1,4 @@
+ui_typewriter_input.png 240x60
+  typed text line on paper: baseline y=22, x from 52 to 188 (ink (40,36,40), code)
+  cursor: ui_typewriter_cursor.png 6x2 at baseline+2, blink by code
+  paper slides up 2px per typed line (code)

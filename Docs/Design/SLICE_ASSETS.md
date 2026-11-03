@@ -156,16 +156,16 @@
 
 | 파일 (제안) | 크기 | 상태 | 용도 | 우선 | 제작 |
 | :--- | :--- | :--- | :--- | :---: | :--- |
-| `ui_dialog_dock.png` (9-slice) | 화면 아래 640×96 기준 | 1장 | 대사창 — 하단 CRT 몸체 + 초상 자리 96×96 + 화자 이름표 | ① | `Claude` |
-| `ui_keycap_choice.png` (9-slice) | 높이 32 (누름 영역 최소) | 기본 · 고름 · 눌림 | 선택지 (T-6), 목소리 A/B/C (T-0) | ① | `Claude` |
-| `ui_typewriter_input.png` | 240×60 | 종이 끼움 · 커서 | 이름 입력 (T-1) · 초기 설정 | ① | `Claude` |
+| `ui_dialog_dock.png` (9-slice) | 화면 아래 640×96 기준 | 1장 | 대사창 — 하단 CRT 몸체 + 초상 자리 96×96 + 화자 이름표 | ① | ✅ 2026-11-04 `Claude` 직접 — 독 + 초상 CRT(`ui_dialog_portrait_crt.png`) · 좌표 `ui_dialog.txt` — `Docs/Art/Inbox/set9_ui/` |
+| `ui_keycap_choice.png` (9-slice) | 높이 32 (누름 영역 최소) | 기본 · 고름 · 눌림 | 선택지 (T-6), 목소리 A/B/C (T-0) | ① | ✅ 2026-11-04 `Claude` 직접 — `ui_keycap_choice_{idle,select,press}.png` 48×32, 여백 8 — `Docs/Art/Inbox/set9_ui/` |
+| `ui_typewriter_input.png` | 240×60 | 종이 끼움 · 커서 | 이름 입력 (T-1) · 초기 설정 | ① | ✅ 2026-11-04 `Claude` 직접 — 커서 `ui_typewriter_cursor.png`, 글자 줄 좌표 `ui_typewriter.txt` — `Docs/Art/Inbox/set9_ui/` |
 | `ui_boot_screen.png` | 640×360 | `NJL-OS` 부팅 도트 | 첫 실행 · 초기 설정 바탕 | ② | `Claude` + `코드` |
-| `rec_logbook.png` | 확대 480×300 | 출근부 잔디 칸 · 안정도 점 · 노이즈 칸 | 기록 (T-4) | ① | `Claude` |
-| `set_panel_open.png` | 확대 480×300 | 배전반 안: 목소리 다이얼(3) · 집중 모드 레버 · 뉴럴링크 스위치(덮개) · 글자 크기 · 움직임 줄이기 · 볼륨 | 단말 설정 (T-5) | ① | `Claude` |
+| `rec_logbook.png` | 확대 480×300 | 출근부 잔디 칸 · 안정도 점 · 노이즈 칸 | 기록 (T-4) | ① | ✅ 2026-11-04 `Claude` 직접 — 도장 `rec_stamp_today` · 점 `rec_dot_0..4` · `rec_noise_cell`, 잔디 칸 색은 코드, 좌표 `rec_logbook.txt` — `Docs/Art/Inbox/set9_ui/` |
+| `set_panel_open.png` | 확대 480×300 | 배전반 안: 목소리 다이얼(3) · 집중 모드 레버 · 뉴럴링크 스위치(덮개) · 글자 크기 · 움직임 줄이기 · 볼륨 | 단말 설정 (T-5) | ① | ✅ 2026-11-04 `Claude` 직접 — 다이얼 3 · 레버 · 토글 · 슬라이더 · 덮개 따로, 이름표 글자는 코드, 좌표 `set_panel.txt` — `Docs/Art/Inbox/set9_ui/` |
 | `ui_warning_neural.png` | 300×120 | 붉은 테두리 + 광고 스크롤 줄 | 뉴럴링크 동기화 경고 (T-5) | ② | `Claude` |
-| `ui_hint_dot.png` | 8×8 | 깜빡임 2프레임 | "여기를 누르세요" 표시 (책상 · 클립보드 · 배전반) — 탭 강조 링 대신 | ② | `Claude` |
+| `ui_hint_dot.png` | 8×8 | 깜빡임 2프레임 | "여기를 누르세요" 표시 (책상 · 클립보드 · 배전반) — 탭 강조 링 대신 | ② | ✅ 2026-11-04 `Claude` 직접 — `ui_hint_dot_{0,1}.png` — `Docs/Art/Inbox/set9_ui/` |
 | `ui_day_end.png` | 640×360 | 「1日目 了」 | 1일차 끝 화면 | ③ | `Claude` |
-| `ui_blank_word.png` | 9-slice 8×10 | 하얀 칸 | 말 잃기 (백화) 표시 | ② | `Claude` |
+| `ui_blank_word.png` | 9-slice 8×10 | 하얀 칸 | 말 잃기 (백화) 표시 | ② | ✅ 2026-11-04 `Claude` 직접 — `Docs/Art/Inbox/set9_ui/` |
 
 ## 6. 효과 (모두 `코드` — 그림 없음)
 

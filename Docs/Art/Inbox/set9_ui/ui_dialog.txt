@@ -1,0 +1,7 @@
+dock: ui_dialog_dock.png 640x96 at screen bottom (y 264)
+  text screen inner rect (136, 22, 612, 80) (dock coords) — dialogue text, green phosphor, drawn by code
+  name label (146, 8, 238, 19) — speaker name, cream text by code
+  next/advance: blinking cursor by code at text screen bottom-right
+portrait: ui_dialog_portrait_crt.png 118x114 placed at screen (6, 246) — overlaps dock, top sticks out 18px
+  portrait screen inner (11, 6, 106, 101) = 96x96 (portrait drawn under the scanline overlay)
+  scanline overlay for portrait: ui_dialog_scanlines_96.png (multiply)
