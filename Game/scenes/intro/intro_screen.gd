@@ -62,8 +62,7 @@ func _ready() -> void:
 	pics.sign = _pic("intro_sign_closeup_v4.png", 2)
 	pics.building = _pic("intro_building_v1.png", 2)
 	pics.crt_on = _pic("intro_crt_screen_on.png", 1)
-	pics.logo = _pic("intro_neurolex_logo.png", 1)
-	pics.logo.position = Vector2(160, 73)       # centred in the glass (x2 screen = x1 world)
+	pics.logo = _pic("intro_neurolex_logo.png", 2)   # full-screen cut like the others (owner 2026-11-04)
 	pics.frame = _pic("intro_crt_frame.png", 1)
 	key_tex = DialogScreen._x2("res://art/ui/ui_keycap_choice_idle.png")
 	key_sel_tex = DialogScreen._x2("res://art/ui/ui_keycap_choice_select.png")
@@ -119,10 +118,6 @@ func _refresh() -> void:
 	match b:
 		"crt":
 			pics.crt_on.visible = true
-			pics.frame.visible = true
-		"logo":
-			pics.crt_on.visible = true
-			pics.logo.visible = true
 			pics.frame.visible = true
 		_:
 			pics[b].visible = true
@@ -193,8 +188,6 @@ func _draw_text() -> void:
 			y += CRT_LINE_H
 		if not runner.is_choice():
 			text.draw_string(f, Vector2(CRT_TEXT.x, y), now + ("_" if int(Time.get_ticks_msec() / 400) % 2 == 0 else ""), HORIZONTAL_ALIGNMENT_LEFT, GLASS.size.x - 80, SIZE, DialogText.PH)
-		return
-	if backdrop == "logo":
 		return
 	# picture cuts: one subtitle line on a dark band at the bottom
 	text.draw_rect(Rect2(0, 600, 1280, 120), Color8(10, 8, 12, 170))
