@@ -28,3 +28,8 @@ godot --path Game -- --shot=out.png --light=before|after|night [--day] [--screen
 - 내용: `version` · FSRS 기록(영구) · 오늘 더미 · 실패 · 노출(오늘만 — 새벽 4시가 지나면 버림) · 스토리 진행(`story.D1`).
 - 이전: `SaveGame.migrate()`가 옛 버전을 한 단계씩 올림 (v1 → v2). 모르는 버전은 쓰지 않고 새로 시작.
 - 새로 시작: `godot --path Game -- --new`. `--from` · `--autoplay`는 `--save`를 주지 않으면 저장하지 않음.
+
+## 윈도우판 만들기
+- 템플릿: Godot 4.7.2 공식 내보내기 템플릿 중 `windows_*` (`~/Library/Application Support/Godot/export_templates/4.7.2.stable/`)
+- `godot --headless --path Game --export-release "Windows" <폴더>/Hareru.exe` — pck를 exe 안에 넣은 파일 하나 (약 110MB, zip 38MB)
+- 글꼴은 시스템 글꼴 목록(Mac 히라기노 → 윈도우 Yu Gothic · 맑은 고딕 · Yu Mincho)에서 고름 (BACKLOG 17 픽셀 글꼴 정해지면 파일로 넣음)

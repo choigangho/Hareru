@@ -10,7 +10,7 @@ static var _mincho: Font
 static func gothic() -> Font:
 	if _gothic == null:
 		var f := SystemFont.new()
-		f.font_names = PackedStringArray(["Hiragino Sans", "Hiragino Kaku Gothic ProN", "Apple SD Gothic Neo", "Noto Sans CJK JP", "sans-serif"])
+		f.font_names = PackedStringArray(["Hiragino Sans", "Hiragino Kaku Gothic ProN", "Apple SD Gothic Neo", "Yu Gothic UI", "Yu Gothic", "Meiryo", "Malgun Gothic", "Noto Sans CJK JP", "sans-serif"])
 		f.antialiasing = TextServer.FONT_ANTIALIASING_GRAY
 		_gothic = f
 	return _gothic
@@ -19,6 +19,6 @@ static func gothic() -> Font:
 static func mincho() -> Font:
 	if _mincho == null:
 		var f := SystemFont.new()
-		f.font_names = PackedStringArray(["Hiragino Mincho ProN", "Noto Serif CJK JP", "serif"])
+		f.font_names = PackedStringArray(["Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", "Noto Serif CJK JP", "serif"])
 		_mincho = f
 	return _mincho
