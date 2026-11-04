@@ -9,6 +9,7 @@ enum Phase { DIALOG, CARD, LAB_FREE, TASK, LEAVE }
 const SCENES := ["T-0", "T-1", "T-2", "T-3", "T-4", "T-5", "T-6", "T-7", "T-8", "T-9"]
 const TASK_AFTER := "T-7"      # D1-715: after this scene the reader glows on the hero's desk
 const TASK_RESUME := "D1-800"  # T-8 dialog continues after the 15 cards
+const BUCKET_CUE := "D1-308"
 const LIGHT_CUES := {
 	"D1-802": LabScreen.LightState.AFTER_LAMP,   # lamp installed on the chief's desk
 	"D1-900": LabScreen.LightState.NIGHT,        # T-9 night
@@ -22,6 +23,9 @@ var light: int = LabScreen.LightState.BEFORE_LAMP
 var skip_ids: Array = []   # tutorial key branches already decided (T-2 notes)
 var pending: Phase = Phase.TASK   # what pressing the desk resumes from free lab time
 var task_started := false
+var leak_fixed := false    # D1-312 quest done
+var bucket_full := false   # D1-308 the bucket overflows
+var player_name := "신입"  # D1-141 typewriter
 var tutorial: Array = []   # word ids of documents 1-5
 var task: Array = []       # word ids of the 15 task documents
 
@@ -29,6 +33,16 @@ var task: Array = []       # word ids of the 15 task documents
 func _init(tutorial_ids: Array = [], task_ids: Array = []) -> void:
 	tutorial = tutorial_ids
 	task = task_ids
+
+
+## Debug start at a later scene (--from): sets what the earlier scenes would have changed.
+func start_at(key: String) -> void:
+	scene_i = maxi(0, SCENES.find(key))
+	var after := func(k: String) -> bool: return scene_i > SCENES.find(k)
+	bucket_full = after.call("T-3")
+	leak_fixed = after.call("T-3")
+	if after.call("T-8"):
+		light = LabScreen.LightState.AFTER_LAMP
 
 
 func scene_key() -> String:
@@ -76,11 +90,24 @@ func on_cue(line: Dictionary) -> bool:
 	return true
 
 
+## A 연출 line passed. Returns true when the lab looks different now (light, bucket).
 func on_direction(line: Dictionary) -> bool:
-	if LIGHT_CUES.has(line.get("id", "")):
-		light = LIGHT_CUES[line.id]
+	var id: String = line.get("id", "")
+	if LIGHT_CUES.has(id):
+		light = LIGHT_CUES[id]
+		return true
+	if id == BUCKET_CUE:
+		bucket_full = true
 		return true
 	return false
+
+
+func on_quest(_line: Dictionary) -> void:
+	leak_fixed = true   # Day 1 has one quest: 천장 누수 막기
+
+
+func on_name(n: String) -> void:
+	player_name = n
 
 
 ## One tutorial card was stamped with `key`.
@@ -142,7 +169,8 @@ func is_desk_waiting() -> bool:
 
 func to_dict() -> Dictionary:
 	return {"phase": phase, "scene_i": scene_i, "resume_after": resume_after, "card_n": card_n,
-		"light": light, "skip_ids": skip_ids.duplicate(), "pending": pending, "task_started": task_started}
+		"light": light, "skip_ids": skip_ids.duplicate(), "pending": pending, "task_started": task_started,
+		"leak_fixed": leak_fixed, "bucket_full": bucket_full, "player_name": player_name}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -154,3 +182,6 @@ func from_dict(d: Dictionary) -> void:
 	skip_ids = Array(d.get("skip_ids", []))
 	pending = int(d.get("pending", Phase.TASK)) as Phase
 	task_started = bool(d.get("task_started", false))
+	leak_fixed = bool(d.get("leak_fixed", false))
+	bucket_full = bool(d.get("bucket_full", false))
+	player_name = str(d.get("player_name", "신입"))

@@ -25,12 +25,13 @@ func quit(code: int) -> void:
 func _step() -> bool:
 	frames += 1
 	var flow: GameFlow = main.flow
+	var want := str(main.args.get("shot-line", ""))
 	if flow.current != last:
 		last = flow.current
 		var d: DayDirector = main.director
 		log_screens.append("%s %s" % [GameFlow.Screen.keys()[last], d.scene_key()])
 		print("frame %d → %s scene=%s card=%d" % [frames, GameFlow.Screen.keys()[last], d.scene_key(), d.card_n])
-	if flow.current == GameFlow.Screen.LEAVE:
+	if flow.current == GameFlow.Screen.LEAVE and want != "LEAVE":
 		print("reached LEAVE after %d frames, %d screen changes" % [frames, log_screens.size()])
 		quit(0)
 		return true
@@ -45,9 +46,12 @@ func _step() -> bool:
 		quit(0)
 		return true
 	# --shot-line=D1-803: screenshot when that line is fully typed, then quit
-	var want := str(main.args.get("shot-line", ""))
 	if want != "" and main.screen is DialogScreen and main.screen.runner.current().get("id", "") == want:
 		main.screen.runner.revealed = main.screen.runner.total_chars()
+		set_process(false)
+		main._take_shot(str(main.args.get("shot", "shot.png")), 5)
+		return true
+	if want == "LEAVE" and main.screen is DayEndScreen and main.screen.title_alpha() >= 1.0:
 		set_process(false)
 		main._take_shot(str(main.args.get("shot", "shot.png")), 5)
 		return true
@@ -61,7 +65,10 @@ func _step() -> bool:
 	cooldown = 2
 	var s = main.screen
 	if s is DialogScreen:
-		if s.runner.is_choice():
+		if s.typewriter:
+			s.name_edit.text = "하루"
+			s._submit_name()
+		elif s.runner.is_choice():
 			_key(KEY_1)
 		else:
 			_action("ui_accept")

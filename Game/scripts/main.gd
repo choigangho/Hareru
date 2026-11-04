@@ -38,7 +38,7 @@ func _ready() -> void:
 		if args.has("save") or not (args.has("autoplay") or args.has("from")):
 			save_path = str(args.get("save", SaveGame.PATH))
 		if args.has("from"):
-			director.scene_i = maxi(0, DayDirector.SCENES.find(str(args.from)))
+			director.start_at(str(args.from))
 		elif save_path != "" and not args.has("new"):
 			_load()
 		session.graduated.connect(func(_id, _st): _save())
@@ -141,7 +141,9 @@ func _show(s: int) -> void:
 	if s == GameFlow.Screen.LAB:
 		screen = LabScreen.new()
 		if director:
-			screen.set_light(director.light)
+			screen.light_state = director.light as LabScreen.LightState
+			screen.leak_fixed = director.leak_fixed
+			screen.bucket_full = director.bucket_full
 	elif s == GameFlow.Screen.DIALOG:
 		screen = _dialog_screen()
 	elif s == GameFlow.Screen.READER:
@@ -152,6 +154,8 @@ func _show(s: int) -> void:
 			var pile := str(args.get("pile", "tutorial"))
 			session.start(bank.d1_queue.get(pile, bank.d1_queue.tutorial))
 		screen.setup(session, bank)
+	elif s == GameFlow.Screen.LEAVE:
+		screen = DayEndScreen.new()
 	else:
 		screen = preload("res://scenes/placeholder/placeholder_screen.gd").new()
 		screen.title = GameFlow.Screen.keys()[s]
@@ -167,14 +171,22 @@ func _dialog_screen() -> DialogScreen:
 		return ds
 	var key := director.scene_key()
 	ds.light = director.light
+	ds.leak_fixed = director.leak_fixed
+	ds.bucket_full = director.bucket_full
 	ds.setup(DialogueRunner.scene_from_file(STORY, "D1", key), key, director.resume_after)
 	ds.runner.skip_ids = director.skip_ids
+	ds.runner.vars["이름"] = director.player_name
+	ds.runner.quest_done.connect(director.on_quest)
+	ds.runner.name_given.connect(func(n: String):
+		director.on_name(n)
+		_save())
 	ds.runner.cue.connect(func(l: Dictionary):
 		if director.on_cue(l):
 			ds.runner.hold = true
 			_sync.call_deferred())
 	ds.runner.direction.connect(func(l: Dictionary):
 		if director.on_direction(l) and ds.lab:
+			ds.lab.bucket_full = director.bucket_full
 			ds.lab.set_light(director.light))
 	return ds
 

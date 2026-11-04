@@ -5,6 +5,8 @@ extends RefCounted
 
 signal direction(line: Dictionary)   # 연출 lines, for the director to act on later
 signal cue(line: Dictionary)         # text-less 시스템 lines (a document goes in, a device blinks…)
+signal quest_done(line: Dictionary)  # a quest keycap was pressed (D1-312 천장 누수 막기)
+signal name_given(player_name: String)
 signal finished
 
 const TEXTLESS := ["연출"]
@@ -88,11 +90,44 @@ func jump_to(line_id: String) -> void:
 
 
 func is_choice() -> bool:
-	return current().get("speaker", "") == "선택" and not current().get("options", []).is_empty()
+	var l := current()
+	return (l.get("speaker", "") == "선택" and not l.get("options", []).is_empty()) or is_quest(l)
+
+
+## 시스템 line whose note says it is a quest button: one keycap, pressing it does the job.
+static func is_quest(l: Dictionary) -> bool:
+	return l.get("speaker", "") == "시스템" and str(l.get("note", "")).begins_with("퀘스트 버튼")
+
+
+## Keycap labels for the current choice (a quest shows its task name, without the cost).
+func choice_options() -> Array:
+	var l := current()
+	if is_quest(l):
+		return [str(l.korean).split(" · ")[0]]
+	return l.get("options", [])
 
 
 func choose(option_index: int) -> void:
+	if is_quest(current()):
+		quest_done.emit(current())
+		next()
+		return
 	branch = option_index + 1
+	next()
+
+
+## 입력 line asking for typed text (D1-141 name). Times / permissions are other 입력 lines.
+func is_text_input() -> bool:
+	var l := current()
+	return l.get("speaker", "") == "입력" and str(l.get("note", "")).begins_with("텍스트 입력")
+
+
+## The player typed their name (max 8). Empty keeps the current name.
+func submit_name(text: String) -> void:
+	text = text.strip_edges().left(8)
+	if text != "":
+		vars["이름"] = text
+		name_given.emit(text)
 	next()
 
 
@@ -138,7 +173,7 @@ func is_typing() -> bool:
 
 ## Enter / click: finish typing first, then go on.
 func advance() -> void:
-	if is_choice() or hold:
+	if is_choice() or hold or is_text_input():
 		return
 	if is_typing():
 		revealed = total_chars()
@@ -154,7 +189,7 @@ func toggle_meaning() -> void:
 ## Touch/click on the text line (§9: everything works by pressing): finish typing →
 ## open the Korean meaning (Japanese lines) → next line.
 func tap_line() -> void:
-	if is_choice() or hold:
+	if is_choice() or hold or is_text_input():
 		return
 	if is_typing():
 		revealed = total_chars()

@@ -48,7 +48,8 @@ for e in ["default", "smile", "glint", "flustered", "troubled", "teary", "seriou
 for e in ["default", "daze", "goof", "surprised", "meh", "awkward", "serious"]:
     FILES[f"portraits/hero_{e}.png"] = f"set4_portraits/hero/hero_portrait_{e}.png"
 for u in ["ui_dialog_dock", "ui_dialog_portrait_crt", "ui_dialog_scanlines_96", "ui_keycap_choice_idle",
-          "ui_keycap_choice_select", "ui_keycap_choice_press", "ui_blank_word"]:
+          "ui_keycap_choice_select", "ui_keycap_choice_press", "ui_blank_word",
+          "ui_typewriter_input", "ui_typewriter_cursor", "ui_day_end_bg", "ui_day_end_title"]:
     FILES[f"ui/{u}.png"] = f"set9_ui/{u}.png"
 
 

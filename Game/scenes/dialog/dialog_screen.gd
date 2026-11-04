@@ -29,6 +29,10 @@ var choice_boxes: Array = []
 var choice_focus := 0
 var scene_key := ""
 var light: int = LabScreen.LightState.BEFORE_LAMP
+var leak_fixed := false
+var bucket_full := false
+var typewriter: CanvasLayer   # open while the line asks for the name (mock M-5b)
+var name_edit: LineEdit
 var _lines: Array = []
 var _start_after := ""
 
@@ -45,6 +49,8 @@ func _ready() -> void:
 	lab = LabScreen.new()
 	add_child(lab)
 	lab.set_light(light)
+	lab.bucket_full = bucket_full
+	lab.set_leak_fixed(leak_fixed)
 	lab.layers.hint.visible = false  # the "next task" dot belongs to free lab time, not dialog
 	_sprite("ui/ui_dialog_dock.png", Vector2(0, DOCK_Y))
 	_sprite("ui/ui_dialog_portrait_crt.png", PORTRAIT_CRT_POS)
@@ -66,10 +72,10 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(e: InputEvent) -> void:
-	if runner.is_done() or runner.hold:
+	if runner.is_done() or runner.hold or typewriter:
 		return
 	if runner.is_choice():
-		var n: int = runner.current().options.size()
+		var n: int = runner.choice_options().size()
 		if e.is_action_pressed("ui_down"):
 			choice_focus = (choice_focus + 1) % n
 		elif e.is_action_pressed("ui_up"):
@@ -101,6 +107,9 @@ func _unhandled_input(e: InputEvent) -> void:
 
 
 func _pick(i: int) -> void:
+	if DialogueRunner.is_quest(runner.current()):
+		leak_fixed = true   # the only quest on Day 1 (D1-312)
+		lab.set_leak_fixed(true)
 	runner.choose(i)
 	choice_focus = 0
 	_refresh()
@@ -115,6 +124,84 @@ func _refresh() -> void:
 	if tex != "":
 		portrait.texture = load(ART + "portraits/%s.png" % tex)
 	_build_choices()
+	if runner.is_text_input() and typewriter == null:
+		_open_typewriter()
+
+
+# --- name on the typewriter (M-5b): dimmed lab, paper in the typewriter, max 8 letters ---
+const TW_POS := Vector2(400, 300)          # screen px (art 200,150 x2)
+const TW_BASELINE := 344                   # art baseline y=22 on the paper
+const TW_TEXT_X := 504                     # art x=52
+const INK := Color8(40, 36, 40)
+const NAME_OK_RECT := Rect2(520, 436, 240, 64)
+
+
+func _open_typewriter() -> void:
+	typewriter = CanvasLayer.new()
+	typewriter.layer = 5
+	add_child(typewriter)
+	var dim := ColorRect.new()
+	dim.color = Color8(10, 8, 12, 160)
+	dim.size = Vector2(1280, 720)
+	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	typewriter.add_child(dim)
+	var tw := TextureRect.new()
+	tw.texture = _x2(ART + "ui/ui_typewriter_input.png")
+	tw.position = TW_POS
+	tw.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	typewriter.add_child(tw)
+	var f := Fonts.gothic()
+	var prompt := Label.new()
+	prompt.text = "なまえ:"
+	prompt.add_theme_font_override("font", f)
+	prompt.add_theme_font_size_override("font_size", 16)
+	prompt.add_theme_color_override("font_color", INK)
+	prompt.position = Vector2(TW_TEXT_X, TW_BASELINE - f.get_ascent(16))
+	typewriter.add_child(prompt)
+	name_edit = LineEdit.new()
+	name_edit.max_length = 8
+	name_edit.position = Vector2(TW_TEXT_X + 64, TW_BASELINE - f.get_ascent(24) - 4)
+	name_edit.size = Vector2(212, f.get_height(24) + 8)
+	name_edit.add_theme_font_override("font", f)
+	name_edit.add_theme_font_size_override("font_size", 24)
+	name_edit.add_theme_color_override("font_color", INK)
+	name_edit.add_theme_color_override("caret_color", INK)
+	name_edit.add_theme_constant_override("caret_width", 3)
+	for st in ["normal", "focus", "read_only"]:
+		name_edit.add_theme_stylebox_override(st, StyleBoxEmpty.new())
+	name_edit.text_submitted.connect(func(t: String): _submit_name())
+	typewriter.add_child(name_edit)
+	var ok := NinePatchRect.new()
+	ok.texture = _x2(ART + "ui/ui_keycap_choice_idle.png")
+	for side in ["left", "right", "top", "bottom"]:
+		ok.set("patch_margin_" + side, 16)
+	ok.position = NAME_OK_RECT.position
+	ok.size = NAME_OK_RECT.size
+	ok.mouse_filter = Control.MOUSE_FILTER_STOP
+	ok.gui_input.connect(func(e: InputEvent):
+		if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+			_submit_name())
+	var label := Label.new()
+	label.text = "이 이름으로"
+	label.add_theme_font_override("font", f)
+	label.add_theme_font_size_override("font_size", 20)
+	label.add_theme_color_override("font_color", Color8(60, 46, 36))
+	label.size = NAME_OK_RECT.size
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	ok.add_child(label)
+	typewriter.add_child(ok)
+	name_edit.grab_focus.call_deferred()
+
+
+func _submit_name() -> void:
+	if typewriter == null:
+		return
+	var t := name_edit.text
+	typewriter.queue_free()
+	typewriter = null
+	runner.submit_name(t)
+	_refresh()
 
 
 static func portrait_for(speaker: String, expression: String) -> String:
@@ -132,7 +219,7 @@ func _build_choices() -> void:
 	choice_boxes.clear()
 	if not runner.is_choice():
 		return
-	var opts: Array = runner.current().options
+	var opts: Array = runner.choice_options()
 	for i in opts.size():
 		var box := NinePatchRect.new()
 		box.texture = _x2(ART + "ui/ui_keycap_choice_%s.png" % ("select" if i == choice_focus else "idle"))

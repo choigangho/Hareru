@@ -21,13 +21,18 @@ func _play_dialog(d: DayDirector, seen: Array) -> void:
 		if d.on_cue(l):
 			r.hold = true)
 	r.direction.connect(func(l): d.on_direction(l))
+	r.quest_done.connect(d.on_quest)
+	r.name_given.connect(d.on_name)
+	r.vars["이름"] = d.player_name
 	r.finished.connect(func(): ended[0] = true)
 	r.load_scene(DialogueRunner.scene_from_file(STORY, "D1", d.scene_key()), d.resume_after)
 	var guard := 0
 	while not ended[0] and not r.hold and guard < 500:
 		guard += 1
 		seen.append(r.current().id)
-		if r.is_choice():
+		if r.is_text_input():
+			r.submit_name("하루")
+		elif r.is_choice():
 			r.choose(0)
 		else:
 			r.revealed = r.total_chars()
@@ -92,6 +97,9 @@ func test_day_one_start_to_leave() -> void:
 	t.check(not "D1-206" in seen and not "D1-800" in seen, "cue lines are never shown as text")
 	t.eq(d.light, LabScreen.LightState.NIGHT, "night by T-9")
 	t.eq(s.done.size(), 20, "all 20 graduated")
+	t.check(d.leak_fixed and d.bucket_full, "bucket overflowed, then the leak was fixed (D1-308, D1-312)")
+	t.eq(d.player_name, "하루", "typed name kept")
+	t.check("D1-312" in seen, "quest keycap shown")
 
 
 func test_unknown_keys_take_other_branches() -> void:
@@ -153,3 +161,13 @@ func test_round_trip_dict() -> void:
 func test_card_number() -> void:
 	t.eq(DayDirector.card_number({"note": "**문서 3: 分かる**"}), 3, "")
 	t.eq(DayDirector.card_number({"note": "판독 종료"}), 0, "")
+
+
+func test_start_at_sets_earlier_changes() -> void:
+	var d := _director()
+	d.start_at("T-6")
+	t.eq(d.scene_key(), "T-6", "")
+	t.check(d.leak_fixed and d.bucket_full, "T-3 repair already happened")
+	t.eq(d.light, LabScreen.LightState.BEFORE_LAMP, "lamp not yet")
+	d.start_at("T-9")
+	t.eq(d.light, LabScreen.LightState.AFTER_LAMP, "lamp on before T-9")

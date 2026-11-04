@@ -27,6 +27,8 @@ const HINT_POS := Vector2(208, 197)
 const DESK_RECT := Rect2(110, 168, 140, 66)   # hero's desk + reader, art pixels (x2 on screen ≥ 64 px)
 
 var light_state: LightState = LightState.BEFORE_LAMP
+var leak_fixed := false    # D1-312: ceiling patched, bucket stops filling
+var bucket_full := false   # D1-308: the bucket overflows just before the repair
 var daytime := false
 var layers := {}  # name -> CanvasItem, for tests and state changes
 
@@ -105,6 +107,18 @@ func apply_state() -> void:
 	layers.night_mul.visible = night
 	layers.neon_add.visible = night
 	layers.window_day.visible = daytime and not night
+	(layers.leak as Sprite2D).texture = load(ART + "props/prop_ceiling_leak_%s.png" % ("patched" if leak_fixed else "stain"))
+	(layers.bucket as Sprite2D).texture = load(ART + "props/prop_bucket_%s.png" % ("over" if bucket_full else "mid"))
+
+
+func set_leak_fixed(on: bool) -> void:
+	leak_fixed = on
+	apply_state()
+
+
+func set_bucket_full(on: bool) -> void:
+	bucket_full = on
+	apply_state()
 
 
 func _sprite(n: String, path: String, pos: Vector2, blend := -1) -> Sprite2D:

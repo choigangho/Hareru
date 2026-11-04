@@ -69,3 +69,22 @@ func test_people_stand_on_their_marks() -> void:
 func test_parse_args() -> void:
 	var a: Dictionary = preload("res://scripts/main.gd").parse_args(PackedStringArray(["--shot=x.png", "--day", "junk"]))
 	t.eq(a, {"shot": "x.png", "day": true}, "args")
+
+
+func test_leak_and_bucket_states() -> void:
+	var lab := LabScreen.new()
+	lab.build()
+	t.check(lab.layers.leak.texture.resource_path.ends_with("stain.png"), "stain before the repair")
+	lab.set_bucket_full(true)
+	t.check(lab.layers.bucket.texture.resource_path.ends_with("over.png"), "bucket overflows (D1-308)")
+	lab.set_leak_fixed(true)
+	t.check(lab.layers.leak.texture.resource_path.ends_with("patched.png"), "patched after D1-312")
+	lab.free()
+
+
+func test_day_end_title_fades_in() -> void:
+	var s := DayEndScreen.new()
+	t.eq(s.title_alpha(), 0.0, "title hidden at first")
+	s.t = DayEndScreen.TITLE_DELAY + DayEndScreen.TITLE_FADE
+	t.eq(s.title_alpha(), 1.0, "fully shown after the fade")
+	s.free()

@@ -118,3 +118,36 @@ func test_tap_line_opens_meaning_then_advances() -> void:
 	r.revealed = r.total_chars()
 	r.tap_line()
 	t.eq(r.current().id, "c", "korean-only line: tap goes on directly")
+
+
+func test_quest_is_one_keycap() -> void:
+	var r := DialogueRunner.new()
+	var q := _line("q", "시스템", "", "천장 누수 막기 · 연구 포인트 5")
+	q.note = "퀘스트 버튼. 누름 → 천장 패치"
+	var done := []
+	r.quest_done.connect(func(l): done.append(l.id))
+	r.load_scene([q, _line("a", "주임", "", "조용하네요.", 1), _line("b", "주임", "", "끝")])
+	t.check(r.is_choice(), "quest shows as a choice")
+	t.eq(r.choice_options(), ["천장 누수 막기"], "keycap shows the task without the cost")
+	r.advance()
+	t.eq(r.current().id, "q", "Enter alone does not skip the quest")
+	r.choose(0)
+	t.eq(done, ["q"], "pressing does the quest")
+	t.eq(r.branch, 0, "a quest does not pick a branch")
+
+
+func test_name_input() -> void:
+	var r := DialogueRunner.new()
+	var n := _line("n", "입력", "", "이름을 알려 주세요")
+	n.note = "텍스트 입력 (최대 8자)"
+	r.load_scene([n, _line("a", "주임", "", "{이름} 씨")])
+	t.check(r.is_text_input(), "name line asks for text")
+	r.tap_line()
+	t.eq(r.current().id, "n", "tapping does not skip the name")
+	r.submit_name("  가나다라마바사아자차  ")
+	t.eq(r.vars["이름"], "가나다라마바사아", "trimmed and cut to 8")
+	t.eq(r.main_text(), "가나다라마바사아 씨", "name used in later lines")
+	var r2 := DialogueRunner.new()
+	r2.load_scene([n, _line("a", "주임", "", "x")])
+	r2.submit_name("")
+	t.eq(r2.vars["이름"], "신입", "empty keeps the default")
