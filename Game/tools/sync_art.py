@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-"""Copy the confirmed Day 1 art from Docs/Art/Inbox into Game/art.
+"""Copy the confirmed Day 1 art from Docs/05_Art/Inbox into Game/art.
 
-The originals stay in Docs/Art/Inbox (where they were made and confirmed).
+The originals stay in Docs/05_Art/Inbox (where they were made and confirmed).
 Game/art is the runtime copy Godot imports. Re-run after any art change:
     python3 Game/tools/sync_art.py
 """
 import shutil, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-SRC = ROOT / "Docs/Art/Inbox"
+SRC = ROOT / "Docs/05_Art/Inbox"
 DST = ROOT / "Game/art"
 
 CHIEF = "set3_lab/chars/73d42ed3-8706-4576-a424-be4f20fe9a41"
 HERO = "set3_lab/chars/9a66ec5c-e2f2-400e-afd3-de082c48b4a2"
 
-# destination (relative to Game/art) -> source (relative to Docs/Art/Inbox)
+# destination (relative to Game/art) -> source (relative to Docs/05_Art/Inbox)
 FILES = {
     "lab/lab_section_day1.png": "set3_lab/lab_section_day1.png",
     "lab/light/light_dark_mul.png": "set3_lab/light/light_dark_mul.png",

@@ -8,10 +8,10 @@
 
 - 키: macOS 키체인 항목 `hareru-gemini` (저장소에는 넣지 않음).
     security add-generic-password -U -s hareru-gemini -a "$USER" -w "<키>"
-- 배경 지식: Docs/STORY_BIBLE.md · Docs/GAME_DESIGN.md · Docs/PIXELLAB_ASSET_PLAN.md 를
+- 배경 지식: Docs/01_World · Docs/02_Characters · Docs/03_Story 의 설정 문서(막별 대본 제외)를
   시스템 지시로 매번 함께 보냅니다.
-- 이전 제미나이 앱 대화: Docs/Story/imports/*.md 에 복사해 두면 새 세션을 시작할 때 이전 대화로 넣습니다.
-- 대화는 Docs/Story/sessions/<세션>.json(이어가기용)과 <세션>.md(읽기용)에 한 턴마다 저장됩니다.
+- 이전 제미나이 앱 대화: Docs/03_Story/Acts/N5/imports/*.md 에 복사해 두면 새 세션을 시작할 때 이전 대화로 넣습니다.
+- 대화는 Docs/03_Story/Acts/N5/sessions/<세션>.json(이어가기용)과 <세션>.md(읽기용)에 한 턴마다 저장됩니다.
 
 입력 중 명령: /paste (여러 줄 입력, 마지막 줄에 . 만 입력해서 끝냄) · /quit
 """
@@ -25,8 +25,11 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-STORY = ROOT / "Docs" / "Story"
-CONTEXT_DOCS = ["Docs/STORY_BIBLE.md", "Docs/GAME_DESIGN.md", "Docs/PIXELLAB_ASSET_PLAN.md"]
+STORY = ROOT / "Docs" / "03_Story" / "Acts" / "N5"
+CONTEXT_DOCS = sorted(
+    str(p.relative_to(ROOT)) for d in ("Docs/01_World", "Docs/02_Characters", "Docs/03_Story")
+    for p in (ROOT / d).rglob("*.md") if "Acts" not in p.parts and not p.name.startswith("_")
+)
 API = "https://generativelanguage.googleapis.com/v1beta/models/{model}:streamGenerateContent?alt=sse"
 
 SYSTEM_PROMPT = """너는 Hareru(晴れる) 프로젝트의 스토리 · 연출 브레인스토밍 파트너다.

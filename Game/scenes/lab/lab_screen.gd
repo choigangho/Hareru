@@ -1,7 +1,7 @@
 class_name LabScreen
 extends Node2D
 ## The lab cross-section (mock M-1). Draws in art pixels (640x360); the parent scales x2.
-## Positions come from Docs/Art/Inbox/*.txt and the confirmed mocks (see Game/README.md).
+## Positions come from Docs/05_Art/Inbox/*.txt and the confirmed mocks (see Game/README.md).
 
 enum LightState { BEFORE_LAMP, AFTER_LAMP, NIGHT }
 

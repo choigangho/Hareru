@@ -27,7 +27,7 @@ DRAFTS = ROOT / "Tools" / "drafts"
 BUILD = ROOT / "Tools" / "build"
 API = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
-# 대분류 11개 + 분야 없음 (게임 전체 공통 — Docs/TOWN_DRAFT.md). 대분류가 담당 인물을 정함.
+# 대분류 11개 + 분야 없음 (게임 전체 공통 — Docs/06_Voice/VOICE_RULES.md). 대분류가 담당 인물을 정함.
 DOMAINS = {
     "생활": "식사·음식·요리·식기·가게·접객·가격·계산·모임·회식·주거·신체·건강·날씨·쇼핑·옷 입기",
     "교육": "학교·수업·공부·시험·숙제·교과·학생·선생님·방학",

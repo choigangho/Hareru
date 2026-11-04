@@ -14,7 +14,7 @@
 ## 현재 동작하는 스크립트
 
 원본 데이터는 `Tools/sources/`(git 제외)에 받고, 스크립트는 그 폴더 밖에서 `python3 -I`로 실행합니다.
-출처·라이선스는 `Docs/DATA_PIPELINE.md` 참고.
+출처·라이선스는 `Docs/07_Data/DATA_PIPELINE.md` 참고.
 
 ```bash
 python3 -I Tools/build_kanji.py Tools/sources Tools/build/kanji_base.json

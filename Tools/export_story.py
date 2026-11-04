@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""대사표(Docs/Story/lines/N5_*.md)를 앱이 읽는 JSON으로 내보내기.
+"""대사표(Docs/03_Story/Acts/N5/lines/N5_*.md)를 앱이 읽는 JSON으로 내보내기.
 
 사용법:
     python3 -I Tools/export_story.py            # → Sources/Hareru/Resources/Data/story_n5.json
@@ -13,7 +13,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-LINES = ROOT / "Docs" / "Story" / "lines"
+LINES = ROOT / "Docs" / "03_Story" / "Acts" / "N5" / "lines"
 OUT = ROOT / "Sources" / "Hareru" / "Resources" / "Data" / "story_n5.json"
 ROW = re.compile(r"^\|\s*([A-Z0-9]+-\d+)\s*\|")
 TONE = re.compile(r"톤:\s*([a-z]+)")
