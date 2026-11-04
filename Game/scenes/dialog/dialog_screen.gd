@@ -1,7 +1,8 @@
 class_name DialogScreen
 extends Node2D
 ## Dialog over the lab (mock M-2): dock + portrait CRT in art pixels, text on a screen layer.
-## Keys: Enter/Space/click = next (finishes typing first), Tab = Korean meaning,
+## Keys: Enter/Space or click outside the line = next (finishes typing first),
+## Tab or pressing the line = Korean meaning (pressing it again = next),
 ## Up/Down/1-9 + Enter = choice.
 
 const ART := "res://art/"
@@ -80,7 +81,13 @@ func _unhandled_input(e: InputEvent) -> void:
 		return
 	if e.is_action_pressed("ui_focus_next"):  # Tab
 		runner.toggle_meaning()
-	elif e.is_action_pressed("ui_accept") or (e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT):
+	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+		if DialogText.TEXT_BOX.has_point(e.position):
+			runner.tap_line()   # pressing the line opens its meaning first
+		else:
+			runner.advance()
+		_refresh()
+	elif e.is_action_pressed("ui_accept"):
 		runner.advance()
 		_refresh()
 

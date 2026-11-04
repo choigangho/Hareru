@@ -3,11 +3,14 @@ extends Node
 ## Test/screenshot args (after `--`): --screen=lab|dialog|reader|leave --light=before|after|night
 ##   --day --shot=path.png [--wait=frames]
 ##   dialog: --scene=T-1 (D1 scene key) [--line=D1-108] [--typed] [--meaning]
+##   reader: --pile=tutorial|task [--at=seconds into scan] [--read] [--grade=1-4]
 
 const ART_SCALE := 2
 const STORY := "res://data/story_n5.json"
 
 var flow := GameFlow.new()
+var bank: WordBank
+var session := StudySession.new()
 var world: Node2D
 var screen: Node2D
 var args := {}
@@ -20,6 +23,8 @@ func _ready() -> void:
 	add_child(world)
 	flow.changed.connect(_on_flow_changed)
 	EventBus.dialog_finished.connect(func(_k): flow.go_to(GameFlow.Screen.LAB))
+	EventBus.reading_finished.connect(func(): flow.go_to(GameFlow.Screen.LAB))
+	EventBus.stand_up.connect(func(): flow.go_to(GameFlow.Screen.LAB))
 	args = parse_args(OS.get_cmdline_user_args())
 	_show(flow.current)
 	_apply_args()
@@ -49,6 +54,13 @@ func _show(s: int) -> void:
 		var key := str(args.get("scene", "T-1"))
 		screen = DialogScreen.new()
 		screen.setup(DialogueRunner.scene_from_file(STORY, "D1", key), key)
+	elif s == GameFlow.Screen.READER:
+		if bank == null:
+			bank = WordBank.load_default()
+		var pile := str(args.get("pile", "tutorial"))
+		session.start(bank.d1_queue.get(pile, bank.d1_queue.tutorial))
+		screen = ReaderScreen.new()
+		screen.setup(session, bank)
 	else:
 		screen = preload("res://scenes/placeholder/placeholder_screen.gd").new()
 		screen.title = GameFlow.Screen.keys()[s]
@@ -69,6 +81,15 @@ func _apply_args() -> void:
 			screen.runner.revealed = screen.runner.total_chars()
 		if args.has("meaning"):
 			screen.runner.meaning_open = true
+	if screen is ReaderScreen:
+		var m: ReaderModel = screen.model
+		m.tick(ReaderModel.INSERT_TIME)
+		if args.has("at"):
+			m.tick(float(args.at))
+		if args.has("read"):
+			m.read()
+		if args.has("grade"):
+			m.grade(int(args.grade))
 	if screen is LabScreen:
 		var lights := {"before": LabScreen.LightState.BEFORE_LAMP, "after": LabScreen.LightState.AFTER_LAMP, "night": LabScreen.LightState.NIGHT}
 		if args.has("light") and lights.has(str(args.light)):

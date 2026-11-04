@@ -130,3 +130,16 @@ func advance() -> void:
 func toggle_meaning() -> void:
 	if has_japanese():
 		meaning_open = not meaning_open
+
+
+## Touch/click on the text line (§9: everything works by pressing): finish typing →
+## open the Korean meaning (Japanese lines) → next line.
+func tap_line() -> void:
+	if is_choice():
+		return
+	if is_typing():
+		revealed = total_chars()
+	elif has_japanese() and not meaning_open:
+		meaning_open = true
+	else:
+		next()

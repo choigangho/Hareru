@@ -57,3 +57,25 @@ static func plain_text(text: String) -> String:
 	for seg in parse(text):
 		s += seg.base
 	return s
+
+
+## Word-data markup: ああ、{今日|きょう}もよく{働|はたら}いた。 → segments (same shape as parse()).
+static func parse_braces(markup: String) -> Array:
+	var segs: Array = []
+	var i := 0
+	var plain := ""
+	while i < markup.length():
+		var c := markup[i]
+		if c == "{":
+			var bar := markup.find("|", i)
+			var close := markup.find("}", i)
+			if bar > i and close > bar:
+				_push(segs, plain, "", false)
+				plain = ""
+				_push(segs, markup.substr(i + 1, bar - i - 1), markup.substr(bar + 1, close - bar - 1), false)
+				i = close + 1
+				continue
+		plain += c
+		i += 1
+	_push(segs, plain, "", false)
+	return segs

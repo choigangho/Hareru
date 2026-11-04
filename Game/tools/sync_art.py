@@ -52,6 +52,16 @@ for u in ["ui_dialog_dock", "ui_dialog_portrait_crt", "ui_dialog_scanlines_96", 
     FILES[f"ui/{u}.png"] = f"set9_ui/{u}.png"
 
 
+TD = "set2_objects/topdown"
+FILES["reader/desk_reader_bg.png"] = f"{TD}/detail_static_v1.png"
+READER_PARTS = ["paper_on_mat", "head_park", "head_scan_1", "head_scan_2", "head_scan_3", "head_scan_4",
+                "arm_up", "arm_half", "arm_down", "stamp_doku", "stamp_sai", "monitor_face_calm",
+                "monitor_face_smile", "monitor_face_flustered", "_mask_paper"]
+READER_PARTS += [f"key_{i}_{st}" for i in range(1, 5) for st in ("lit", "down")]
+for part in READER_PARTS:
+    FILES[f"reader/{part.lstrip('_')}.png"] = f"{TD}/parts/{part}.png"
+
+
 def main() -> None:
     n = 0
     for dst, src in FILES.items():

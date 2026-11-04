@@ -7,12 +7,13 @@ const PH := Color8(150, 240, 150)
 const PH_DIM := Color8(90, 170, 100)
 const AMBER := Color8(250, 214, 120)
 const CREAM := Color8(236, 222, 186)
-const TEXT_X := 304
+const TEXT_X := 316
 const TEXT_TOP := 594
 const TEXT_W := 900
 const SIZE := 26
-const RUBY_SIZE := 13
-const LINE_H := 40
+const RUBY_SIZE := 16   # §9 minimum for helper text
+const LINE_H := 48
+const TEXT_BOX := Rect2(272, 572, 952, 116)  # dock text screen in screen px
 const NAME_POS := Vector2(302, 544)
 
 var runner: DialogueRunner

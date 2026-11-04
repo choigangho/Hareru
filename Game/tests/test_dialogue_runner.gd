@@ -104,3 +104,17 @@ func test_choice_has_no_name() -> void:
 func test_layout_wraps_long_korean() -> void:
 	var runs := DialogText.layout(Ruby.parse("가".repeat(60)), Fonts.gothic(), 900)
 	t.check(runs.back().y > 0, "wrapped to a second line")
+
+
+func test_tap_line_opens_meaning_then_advances() -> void:
+	var r := DialogueRunner.new()
+	r.load_scene([_line("a", "주임", "はい。", "네."), _line("b", "주임", "", "한국어만"), _line("c", "주임", "", "끝")])
+	r.tap_line()
+	t.check(not r.is_typing(), "first tap finishes typing")
+	r.tap_line()
+	t.check(r.meaning_open and r.current().id == "a", "second tap opens meaning")
+	r.tap_line()
+	t.eq(r.current().id, "b", "third tap goes on")
+	r.revealed = r.total_chars()
+	r.tap_line()
+	t.eq(r.current().id, "c", "korean-only line: tap goes on directly")
