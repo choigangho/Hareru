@@ -41,12 +41,12 @@ func _step() -> bool:
 		return true
 	# --quit-line=D1-216: hard quit there (no save on exit) to test resuming from the last save point
 	var stop := str(main.args.get("quit-line", ""))
-	if stop != "" and main.screen is DialogScreen and main.screen.runner.current().get("id", "") == stop:
+	if stop != "" and (main.screen is DialogScreen or main.screen is IntroScreen) and main.screen.runner.current().get("id", "") == stop:
 		print("quit at ", stop)
 		quit(0)
 		return true
 	# --shot-line=D1-803: screenshot when that line is fully typed, then quit
-	if want != "" and main.screen is DialogScreen and main.screen.runner.current().get("id", "") == want:
+	if want != "" and (main.screen is DialogScreen or main.screen is IntroScreen) and main.screen.runner.current().get("id", "") == want:
 		main.screen.runner.revealed = main.screen.runner.total_chars()
 		set_process(false)
 		main._take_shot(str(main.args.get("shot", "shot.png")), 5)
@@ -69,6 +69,11 @@ func _step() -> bool:
 			s.name_edit.text = "하루"
 			s._submit_name()
 		elif s.runner.is_choice():
+			_key(KEY_1)
+		else:
+			_action("ui_accept")
+	elif s is IntroScreen:
+		if s.runner.is_choice():
 			_key(KEY_1)
 		else:
 			_action("ui_accept")

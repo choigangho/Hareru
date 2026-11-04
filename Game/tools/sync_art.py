@@ -35,6 +35,12 @@ FILES = {
     "props/kuro_amber_on.png": "set6_kuro/kuro_amber_on.png",
     "ui/ui_hint_dot_0.png": "set9_ui/ui_hint_dot_0.png",
     "closeups/memo_closeup_kana.png": "set8_closeups/memo_closeup_kana.png",
+    "intro/intro_city_v2.png": "set5_intro/intro_city_v2.png",
+    "intro/intro_sign_closeup_v4.png": "set5_intro/intro_sign_closeup_v4.png",
+    "intro/intro_building_v1.png": "set5_intro/intro_building_v1.png",
+    "intro/intro_crt_frame.png": "set5_intro/intro_crt_frame.png",
+    "intro/intro_crt_screen_on.png": "set5_intro/intro_crt_screen_on.png",
+    "intro/intro_neurolex_logo.png": "set5_intro/neurolex/intro_neurolex_logo.png",
     "ui/ui_hint_dot_1.png": "set9_ui/ui_hint_dot_1.png",
 }
 PROPS = ["prop_ceiling_leak_stain", "prop_ceiling_leak_patched", "prop_bucket_low", "prop_bucket_mid",

@@ -88,3 +88,14 @@ func test_day_end_title_fades_in() -> void:
 	s.t = DayEndScreen.TITLE_DELAY + DayEndScreen.TITLE_FADE
 	t.eq(s.title_alpha(), 1.0, "fully shown after the fade")
 	s.free()
+
+
+func test_intro_backdrops_follow_the_script() -> void:
+	t.eq(IntroScreen.backdrop_for("D1-001"), "crt", "typing on the CRT")
+	t.eq(IntroScreen.backdrop_for("D1-006"), "city", "city cut (D1-006)")
+	t.eq(IntroScreen.backdrop_for("D1-007"), "sign", "code sign close-up")
+	t.eq(IntroScreen.backdrop_for("D1-010"), "logo", "NeuroLex logo 1 cut")
+	t.eq(IntroScreen.backdrop_for("D1-014"), "sign", "sign again, translations off")
+	t.eq(IntroScreen.backdrop_for("D1-020"), "crt", "letter lines on the CRT")
+	t.eq(IntroScreen.backdrop_for("D1-029"), "building", "voice choice at the alley")
+	t.check(IntroScreen.VOICE_LOCKED[1] and IntroScreen.VOICE_LOCKED[2] and not IntroScreen.VOICE_LOCKED[0], "B · C locked")

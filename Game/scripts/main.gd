@@ -163,17 +163,17 @@ func _show(s: int) -> void:
 	world.add_child(screen)
 
 
-func _dialog_screen() -> DialogScreen:
-	var ds := DialogScreen.new()
+func _dialog_screen() -> Node2D:
+	var key := str(args.get("scene", "T-1")) if director == null else director.scene_key()
+	var ds: Node2D = IntroScreen.new() if key == "T-0" else DialogScreen.new()
 	if director == null:
-		var key := str(args.get("scene", "T-1"))
 		ds.setup(DialogueRunner.scene_from_file(STORY, "D1", key), key)
 		return ds
-	var key := director.scene_key()
-	ds.light = director.light
-	ds.leak_fixed = director.leak_fixed
-	ds.closeup = director.closeup
-	ds.bucket_full = director.bucket_full
+	if ds is DialogScreen:
+		ds.light = director.light
+		ds.leak_fixed = director.leak_fixed
+		ds.closeup = director.closeup
+		ds.bucket_full = director.bucket_full
 	ds.setup(DialogueRunner.scene_from_file(STORY, "D1", key), key, director.resume_after)
 	ds.runner.skip_ids = director.skip_ids
 	ds.runner.vars["이름"] = director.player_name
