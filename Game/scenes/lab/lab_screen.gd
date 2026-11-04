@@ -24,6 +24,7 @@ const CHARS := {
 	"chief": ["chars/chief_sit_east.png", 309, FLOOR_Y],
 }
 const HINT_POS := Vector2(208, 197)
+const DESK_RECT := Rect2(110, 168, 140, 66)   # hero's desk + reader, art pixels (x2 on screen ≥ 64 px)
 
 var light_state: LightState = LightState.BEFORE_LAMP
 var daytime := false
@@ -62,6 +63,22 @@ func build() -> void:
 	_sprite("neon_add", "lab/light/light_night_neon_add.png", Vector2.ZERO, CanvasItemMaterial.BLEND_MODE_ADD)
 	_sprite("hint", "ui/ui_hint_dot_0.png", HINT_POS)
 	apply_state()
+
+
+## Pressing the glowing desk (or Enter) sits down at the reader (§9: works by pressing).
+func _unhandled_input(e: InputEvent) -> void:
+	if not layers.has("hint") or not layers.hint.visible:
+		return
+	var press := e.is_action_pressed("ui_accept")
+	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+		press = desk_screen_rect().has_point(e.position)
+	if press:
+		EventBus.desk_pressed.emit()
+
+
+func desk_screen_rect() -> Rect2:
+	var xf := get_global_transform_with_canvas()
+	return Rect2(xf * DESK_RECT.position, DESK_RECT.size * xf.get_scale())
 
 
 func set_light(state: LightState) -> void:

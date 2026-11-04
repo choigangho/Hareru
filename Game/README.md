@@ -5,7 +5,9 @@
 
 ## 실행
 ```
-godot --path Game                                    # 게임
+godot --path Game                                    # 게임 (D1을 T-0부터. -- --from=T-7 이면 그 장면부터)
+godot --headless --path Game -- --autoplay           # D1을 실제 화면으로 끝까지 자동 진행 (퇴근 도달 = 0)
+godot --path Game -- --autoplay --from=T-8 --shot-line=D1-803 --shot=out.png   # 흐름 중간 스크린샷
 godot --headless --path Game -s res://tests/run_tests.gd   # 창 없는 테스트 (0 = 통과)
 godot --path Game -- --shot=out.png --light=before|after|night [--day] [--screen=lab|dialog|reader|leave]
 ```

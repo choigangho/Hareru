@@ -28,16 +28,23 @@ var ui: CanvasLayer
 var choice_boxes: Array = []
 var choice_focus := 0
 var scene_key := ""
+var light: int = LabScreen.LightState.BEFORE_LAMP
+var _lines: Array = []
+var _start_after := ""
 
 
-func setup(scene_lines: Array, key := "") -> void:
+## The scene starts when the screen enters the tree, so listeners connected to `runner`
+## in between (the day director) also hear cues and directions on the first lines.
+func setup(scene_lines: Array, key := "", start_after := "") -> void:
 	scene_key = key
-	runner.load_scene(scene_lines)
+	_lines = scene_lines
+	_start_after = start_after
 
 
 func _ready() -> void:
 	lab = LabScreen.new()
 	add_child(lab)
+	lab.set_light(light)
 	lab.layers.hint.visible = false  # the "next task" dot belongs to free lab time, not dialog
 	_sprite("ui/ui_dialog_dock.png", Vector2(0, DOCK_Y))
 	_sprite("ui/ui_dialog_portrait_crt.png", PORTRAIT_CRT_POS)
@@ -49,6 +56,7 @@ func _ready() -> void:
 	text.runner = runner
 	ui.add_child(text)
 	runner.finished.connect(func(): EventBus.dialog_finished.emit(scene_key))
+	runner.load_scene(_lines, _start_after)
 	_refresh()
 
 
@@ -58,7 +66,7 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(e: InputEvent) -> void:
-	if runner.is_done():
+	if runner.is_done() or runner.hold:
 		return
 	if runner.is_choice():
 		var n: int = runner.current().options.size()

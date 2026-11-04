@@ -48,6 +48,8 @@ static func layout(segs: Array, font: Font, width: float) -> Array:
 
 
 func _draw() -> void:
+	if runner != null and runner.hold:
+		return
 	if runner == null or runner.current().is_empty() or runner.is_choice() and runner.main_text() == "":
 		_draw_name()
 		return

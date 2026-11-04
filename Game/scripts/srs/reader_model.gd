@@ -25,6 +25,8 @@ var shown_id := ""
 var paused := false          # window lost focus before reading (C-3)
 var _exposure_counted := false
 var clock := 0.0             # unix time source for FSRS (set by the screen)
+var card_limit := -1         # tutorial: stop after this many stamped cards (-1 = whole pile)
+var cards_done := 0
 
 
 func start(s: StudySession) -> void:
@@ -38,7 +40,7 @@ func word_id() -> String:
 
 
 func _begin_card() -> void:
-	if session.is_finished():
+	if session.is_finished() or (card_limit >= 0 and cards_done >= card_limit):
 		phase = Phase.FINISHED
 		finished.emit()
 		return
@@ -65,6 +67,7 @@ func tick(delta: float) -> void:
 					_exposure_counted = true
 		Phase.STAMP:
 			if t >= STAMP_TIME:
+				cards_done += 1
 				_begin_card()
 
 

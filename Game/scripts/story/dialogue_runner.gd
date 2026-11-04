@@ -4,6 +4,7 @@ extends RefCounted
 ## tracks typing progress and the Korean-meaning toggle. No drawing here (testable).
 
 signal direction(line: Dictionary)   # 연출 lines, for the director to act on later
+signal cue(line: Dictionary)         # text-less 시스템 lines (a document goes in, a device blinks…)
 signal finished
 
 const TEXTLESS := ["연출"]
@@ -15,13 +16,23 @@ var branch := 0
 var revealed := 0.0
 var meaning_open := false
 var vars := {"이름": "신입"}
+var skip_ids: Array = []   # lines the director ruled out (tutorial key branches)
+var hold := false          # a cue listener stopped the dialog here (index stays on the cue line)
 
 
-func load_scene(scene_lines: Array) -> void:
+## Starts the scene, or continues right after `start_after` (a line id) when resuming.
+func load_scene(scene_lines: Array, start_after := "") -> void:
 	lines = scene_lines
 	index = -1
 	branch = 0
+	hold = false
+	if start_after != "":
+		jump_to(start_after)
 	next()
+
+
+static func is_cue(l: Dictionary) -> bool:
+	return l.get("speaker", "") == "시스템" and l.get("korean", "") == "" and l.get("japanese", "") == ""
 
 
 static func scene_from_file(path: String, chapter: String, key: String) -> Array:
@@ -42,6 +53,7 @@ func is_done() -> bool:
 
 ## Moves to the next line that should be shown. Returns false at the end of the scene.
 func next() -> bool:
+	hold = false
 	while true:
 		index += 1
 		if index >= lines.size():
@@ -50,8 +62,15 @@ func next() -> bool:
 		var l: Dictionary = lines[index]
 		if int(l.get("branch", 0)) != 0 and int(l.branch) != branch:
 			continue
+		if l.id in skip_ids:
+			continue
 		if l.speaker in TEXTLESS:
 			direction.emit(l)
+			continue
+		if is_cue(l):
+			cue.emit(l)
+			if hold:
+				return false
 			continue
 		revealed = 0.0
 		meaning_open = false
@@ -119,7 +138,7 @@ func is_typing() -> bool:
 
 ## Enter / click: finish typing first, then go on.
 func advance() -> void:
-	if is_choice():
+	if is_choice() or hold:
 		return
 	if is_typing():
 		revealed = total_chars()
@@ -135,7 +154,7 @@ func toggle_meaning() -> void:
 ## Touch/click on the text line (§9: everything works by pressing): finish typing →
 ## open the Korean meaning (Japanese lines) → next line.
 func tap_line() -> void:
-	if is_choice():
+	if is_choice() or hold:
 		return
 	if is_typing():
 		revealed = total_chars()
