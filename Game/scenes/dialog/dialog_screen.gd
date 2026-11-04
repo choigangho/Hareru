@@ -30,6 +30,9 @@ var choice_focus := 0
 var scene_key := ""
 var light: int = LabScreen.LightState.BEFORE_LAMP
 var leak_fixed := false
+var closeup := ""
+var closeup_layer: Node2D   # dim + paper between the lab and the dock (memo mock: dim 150, x2 at 220,100)
+const CLOSEUPS := {"memo": ["closeups/memo_closeup_kana.png", Vector2(220, 100)]}
 var bucket_full := false
 var typewriter: CanvasLayer   # open while the line asks for the name (mock M-5b)
 var name_edit: LineEdit
@@ -52,6 +55,9 @@ func _ready() -> void:
 	lab.bucket_full = bucket_full
 	lab.set_leak_fixed(leak_fixed)
 	lab.layers.hint.visible = false  # the "next task" dot belongs to free lab time, not dialog
+	closeup_layer = Node2D.new()
+	add_child(closeup_layer)
+	set_closeup(closeup)
 	_sprite("ui/ui_dialog_dock.png", Vector2(0, DOCK_Y))
 	_sprite("ui/ui_dialog_portrait_crt.png", PORTRAIT_CRT_POS)
 	portrait = _sprite("portraits/chief_default.png", PORTRAIT_POS)
@@ -69,6 +75,27 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not runner.is_done():
 		runner.tick(delta)
+
+
+func set_closeup(n: String) -> void:
+	closeup = n
+	if closeup_layer == null:
+		return
+	for c in closeup_layer.get_children():
+		c.queue_free()
+	if not CLOSEUPS.has(n):
+		return
+	var dim := ColorRect.new()
+	dim.color = Color8(10, 8, 12, 150)
+	dim.size = Vector2(640, 360)
+	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	closeup_layer.add_child(dim)
+	var paper := Sprite2D.new()
+	paper.texture = load(ART + CLOSEUPS[n][0])
+	paper.centered = false
+	paper.position = CLOSEUPS[n][1]
+	# 200x120 art shown at 400x240 on screen = scale 1 inside the x2 world
+	closeup_layer.add_child(paper)
 
 
 func _unhandled_input(e: InputEvent) -> void:

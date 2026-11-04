@@ -34,6 +34,7 @@ FILES = {
     "props/kuro_amber_dim.png": "set6_kuro/kuro_amber_dim.png",
     "props/kuro_amber_on.png": "set6_kuro/kuro_amber_on.png",
     "ui/ui_hint_dot_0.png": "set9_ui/ui_hint_dot_0.png",
+    "closeups/memo_closeup_kana.png": "set8_closeups/memo_closeup_kana.png",
     "ui/ui_hint_dot_1.png": "set9_ui/ui_hint_dot_1.png",
 }
 PROPS = ["prop_ceiling_leak_stain", "prop_ceiling_leak_patched", "prop_bucket_low", "prop_bucket_mid",

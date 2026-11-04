@@ -172,6 +172,7 @@ func _dialog_screen() -> DialogScreen:
 	var key := director.scene_key()
 	ds.light = director.light
 	ds.leak_fixed = director.leak_fixed
+	ds.closeup = director.closeup
 	ds.bucket_full = director.bucket_full
 	ds.setup(DialogueRunner.scene_from_file(STORY, "D1", key), key, director.resume_after)
 	ds.runner.skip_ids = director.skip_ids
@@ -187,7 +188,8 @@ func _dialog_screen() -> DialogScreen:
 	ds.runner.direction.connect(func(l: Dictionary):
 		if director.on_direction(l) and ds.lab:
 			ds.lab.bucket_full = director.bucket_full
-			ds.lab.set_light(director.light))
+			ds.lab.set_light(director.light)
+			ds.set_closeup(director.closeup))
 	return ds
 
 

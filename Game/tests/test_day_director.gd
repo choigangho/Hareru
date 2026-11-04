@@ -100,6 +100,15 @@ func test_day_one_start_to_leave() -> void:
 	t.check(d.leak_fixed and d.bucket_full, "bucket overflowed, then the leak was fixed (D1-308, D1-312)")
 	t.eq(d.player_name, "하루", "typed name kept")
 	t.check("D1-312" in seen, "quest keycap shown")
+	t.eq(d.closeup, "", "memo close-up closed again")
+
+
+func test_memo_closeup_window() -> void:
+	var d := _director()
+	t.check(d.on_direction({"id": "D1-345"}), "memo opens")
+	t.eq(d.closeup, "memo", "")
+	t.check(d.on_direction({"id": "D1-357"}), "folded away at D1-357")
+	t.eq(d.closeup, "", "")
 
 
 func test_unknown_keys_take_other_branches() -> void:

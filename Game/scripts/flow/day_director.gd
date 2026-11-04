@@ -10,6 +10,8 @@ const SCENES := ["T-0", "T-1", "T-2", "T-3", "T-4", "T-5", "T-6", "T-7", "T-8", 
 const TASK_AFTER := "T-7"      # D1-715: after this scene the reader glows on the hero's desk
 const TASK_RESUME := "D1-800"  # T-8 dialog continues after the 15 cards
 const BUCKET_CUE := "D1-308"
+## Close-up cuts over the lab (art from set8_closeups): shown from one direction line to another.
+const CLOSEUP_CUES := {"D1-345": "memo", "D1-357": ""}
 const LIGHT_CUES := {
 	"D1-802": LabScreen.LightState.AFTER_LAMP,   # lamp installed on the chief's desk
 	"D1-900": LabScreen.LightState.NIGHT,        # T-9 night
@@ -26,6 +28,7 @@ var task_started := false
 var leak_fixed := false    # D1-312 quest done
 var bucket_full := false   # D1-308 the bucket overflows
 var player_name := "신입"  # D1-141 typewriter
+var closeup := ""          # close-up cut on screen ("" = none)
 var tutorial: Array = []   # word ids of documents 1-5
 var task: Array = []       # word ids of the 15 task documents
 
@@ -96,6 +99,9 @@ func on_direction(line: Dictionary) -> bool:
 	if LIGHT_CUES.has(id):
 		light = LIGHT_CUES[id]
 		return true
+	if CLOSEUP_CUES.has(id):
+		closeup = CLOSEUP_CUES[id]
+		return true
 	if id == BUCKET_CUE:
 		bucket_full = true
 		return true
@@ -123,6 +129,7 @@ func on_scene_done() -> void:
 		return
 	var key := scene_key()
 	resume_after = ""
+	closeup = ""
 	if scene_i >= SCENES.size() - 1:
 		phase = Phase.LEAVE
 		return
@@ -170,7 +177,8 @@ func is_desk_waiting() -> bool:
 func to_dict() -> Dictionary:
 	return {"phase": phase, "scene_i": scene_i, "resume_after": resume_after, "card_n": card_n,
 		"light": light, "skip_ids": skip_ids.duplicate(), "pending": pending, "task_started": task_started,
-		"leak_fixed": leak_fixed, "bucket_full": bucket_full, "player_name": player_name}
+		"leak_fixed": leak_fixed, "bucket_full": bucket_full, "player_name": player_name,
+		"closeup": closeup}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -185,3 +193,4 @@ func from_dict(d: Dictionary) -> void:
 	leak_fixed = bool(d.get("leak_fixed", false))
 	bucket_full = bool(d.get("bucket_full", false))
 	player_name = str(d.get("player_name", "신입"))
+	closeup = str(d.get("closeup", ""))
