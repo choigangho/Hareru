@@ -106,7 +106,7 @@ func test_day_one_start_to_leave() -> void:
 	t.eq(d.closeup, "", "memo close-up closed again")
 	t.check("D1-404" in seen and "D1-501" in seen, "logbook and switchboard lines after pressing the devices")
 	t.check("D1-510" in seen and not "D1-513" in seen, "time set: 510-512, not 513-514")
-	t.check(not "D1-516" in seen, "location question left out (L-1)")
+	t.check("D1-515" in seen and not "D1-519" in seen, "location question gone from the script (D-11)")
 	t.eq(d.work_time, 510, "work time kept")
 
 

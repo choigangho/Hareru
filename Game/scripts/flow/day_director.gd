@@ -16,8 +16,8 @@ const CLOSEUP_CUES := {"D1-345": "memo", "D1-357": ""}
 ## then goes on with that device's panel open (subtitle band). Closed by a direction line.
 const DEVICE_CUES := {"D1-403": ["clipboard", "logbook"], "D1-500": ["breaker", "settings"]}
 const PANEL_CLOSE := ["D1-414"]
-## Lines the slice leaves out: T-5 location question (decision L-1).
-const SLICE_SKIPS := ["D1-515", "D1-516", "D1-517", "D1-518", "D1-519", "D1-520", "D1-521", "D1-522", "D1-523"]
+## Lines the slice leaves out (none now: the T-5 location question was deleted from the script, D-11).
+const SLICE_SKIPS := []
 const LIGHT_CUES := {
 	"D1-802": LabScreen.LightState.AFTER_LAMP,   # lamp installed on the chief's desk
 	"D1-900": LabScreen.LightState.NIGHT,        # T-9 night

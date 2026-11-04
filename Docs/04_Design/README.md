@@ -47,7 +47,7 @@
 | P-5 | Swift 앱 학습 기록 가져오기 | 슬라이스 밖 (BACKLOG) | PROGRESSION |
 | P-6 | 판독기 모델 구매 화폐 | 연구 포인트 하나 (새 코인 없음) | PROGRESSION |
 | P-7 | 판독기 모델 차이 | 꾸미기 + 연구 포인트 배율 보너스(곱하기만, 최대 +20%). 스캔 · 등급 · FSRS 불변 (소유자 수정) | PROGRESSION |
-| L-1 | T-5 위치 질문 | 슬라이스에선 건너뜀 | SLICE_SCOPE |
+| L-1 | T-5 위치 질문 | 위치 질문 삭제 (D-11) | SLICE_SCOPE |
 | L-2 | 출근 시각 알림 | 시각만 저장, 알림은 P3 | SLICE_SCOPE |
 | L-3 | D1 과제 15장 | 분야 없음 고정 목록 | SLICE_SCOPE |
 | L-4 | Day 1 다음 날 | 대본 없이 자유 판독 | SLICE_SCOPE |
