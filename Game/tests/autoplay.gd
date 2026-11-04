@@ -38,6 +38,12 @@ func _step() -> bool:
 		printerr("timeout on ", GameFlow.Screen.keys()[flow.current])
 		quit(1)
 		return true
+	# --quit-line=D1-216: hard quit there (no save on exit) to test resuming from the last save point
+	var stop := str(main.args.get("quit-line", ""))
+	if stop != "" and main.screen is DialogScreen and main.screen.runner.current().get("id", "") == stop:
+		print("quit at ", stop)
+		quit(0)
+		return true
 	# --shot-line=D1-803: screenshot when that line is fully typed, then quit
 	var want := str(main.args.get("shot-line", ""))
 	if want != "" and main.screen is DialogScreen and main.screen.runner.current().get("id", "") == want:

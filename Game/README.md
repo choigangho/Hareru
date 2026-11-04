@@ -7,6 +7,7 @@
 ```
 godot --path Game                                    # 게임 (D1을 T-0부터. -- --from=T-7 이면 그 장면부터)
 godot --headless --path Game -- --autoplay           # D1을 실제 화면으로 끝까지 자동 진행 (퇴근 도달 = 0)
+godot --headless --path Game -- --autoplay --save=user://ap.json --quit-line=D1-216   # 중간에 끄기 → 같은 --save로 다시 켜면 이어짐
 godot --path Game -- --autoplay --from=T-8 --shot-line=D1-803 --shot=out.png   # 흐름 중간 스크린샷
 godot --headless --path Game -s res://tests/run_tests.gd   # 창 없는 테스트 (0 = 통과)
 godot --path Game -- --shot=out.png --light=before|after|night [--day] [--screen=lab|dialog|reader|leave]
@@ -21,3 +22,9 @@ godot --path Game -- --shot=out.png --light=before|after|night [--day] [--screen
 - `scenes/placeholder/` — 아직 안 만든 화면(대화 · 판독 · 퇴근) 자리
 - `art/` — `Docs/05_Art/Inbox`의 확정 그림 복사본 (원본은 Inbox, `tools/sync_art.py`로 맞춤)
 - 그림 좌표의 원본: `Docs/05_Art/Inbox/**/*.txt`, `Docs/05_Art/SLICE_ASSETS.md`
+
+## 저장
+- `user://save.json` (macOS: `~/Library/Application Support/Godot/app_userdata/Hareru/`). 장면 · 카드가 바뀔 때마다, 단어가 졸업할 때마다, 창을 닫을 때 저장. 임시 파일에 쓴 뒤 이름 바꾸기.
+- 내용: `version` · FSRS 기록(영구) · 오늘 더미 · 실패 · 노출(오늘만 — 새벽 4시가 지나면 버림) · 스토리 진행(`story.D1`).
+- 이전: `SaveGame.migrate()`가 옛 버전을 한 단계씩 올림 (v1 → v2). 모르는 버전은 쓰지 않고 새로 시작.
+- 새로 시작: `godot --path Game -- --new`. `--from` · `--autoplay`는 `--save`를 주지 않으면 저장하지 않음.

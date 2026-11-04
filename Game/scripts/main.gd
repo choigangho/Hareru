@@ -13,6 +13,7 @@ var flow := GameFlow.new()
 var bank: WordBank
 var session := StudySession.new()
 var director: DayDirector   # null in single-screen preview (--screen=…)
+var save_path := ""         # "" = not saving (previews, autoplay without --save)
 var world: Node2D
 var screen: Node2D
 var args := {}
@@ -30,10 +31,17 @@ func _ready() -> void:
 	EventBus.desk_pressed.connect(_on_desk_pressed)
 	args = parse_args(OS.get_cmdline_user_args())
 	bank = WordBank.load_default()
+	session.tz_bias_min = Time.get_time_zone_from_system().bias
 	if not args.has("screen"):
 		director = DayDirector.new(bank.d1_queue.tutorial, bank.d1_queue.task)
-		director.scene_i = maxi(0, DayDirector.SCENES.find(str(args.get("from", "T-0"))))
 		session.start(director.tutorial)
+		if args.has("save") or not (args.has("autoplay") or args.has("from")):
+			save_path = str(args.get("save", SaveGame.PATH))
+		if args.has("from"):
+			director.scene_i = maxi(0, DayDirector.SCENES.find(str(args.from)))
+		elif save_path != "" and not args.has("new"):
+			_load()
+		session.graduated.connect(func(_id, _st): _save())
 		flow.current = director.screen() as GameFlow.Screen
 	_show(flow.current)
 	_apply_args()
@@ -81,8 +89,30 @@ func _on_desk_pressed() -> void:
 		flow.go_to(GameFlow.Screen.READER)
 
 
+func _now() -> float:
+	return Time.get_unix_time_from_system()
+
+
+func _save() -> void:
+	if save_path != "" and director:
+		SaveGame.write(SaveGame.capture(director, session, _now(), session.tz_bias_min), save_path)
+
+
+func _load() -> void:
+	var d := SaveGame.read(save_path)
+	if not d.is_empty() and not SaveGame.restore(d, director, session, _now(), session.tz_bias_min):
+		push_warning("save file not usable, starting Day 1 fresh: " + save_path)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		_save()
+
+
 ## Shows what the director wants. Same screen (next scene, next card) = rebuild in place.
+## Every director step is also a save point (quitting resumes at that scene or card).
 func _sync() -> void:
+	_save()
 	var target := director.screen() as GameFlow.Screen
 	if target == flow.current:
 		_show(target)
