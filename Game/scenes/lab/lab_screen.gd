@@ -25,6 +25,13 @@ const CHARS := {
 }
 const HINT_POS := Vector2(208, 197)
 const DESK_RECT := Rect2(110, 168, 140, 66)   # hero's desk + reader, art pixels (x2 on screen ≥ 64 px)
+## What can glow in free lab time: [hint dot position, press area] in art pixels.
+const TARGETS := {
+	"desk": [HINT_POS, DESK_RECT],
+	"clipboard": [Vector2(66, 108), Rect2(50, 108, 40, 48)],   # T-4 기록 (prop at 58,118)
+	"breaker": [Vector2(579, 140), Rect2(564, 140, 36, 48)],   # T-5 설정 (prop at 574,150)
+}
+var target := "desk"
 
 var light_state: LightState = LightState.BEFORE_LAMP
 var leak_fixed := false    # D1-312: ceiling patched, bucket stops filling
@@ -63,7 +70,7 @@ func build() -> void:
 	_sprite("night_mul", "lab/light/light_night_mul.png", Vector2.ZERO, CanvasItemMaterial.BLEND_MODE_MUL)
 	_sprite("lamp_pool", "lab/light/lamp_pool_add.png", Vector2.ZERO, CanvasItemMaterial.BLEND_MODE_ADD)
 	_sprite("neon_add", "lab/light/light_night_neon_add.png", Vector2.ZERO, CanvasItemMaterial.BLEND_MODE_ADD)
-	_sprite("hint", "ui/ui_hint_dot_0.png", HINT_POS)
+	_sprite("hint", "ui/ui_hint_dot_0.png", TARGETS[target][0])
 	apply_state()
 
 
@@ -79,8 +86,15 @@ func _unhandled_input(e: InputEvent) -> void:
 
 
 func desk_screen_rect() -> Rect2:
+	var r: Rect2 = TARGETS[target][1]
 	var xf := get_global_transform_with_canvas()
-	return Rect2(xf * DESK_RECT.position, DESK_RECT.size * xf.get_scale())
+	return Rect2(xf * r.position, r.size * xf.get_scale())
+
+
+func set_target(t: String) -> void:
+	target = t if TARGETS.has(t) else "desk"
+	if layers.has("hint"):
+		layers.hint.position = TARGETS[target][0]
 
 
 func set_light(state: LightState) -> void:

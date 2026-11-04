@@ -12,6 +12,12 @@ const TASK_RESUME := "D1-800"  # T-8 dialog continues after the 15 cards
 const BUCKET_CUE := "D1-308"
 ## Close-up cuts over the lab (art from set8_closeups): shown from one direction line to another.
 const CLOSEUP_CUES := {"D1-345": "memo", "D1-357": ""}
+## A device blinks on the wall: the dialog waits until the player presses it in the lab,
+## then goes on with that device's panel open (subtitle band). Closed by a direction line.
+const DEVICE_CUES := {"D1-403": ["clipboard", "logbook"], "D1-500": ["breaker", "settings"]}
+const PANEL_CLOSE := ["D1-414"]
+## Lines the slice leaves out: T-5 location question (decision L-1).
+const SLICE_SKIPS := ["D1-515", "D1-516", "D1-517", "D1-518", "D1-519", "D1-520", "D1-521", "D1-522", "D1-523"]
 const LIGHT_CUES := {
 	"D1-802": LabScreen.LightState.AFTER_LAMP,   # lamp installed on the chief's desk
 	"D1-900": LabScreen.LightState.NIGHT,        # T-9 night
@@ -29,6 +35,9 @@ var leak_fixed := false    # D1-312 quest done
 var bucket_full := false   # D1-308 the bucket overflows
 var player_name := "신입"  # D1-141 typewriter
 var closeup := ""          # close-up cut on screen ("" = none)
+var panel := ""            # device panel open in the dialog ("logbook" / "settings")
+var target := "desk"       # what glows in free lab time: desk / clipboard / breaker
+var work_time := -1        # D1-509 minutes after midnight, -1 = later / not set
 var tutorial: Array = []   # word ids of documents 1-5
 var task: Array = []       # word ids of the 15 task documents
 
@@ -36,6 +45,7 @@ var task: Array = []       # word ids of the 15 task documents
 func _init(tutorial_ids: Array = [], task_ids: Array = []) -> void:
 	tutorial = tutorial_ids
 	task = task_ids
+	skip_ids = SLICE_SKIPS.duplicate()
 
 
 ## Debug start at a later scene (--from): sets what the earlier scenes would have changed.
@@ -84,6 +94,12 @@ static func skips_for(card: int, key: int) -> Array:
 ## A text-less system line reached the dialog. Returns true when the dialog must hold
 ## (a tutorial document goes into the reader).
 func on_cue(line: Dictionary) -> bool:
+	if DEVICE_CUES.has(line.get("id", "")) and phase == Phase.DIALOG:
+		target = DEVICE_CUES[line.id][0]
+		resume_after = line.id
+		pending = Phase.DIALOG
+		phase = Phase.LAB_FREE
+		return true
 	var n := card_number(line)
 	if n == 0 or phase != Phase.DIALOG:
 		return false
@@ -98,6 +114,9 @@ func on_direction(line: Dictionary) -> bool:
 	var id: String = line.get("id", "")
 	if LIGHT_CUES.has(id):
 		light = LIGHT_CUES[id]
+		return true
+	if id in PANEL_CLOSE:
+		panel = ""
 		return true
 	if CLOSEUP_CUES.has(id):
 		closeup = CLOSEUP_CUES[id]
@@ -116,6 +135,12 @@ func on_name(n: String) -> void:
 	player_name = n
 
 
+## D1-509: a time keeps 510-512, `나중에` keeps 513-514.
+func on_work_time(minutes: int) -> void:
+	work_time = minutes
+	skip_ids.append_array(["D1-513", "D1-514"] if minutes >= 0 else ["D1-510", "D1-511", "D1-512"])
+
+
 ## One tutorial card was stamped with `key`.
 func on_card_done(key: int) -> void:
 	if phase != Phase.CARD:
@@ -130,6 +155,7 @@ func on_scene_done() -> void:
 	var key := scene_key()
 	resume_after = ""
 	closeup = ""
+	panel = ""
 	if scene_i >= SCENES.size() - 1:
 		phase = Phase.LEAVE
 		return
@@ -137,6 +163,7 @@ func on_scene_done() -> void:
 	if key == TASK_AFTER:
 		resume_after = TASK_RESUME
 		pending = Phase.TASK
+		target = "desk"
 		phase = Phase.LAB_FREE
 
 
@@ -159,14 +186,18 @@ func on_task_done() -> void:
 func on_stand_up() -> void:
 	if phase == Phase.CARD or phase == Phase.TASK:
 		pending = phase
+		target = "desk"
 		phase = Phase.LAB_FREE
 
 
-## Hero's desk pressed in free lab time. Returns true when it opens the reader.
+## The glowing thing (desk / clipboard / breaker) pressed in free lab time. Returns true when
+## it opens the next screen (reader, or the dialog with that device's panel).
 func on_desk_pressed() -> bool:
 	if phase != Phase.LAB_FREE:
 		return false
 	phase = pending
+	if phase == Phase.DIALOG and DEVICE_CUES.has(resume_after):
+		panel = DEVICE_CUES[resume_after][1]
 	return true
 
 
@@ -178,7 +209,7 @@ func to_dict() -> Dictionary:
 	return {"phase": phase, "scene_i": scene_i, "resume_after": resume_after, "card_n": card_n,
 		"light": light, "skip_ids": skip_ids.duplicate(), "pending": pending, "task_started": task_started,
 		"leak_fixed": leak_fixed, "bucket_full": bucket_full, "player_name": player_name,
-		"closeup": closeup}
+		"closeup": closeup, "panel": panel, "target": target, "work_time": work_time}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -194,3 +225,6 @@ func from_dict(d: Dictionary) -> void:
 	bucket_full = bool(d.get("bucket_full", false))
 	player_name = str(d.get("player_name", "신입"))
 	closeup = str(d.get("closeup", ""))
+	panel = str(d.get("panel", ""))
+	target = str(d.get("target", "desk"))
+	work_time = int(d.get("work_time", -1))

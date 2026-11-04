@@ -7,6 +7,7 @@ signal direction(line: Dictionary)   # 연출 lines, for the director to act on 
 signal cue(line: Dictionary)         # text-less 시스템 lines (a document goes in, a device blinks…)
 signal quest_done(line: Dictionary)  # a quest keycap was pressed (D1-312 천장 누수 막기)
 signal name_given(player_name: String)
+signal time_given(minutes: int)      # D1-509 work time, -1 = later
 signal finished
 
 const TEXTLESS := ["연출"]
@@ -122,6 +123,19 @@ func is_text_input() -> bool:
 	return l.get("speaker", "") == "입력" and str(l.get("note", "")).begins_with("텍스트 입력")
 
 
+## 입력 line asking for a time of day (D1-509 출근 시간; `나중에` allowed).
+func is_time_input() -> bool:
+	var l := current()
+	return l.get("speaker", "") == "입력" and str(l.get("note", "")).begins_with("시각 선택")
+
+
+func submit_time(minutes: int) -> void:
+	if minutes >= 0:
+		vars["출근"] = "%02d:%02d" % [minutes / 60, minutes % 60]
+	time_given.emit(minutes)
+	next()
+
+
 ## The player typed their name (max 8). Empty keeps the current name.
 func submit_name(text: String) -> void:
 	text = text.strip_edges().left(8)
@@ -173,7 +187,7 @@ func is_typing() -> bool:
 
 ## Enter / click: finish typing first, then go on.
 func advance() -> void:
-	if is_choice() or hold or is_text_input():
+	if is_choice() or hold or is_text_input() or is_time_input():
 		return
 	if is_typing():
 		revealed = total_chars()
@@ -189,7 +203,7 @@ func toggle_meaning() -> void:
 ## Touch/click on the text line (§9: everything works by pressing): finish typing →
 ## open the Korean meaning (Japanese lines) → next line.
 func tap_line() -> void:
-	if is_choice() or hold or is_text_input():
+	if is_choice() or hold or is_text_input() or is_time_input():
 		return
 	if is_typing():
 		revealed = total_chars()

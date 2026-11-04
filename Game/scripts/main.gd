@@ -144,6 +144,7 @@ func _show(s: int) -> void:
 			screen.light_state = director.light as LabScreen.LightState
 			screen.leak_fixed = director.leak_fixed
 			screen.bucket_full = director.bucket_full
+			screen.target = director.target
 	elif s == GameFlow.Screen.DIALOG:
 		screen = _dialog_screen()
 	elif s == GameFlow.Screen.READER:
@@ -174,9 +175,16 @@ func _dialog_screen() -> Node2D:
 		ds.leak_fixed = director.leak_fixed
 		ds.closeup = director.closeup
 		ds.bucket_full = director.bucket_full
+		ds.panel = director.panel
+		ds.dots = _stability_dots()
 	ds.setup(DialogueRunner.scene_from_file(STORY, "D1", key), key, director.resume_after)
 	ds.runner.skip_ids = director.skip_ids
 	ds.runner.vars["이름"] = director.player_name
+	if director.work_time >= 0:
+		ds.runner.vars["출근"] = "%02d:%02d" % [director.work_time / 60, director.work_time % 60]
+	ds.runner.time_given.connect(func(m: int):
+		director.on_work_time(m)
+		_save())
 	ds.runner.quest_done.connect(director.on_quest)
 	ds.runner.name_given.connect(func(n: String):
 		director.on_name(n)
@@ -189,8 +197,19 @@ func _dialog_screen() -> Node2D:
 		if director.on_direction(l) and ds.lab:
 			ds.lab.bucket_full = director.bucket_full
 			ds.lab.set_light(director.light)
-			ds.set_closeup(director.closeup))
+			ds.set_closeup(director.closeup)
+			if ds is DialogScreen and ds.panel != director.panel:
+				ds.set_panel(director.panel))
 	return ds
+
+
+## Logbook dots (M-6): one per tutorial word, 0 = not learned yet, 1-4 by FSRS stability (days).
+func _stability_dots() -> Array:
+	var out := []
+	for w in director.tutorial:
+		var st: float = float(session.records.get(w, {}).get("stability", 0.0))
+		out.append(0 if st <= 0.0 else (1 if st < 1.0 else (2 if st < 3.0 else (3 if st < 7.0 else 4))))
+	return out
 
 
 ## Tutorial: the card the script names goes on top and the reader stops after it.

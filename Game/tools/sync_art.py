@@ -56,7 +56,12 @@ for e in ["default", "daze", "goof", "surprised", "meh", "awkward", "serious"]:
     FILES[f"portraits/hero_{e}.png"] = f"set4_portraits/hero/hero_portrait_{e}.png"
 for u in ["ui_dialog_dock", "ui_dialog_portrait_crt", "ui_dialog_scanlines_96", "ui_keycap_choice_idle",
           "ui_keycap_choice_select", "ui_keycap_choice_press", "ui_blank_word",
-          "ui_typewriter_input", "ui_typewriter_cursor", "ui_day_end_bg", "ui_day_end_title"]:
+          "ui_typewriter_input", "ui_typewriter_cursor", "ui_day_end_bg", "ui_day_end_title",
+          "rec_logbook", "rec_stamp_today", "rec_noise_cell", "rec_dot_0", "rec_dot_1", "rec_dot_2",
+          "rec_dot_3", "rec_dot_4", "set_panel_open", "set_voice_knob_0", "set_voice_knob_1",
+          "set_voice_knob_2", "set_focus_lever_off", "set_focus_lever_on", "set_toggle_off",
+          "set_toggle_on", "set_slider_knob", "set_neural_cover_closed", "set_neural_cover_open",
+          "ui_warning_neural"]:
     FILES[f"ui/{u}.png"] = f"set9_ui/{u}.png"
 
 

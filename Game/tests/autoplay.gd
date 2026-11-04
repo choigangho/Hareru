@@ -65,7 +65,10 @@ func _step() -> bool:
 	cooldown = 2
 	var s = main.screen
 	if s is DialogScreen:
-		if s.typewriter:
+		if s.runner.is_time_input():
+			s.runner.submit_time(510)
+			s._refresh()
+		elif s.typewriter:
 			s.name_edit.text = "하루"
 			s._submit_name()
 		elif s.runner.is_choice():

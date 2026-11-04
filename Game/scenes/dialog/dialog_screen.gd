@@ -31,6 +31,10 @@ var scene_key := ""
 var light: int = LabScreen.LightState.BEFORE_LAMP
 var leak_fixed := false
 var closeup := ""
+var panel := ""
+var panel_view: PanelView
+var dots: Array = []
+var dock_nodes: Array = []
 var closeup_layer: Node2D   # dim + paper between the lab and the dock (memo mock: dim 150, x2 at 220,100)
 const CLOSEUPS := {"memo": ["closeups/memo_closeup_kana.png", Vector2(220, 100)]}
 var bucket_full := false
@@ -58,15 +62,26 @@ func _ready() -> void:
 	closeup_layer = Node2D.new()
 	add_child(closeup_layer)
 	set_closeup(closeup)
-	_sprite("ui/ui_dialog_dock.png", Vector2(0, DOCK_Y))
-	_sprite("ui/ui_dialog_portrait_crt.png", PORTRAIT_CRT_POS)
+	dock_nodes.append(_sprite("ui/ui_dialog_dock.png", Vector2(0, DOCK_Y)))
+	dock_nodes.append(_sprite("ui/ui_dialog_portrait_crt.png", PORTRAIT_CRT_POS))
 	portrait = _sprite("portraits/chief_default.png", PORTRAIT_POS)
-	_sprite("ui/ui_dialog_scanlines_96.png", PORTRAIT_POS)
+	dock_nodes.append(_sprite("ui/ui_dialog_scanlines_96.png", PORTRAIT_POS))
 	ui = CanvasLayer.new()
 	add_child(ui)
 	text = DialogText.new()
 	text.runner = runner
 	ui.add_child(text)
+	var players := CanvasLayer.new()
+	players.layer = 4
+	add_child(players)
+	panel_view = PanelView.new()
+	panel_view.runner = runner
+	panel_view.dots = dots
+	panel_view.time_chosen.connect(func(m: int):
+		runner.submit_time(m)
+		_refresh())
+	players.add_child(panel_view)
+	set_panel(panel)
 	runner.finished.connect(func(): EventBus.dialog_finished.emit(scene_key))
 	runner.load_scene(_lines, _start_after)
 	_refresh()
@@ -75,6 +90,18 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not runner.is_done():
 		runner.tick(delta)
+
+
+## Device panel over the lab; the dock gives way to the subtitle band (owner 2026-11-04).
+func set_panel(n: String) -> void:
+	panel = n
+	if panel_view == null:
+		return
+	panel_view.kind = n
+	for d in dock_nodes:
+		d.visible = n == ""
+	text.visible = n == ""
+	_refresh()
 
 
 func set_closeup(n: String) -> void:
@@ -100,6 +127,9 @@ func set_closeup(n: String) -> void:
 
 func _unhandled_input(e: InputEvent) -> void:
 	if runner.is_done() or runner.hold or typewriter:
+		return
+	if panel != "":
+		_panel_input(e)
 		return
 	if runner.is_choice():
 		var n: int = runner.choice_options().size()
@@ -133,6 +163,30 @@ func _unhandled_input(e: InputEvent) -> void:
 		_refresh()
 
 
+func _panel_input(e: InputEvent) -> void:
+	if runner.is_time_input():
+		if e.is_action_pressed("ui_up") or e.is_action_pressed("ui_right"):
+			panel_view.work_time = posmod(panel_view.work_time + 30, 1440)
+		elif e.is_action_pressed("ui_down") or e.is_action_pressed("ui_left"):
+			panel_view.work_time = posmod(panel_view.work_time - 30, 1440)
+		elif e.is_action_pressed("ui_accept"):
+			runner.submit_time(panel_view.work_time)
+		elif e.is_action_pressed("ui_cancel"):
+			runner.submit_time(-1)
+		elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+			panel_view.press(e.position)
+		_refresh()
+		return
+	if e.is_action_pressed("ui_focus_next"):
+		runner.toggle_meaning()
+	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+		if not panel_view.press(e.position):
+			runner.tap_line()
+	elif e.is_action_pressed("ui_accept"):
+		runner.advance()
+	_refresh()
+
+
 func _pick(i: int) -> void:
 	if DialogueRunner.is_quest(runner.current()):
 		leak_fixed = true   # the only quest on Day 1 (D1-312)
@@ -150,6 +204,8 @@ func _refresh() -> void:
 	portrait.visible = tex != ""
 	if tex != "":
 		portrait.texture = load(ART + "portraits/%s.png" % tex)
+	if panel != "":
+		portrait.visible = false
 	_build_choices()
 	if runner.is_text_input() and typewriter == null:
 		_open_typewriter()

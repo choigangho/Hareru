@@ -23,6 +23,7 @@ func _play_dialog(d: DayDirector, seen: Array) -> void:
 	r.direction.connect(func(l): d.on_direction(l))
 	r.quest_done.connect(d.on_quest)
 	r.name_given.connect(d.on_name)
+	r.time_given.connect(d.on_work_time)
 	r.vars["이름"] = d.player_name
 	r.finished.connect(func(): ended[0] = true)
 	r.load_scene(DialogueRunner.scene_from_file(STORY, "D1", d.scene_key()), d.resume_after)
@@ -30,7 +31,9 @@ func _play_dialog(d: DayDirector, seen: Array) -> void:
 	while not ended[0] and not r.hold and guard < 500:
 		guard += 1
 		seen.append(r.current().id)
-		if r.is_text_input():
+		if r.is_time_input():
+			r.submit_time(510)
+		elif r.is_text_input():
 			r.submit_name("하루")
 		elif r.is_choice():
 			r.choose(0)
@@ -101,6 +104,23 @@ func test_day_one_start_to_leave() -> void:
 	t.eq(d.player_name, "하루", "typed name kept")
 	t.check("D1-312" in seen, "quest keycap shown")
 	t.eq(d.closeup, "", "memo close-up closed again")
+	t.check("D1-404" in seen and "D1-501" in seen, "logbook and switchboard lines after pressing the devices")
+	t.check("D1-510" in seen and not "D1-513" in seen, "time set: 510-512, not 513-514")
+	t.check(not "D1-516" in seen, "location question left out (L-1)")
+	t.eq(d.work_time, 510, "work time kept")
+
+
+func test_devices_open_panels() -> void:
+	var d := _director()
+	d.scene_i = DayDirector.SCENES.find("T-4")
+	t.check(d.on_cue({"id": "D1-403", "speaker": "시스템"}), "clipboard cue holds the dialog")
+	t.eq(d.screen(), GameFlow.Screen.LAB, "back to the lab")
+	t.eq(d.target, "clipboard", "the clipboard glows")
+	t.check(d.on_desk_pressed(), "pressing it")
+	t.eq(d.panel, "logbook", "opens the logbook in the dialog")
+	t.eq(d.resume_after, "D1-403", "dialog continues after the cue")
+	d.on_direction({"id": "D1-414"})
+	t.eq(d.panel, "", "closed when the chief comes back with tea")
 
 
 func test_memo_closeup_window() -> void:
