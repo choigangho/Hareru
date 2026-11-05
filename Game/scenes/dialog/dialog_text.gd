@@ -48,9 +48,25 @@ static func layout(segs: Array, font: Font, width: float) -> Array:
 	return out
 
 
+## Icons engraved on the dock's two knobs (owner: a bare circle did not say what it does):
+## upper = one line back (◀), lower = all of today's lines (≡).
+const KNOB_INK := Color8(52, 40, 36)
+const KNOB_UP_C := Vector2(1253, 593)
+const KNOB_DOWN_C := Vector2(1253, 633)
+
+
+func _draw_knob_icons() -> void:
+	draw_circle(KNOB_UP_C, 9, Color8(214, 196, 150))       # cover the old tick mark
+	draw_colored_polygon(PackedVector2Array([KNOB_UP_C + Vector2(-5, 0), KNOB_UP_C + Vector2(4, -6), KNOB_UP_C + Vector2(4, 6)]), KNOB_INK)
+	draw_circle(KNOB_DOWN_C, 9, Color8(214, 196, 150))
+	for dy in [-5, 0, 5]:
+		draw_rect(Rect2(KNOB_DOWN_C + Vector2(-6, dy - 1), Vector2(12, 2)), KNOB_INK)
+
+
 func _draw() -> void:
 	if runner != null and runner.hold:
 		return
+	_draw_knob_icons()
 	if not peek.is_empty():
 		_draw_peek()
 		return
