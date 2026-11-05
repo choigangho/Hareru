@@ -7,6 +7,8 @@ const ART := "res://art/reader/"
 const STAMP_POS := Vector2(186, 90)
 const HANDLE_RECT := Rect2(920, 140, 140, 500)   # screen px around the orange grip
 const STAND_RECT := Rect2(24, 640, 176, 64)       # "일어서기" keycap on the desk (§9: Esc also works)
+const BAND := Rect2(0, 650, 1280, 70)             # subtitle band, same as the dialog's
+const FACES := {"calm": "monitor_face_calm", "smile": "monitor_face_smile", "flustered": "monitor_face_flustered"}
 
 var model := ReaderModel.new()
 var bank: WordBank
@@ -16,11 +18,16 @@ var ui: CanvasLayer
 var top: Node2D
 var stand_button: NinePatchRect
 var stand_blocked_flash := 0.0
+var tutorial: TutorialTalk = null   # T-2: the chief talks over the reader (owner 2026-11-04)
+var talk_layer: Control
 
 
 func setup(session: StudySession, word_bank: WordBank) -> void:
 	bank = word_bank
-	model.start(session)
+	if tutorial:
+		model.start_empty(session)   # the script puts documents 1-5 in (TutorialTalk)
+	else:
+		model.start(session)
 
 
 func _ready() -> void:
@@ -35,14 +42,15 @@ func _ready() -> void:
 	top = Node2D.new()
 	top.scale = Vector2(4, 4)
 	top_layer.add_child(top)
-	for n in ["head_park", "head_scan_1", "head_scan_2", "head_scan_3", "head_scan_4", "arm_up", "arm_half", "arm_down", "monitor_face_calm"]:
+	for n in ["head_park", "head_scan_1", "head_scan_2", "head_scan_3", "head_scan_4", "arm_up", "arm_half", "arm_down", "monitor_face_calm", "monitor_face_smile", "monitor_face_flustered"]:
 		_part(n, Vector2.ZERO, top)
 	for i in range(1, 5):
 		_part("key_%d_lit" % i, Vector2.ZERO, top)
 		_part("key_%d_down" % i, Vector2.ZERO, top)
 	_part("stamp_doku", STAMP_POS, top)
 	_part("stamp_sai", STAMP_POS, top)
-	parts.monitor_face_calm.visible = false  # chief's face only for guide lines / events (mock ③④)
+	for n in FACES.values():
+		parts[n].visible = false   # chief's face only while she talks (mock ③④)
 	ui = CanvasLayer.new()
 	add_child(ui)
 	text = ReaderText.new()
@@ -63,12 +71,29 @@ func _ready() -> void:
 	mos.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	mlayer.add_child(mos)
 	text.mosaic = mos
-	model.finished.connect(func(): EventBus.reading_finished.emit())
+	if tutorial:
+		stand_button.visible = false   # the script ends the tutorial (D1-257), not the player
+		var tl := CanvasLayer.new()
+		tl.layer = 4
+		add_child(tl)
+		talk_layer = Control.new()
+		talk_layer.size = Vector2(1280, 720)
+		talk_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		talk_layer.draw.connect(_draw_talk)
+		tl.add_child(talk_layer)
+		tutorial.finished.connect(func(): EventBus.dialog_finished.emit(DayDirector.TUTORIAL_SCENE))
+	else:
+		model.finished.connect(func(): EventBus.reading_finished.emit())
 	_apply()
 
 
 func _process(delta: float) -> void:
 	model.clock = Time.get_unix_time_from_system()
+	if tutorial:
+		tutorial.update()
+		if tutorial.is_talking():
+			tutorial.runner.tick(delta)
+		talk_layer.queue_redraw()
 	model.tick(delta)
 	stand_blocked_flash = maxf(0.0, stand_blocked_flash - delta)
 	_apply()
@@ -95,11 +120,28 @@ func _apply() -> void:
 	if stand_blocked_flash > 0.0 and int(stand_blocked_flash * 10) % 2 == 0:
 		for i in range(1, 5):
 			parts["key_%d_lit" % i].visible = false
+	var face := chief_face()
+	for k in FACES:
+		parts[FACES[k]].visible = k == face
 	parts.stamp_doku.visible = ph == P.STAMP and model.stamped_graduated()
 	parts.stamp_sai.visible = ph == P.STAMP and not model.stamped_graduated()
 
 
 func _unhandled_input(e: InputEvent) -> void:
+	if tutorial and tutorial.is_talking():
+		var click: bool = e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT
+		if click or e.is_action_pressed("ui_accept"):
+			tutorial.runner.tap_line()
+			tutorial.update()
+		return
+	if tutorial and e.is_action_pressed("ui_cancel"):
+		return   # no standing up in the middle of the tutorial
+	_reader_input(e)
+	if tutorial:
+		tutorial.update()
+
+
+func _reader_input(e: InputEvent) -> void:
 	if e.is_action_pressed("ui_cancel"):
 		_try_stand_up()
 		return
@@ -160,3 +202,38 @@ func _part(n: String, pos: Vector2, parent: Node) -> Sprite2D:
 	parent.add_child(s)
 	parts[n] = s
 	return s
+
+
+## Which face the monitor shows: only while the chief (주임) is talking.
+func chief_face() -> String:
+	if tutorial == null or not tutorial.is_talking():
+		return ""
+	var l := tutorial.runner.current()
+	if l.get("speaker", "") != "주임":
+		return ""
+	var ex := str(l.get("expression", ""))
+	if ex in ["미소", "뿌듯", "반짝"]:
+		return "smile"
+	if ex in ["당황", "난감"]:
+		return "flustered"
+	return "calm"
+
+
+func _draw_talk() -> void:
+	if not tutorial.is_talking():
+		return
+	var r := tutorial.runner
+	var l := r.current()
+	var f := Fonts.gothic()
+	var text := Ruby.plain_text(r.main_text()).left(int(r.revealed))
+	if r.meaning_open and r.meaning() != "":
+		text = r.meaning()
+	# subtitle band: the whole line
+	talk_layer.draw_rect(BAND, Color8(10, 8, 12, 210))
+	var who := r.speaker_name()
+	var x := 40.0
+	if who != "":
+		talk_layer.draw_string(f, Vector2(x, 694), who, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, DialogText.AMBER)
+		x = 180.0
+	var col := DialogText.CREAM if who == "" or l.get("speaker", "") == "독백" else DialogText.PH
+	talk_layer.draw_string(f, Vector2(x, 696), text, HORIZONTAL_ALIGNMENT_LEFT, 1060.0, 24, col)

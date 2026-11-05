@@ -64,6 +64,39 @@ func _play_reader(s: StudySession, m: ReaderModel, key: int) -> Array:
 	return shown
 
 
+## T-2 on the reader: the chief's lines and documents 1-5, pressing `key` on every card.
+## Records shown line ids in `seen` and the words read in `cards`.
+func _play_tutorial(d: DayDirector, s: StudySession, key: int, seen: Array, cards: Array) -> void:
+	var m := ReaderModel.new()
+	m.start_empty(s)
+	var talk := TutorialTalk.new()
+	talk.model = m
+	talk.director = d
+	talk.runner.vars["이름"] = d.player_name
+	talk.start(DialogueRunner.scene_from_file(STORY, "D1", DayDirector.TUTORIAL_SCENE), d.resume_after)
+	var guard := 0
+	while not talk.done and guard < 2000:
+		guard += 1
+		if talk.is_talking():
+			var r := talk.runner
+			seen.append(r.current().id)
+			t.check(m.clock_hold, "reader clock held while a line is up")
+			r.revealed = r.total_chars()
+			r.advance()
+		elif m.can_read():
+			m.tick(1.0)
+			cards.append(m.word_id())
+			m.read()
+		elif m.can_grade():
+			m.grade(key)
+		else:
+			m.tick(ReaderModel.INSERT_TIME)
+			m.tick(ReaderModel.STAMP_TIME)
+		talk.update()
+	t.check(talk.done, "tutorial talk ends")
+	d.on_scene_done()
+
+
 func test_day_one_start_to_leave() -> void:
 	var d := _director()
 	var s := StudySession.new()
@@ -76,14 +109,8 @@ func test_day_one_start_to_leave() -> void:
 		match d.phase:
 			DayDirector.Phase.DIALOG:
 				_play_dialog(d, seen)
-			DayDirector.Phase.CARD:
-				var w := d.card_word()
-				s.queue.erase(w)
-				s.queue.push_front(w)
-				var m := ReaderModel.new()
-				m.card_limit = 1
-				cards.append_array(_play_reader(s, m, 3))
-				d.on_card_done(m.last_key)
+			DayDirector.Phase.TUTORIAL:
+				_play_tutorial(d, s, 3, seen, cards)
 			DayDirector.Phase.LAB_FREE:
 				t.check(d.on_desk_pressed(), "desk opens the reader")
 			DayDirector.Phase.TASK:
@@ -133,21 +160,15 @@ func test_memo_closeup_window() -> void:
 
 func test_unknown_keys_take_other_branches() -> void:
 	var d := _director()
-	d.scene_i = 2   # T-2
+	d.start_at("T-2")
 	var s := StudySession.new()
 	s.start(d.tutorial)
 	var seen := []
 	while d.scene_key() == "T-2" and d.phase != DayDirector.Phase.LEAVE:
 		if d.phase == DayDirector.Phase.DIALOG:
 			_play_dialog(d, seen)
-		elif d.phase == DayDirector.Phase.CARD:
-			var w := d.card_word()
-			s.queue.erase(w)
-			s.queue.push_front(w)
-			var m := ReaderModel.new()
-			m.card_limit = 1
-			_play_reader(s, m, 1)
-			d.on_card_done(1)
+		elif d.phase == DayDirector.Phase.TUTORIAL:
+			_play_tutorial(d, s, 1, seen, [])
 	t.check("D1-229" in seen and not "D1-232" in seen, "모르겠음 on いいえ")
 	t.check(not "D1-240" in seen and "D1-245" in seen, "모르겠음 on 見る skips 240-244 only")
 	t.eq(s.queue.size(), 5, "failed tutorial words stay in the pile")

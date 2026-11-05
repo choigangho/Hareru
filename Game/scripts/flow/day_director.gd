@@ -4,11 +4,14 @@ extends RefCounted
 ## next, which scene and line the dialog resumes at, which tutorial card is on the reader, and
 ## the lab light. No drawing; main.gd asks `screen()` after every event. Saved with to_dict().
 
-enum Phase { DIALOG, CARD, LAB_FREE, TASK, LEAVE }
+enum Phase { DIALOG, CARD, LAB_FREE, TASK, LEAVE, TUTORIAL }
 
 const SCENES := ["T-0", "T-1", "T-2", "T-3", "T-4", "T-5", "T-6", "T-7", "T-8", "T-9"]
 const TASK_AFTER := "T-7"      # D1-715: after this scene the reader glows on the hero's desk
 const TASK_RESUME := "D1-800"  # T-8 dialog continues after the 15 cards
+const TUTORIAL_SCENE := "T-2"  # played on the reader (TutorialTalk), not over the lab
+## Resuming T-2 after a quit: the line just before the next card's cue, by cards graded.
+const TUTORIAL_RESUME := {1: "D1-223", 2: "D1-233", 3: "D1-238", 4: "D1-245", 5: "D1-252"}
 const BUCKET_CUE := "D1-308"
 ## Close-up cuts over the lab (art from set8_closeups): shown from one direction line to another.
 const CLOSEUP_CUES := {"D1-345": "memo", "D1-357": ""}
@@ -30,6 +33,7 @@ var card_n := 0            # tutorial card on the reader (1-5)
 var light: int = LabScreen.LightState.BEFORE_LAMP
 var skip_ids: Array = []   # tutorial key branches already decided (T-2 notes)
 var pending: Phase = Phase.TASK   # what pressing the desk resumes from free lab time
+var tutorial_graded := 0   # T-2 documents graded so far
 var task_started := false
 var leak_fixed := false    # D1-312 quest done
 var bucket_full := false   # D1-308 the bucket overflows
@@ -53,6 +57,7 @@ func _init(tutorial_ids: Array = [], task_ids: Array = []) -> void:
 ## Debug start at a later scene (--from): sets what the earlier scenes would have changed.
 func start_at(key: String) -> void:
 	scene_i = maxi(0, SCENES.find(key))
+	phase = Phase.TUTORIAL if scene_key() == TUTORIAL_SCENE else Phase.DIALOG
 	var after := func(k: String) -> bool: return scene_i > SCENES.find(k)
 	bucket_full = after.call("T-3")
 	leak_fixed = after.call("T-3")
@@ -67,7 +72,7 @@ func scene_key() -> String:
 func screen() -> int:
 	match phase:
 		Phase.DIALOG: return GameFlow.Screen.DIALOG
-		Phase.CARD, Phase.TASK: return GameFlow.Screen.READER
+		Phase.CARD, Phase.TASK, Phase.TUTORIAL: return GameFlow.Screen.READER
 		Phase.LEAVE: return GameFlow.Screen.LEAVE
 	return GameFlow.Screen.LAB
 
@@ -151,8 +156,13 @@ func on_work_time(minutes: int) -> void:
 	skip_ids.append_array(["D1-513", "D1-514"] if minutes >= 0 else ["D1-510", "D1-511", "D1-512"])
 
 
-## One tutorial card was stamped with `key`.
+## One tutorial card was graded with `key`.
 func on_card_done(key: int) -> void:
+	if phase == Phase.TUTORIAL:
+		skip_ids.append_array(skips_for(card_n, key))
+		tutorial_graded = maxi(tutorial_graded, card_n)
+		resume_after = TUTORIAL_RESUME.get(tutorial_graded, resume_after)
+		return
 	if phase != Phase.CARD:
 		return
 	skip_ids.append_array(skips_for(card_n, key))
@@ -160,8 +170,9 @@ func on_card_done(key: int) -> void:
 
 
 func on_scene_done() -> void:
-	if phase != Phase.DIALOG:
+	if phase != Phase.DIALOG and phase != Phase.TUTORIAL:
 		return
+	phase = Phase.DIALOG
 	var key := scene_key()
 	resume_after = ""
 	closeup = ""
@@ -175,6 +186,8 @@ func on_scene_done() -> void:
 		pending = Phase.TASK
 		target = "desk"
 		phase = Phase.LAB_FREE
+	elif scene_key() == TUTORIAL_SCENE:
+		phase = Phase.TUTORIAL
 
 
 ## Words to put in the reader when the task starts: what is left of the tutorial pile, then the 15.
@@ -219,7 +232,7 @@ func to_dict() -> Dictionary:
 	return {"phase": phase, "scene_i": scene_i, "resume_after": resume_after, "card_n": card_n,
 		"light": light, "skip_ids": skip_ids.duplicate(), "pending": pending, "task_started": task_started,
 		"leak_fixed": leak_fixed, "bucket_full": bucket_full, "player_name": player_name,
-		"closeup": closeup, "panel": panel, "target": target, "work_time": work_time,
+		"closeup": closeup, "panel": panel, "target": target, "work_time": work_time, "tutorial_graded": tutorial_graded,
 		"history": history.duplicate(true)}
 
 
@@ -240,3 +253,4 @@ func from_dict(d: Dictionary) -> void:
 	target = str(d.get("target", "desk"))
 	work_time = int(d.get("work_time", -1))
 	history = Array(d.get("history", [])).duplicate(true)
+	tutorial_graded = int(d.get("tutorial_graded", 0))

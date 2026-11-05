@@ -55,6 +55,12 @@ func _step() -> bool:
 		set_process(false)
 		main._take_shot(str(main.args.get("shot", "shot.png")), 5)
 		return true
+	if want != "" and main.screen is ReaderScreen and main.screen.tutorial and main.screen.tutorial.is_talking() \
+			and main.screen.tutorial.runner.current().get("id", "") == want:
+		main.screen.tutorial.runner.revealed = main.screen.tutorial.runner.total_chars()
+		set_process(false)
+		main._take_shot(str(main.args.get("shot", "shot.png")), 5)
+		return true
 	if want == "LEAVE" and main.screen is DayEndScreen and main.screen.title_alpha() >= 1.0:
 		set_process(false)
 		main._take_shot(str(main.args.get("shot", "shot.png")), 5)
@@ -88,7 +94,9 @@ func _step() -> bool:
 		var m: ReaderModel = s.model
 		if m.paused:
 			m.focus_gained()   # a background window loses focus (C-3); the autoplayer has none
-		if m.can_read() and m.t > 1.0:
+		if s.tutorial and s.tutorial.is_talking():
+			_action("ui_accept")
+		elif m.can_read() and m.t > 1.0:
 			_action("ui_accept")
 		elif m.can_grade():
 			_key(KEY_3)

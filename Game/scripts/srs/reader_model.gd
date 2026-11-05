@@ -27,6 +27,9 @@ var _exposure_counted := false
 var clock := 0.0             # unix time source for FSRS (set by the screen)
 var card_limit := -1         # tutorial: stop after this many stamped cards (-1 = whole pile)
 var cards_done := 0
+var clock_hold := false      # a tutorial line is up: the scan waits (reaction time stays clean)
+var read_count := 0          # handles pulled / keys pressed since this model started
+var grade_count := 0
 
 
 func start(s: StudySession) -> void:
@@ -53,9 +56,24 @@ func _begin_card() -> void:
 	card_changed.emit(shown_id)
 
 
+## Tutorial: an empty reader until the script puts a document in (no `finished` signal).
+func start_empty(s: StudySession) -> void:
+	session = s
+	phase = Phase.FINISHED
+	shown_id = ""
+
+
+## Tutorial: the script puts this word in now (it goes on top of the pile; one card only).
+func insert(word: String) -> void:
+	session.queue.erase(word)
+	session.queue.push_front(word)
+	card_limit = cards_done + 1
+	_begin_card()
+
+
 func tick(delta: float) -> void:
-	if paused:
-		return
+	if paused or (clock_hold and phase == Phase.SCAN):
+		return   # a tutorial line only stops the scan clock; the paper still feeds in and stamps
 	t += delta
 	match phase:
 		Phase.INSERT:
@@ -102,6 +120,7 @@ func read() -> bool:
 	if not can_read():
 		return false
 	reaction = t
+	read_count += 1
 	phase = Phase.READ
 	t = 0.0
 	return true
@@ -116,6 +135,7 @@ func grade(key: int) -> int:
 	if not can_grade() or key < 1 or key > 4:
 		return 0
 	last_key = key
+	grade_count += 1
 	last_grade = session.submit(key, reaction, clock)
 	phase = Phase.STAMP
 	t = 0.0

@@ -149,12 +149,15 @@ func _show(s: int) -> void:
 		screen = _dialog_screen()
 	elif s == GameFlow.Screen.READER:
 		screen = ReaderScreen.new()
-		if director:
-			_fill_reader(screen)
+		if director and director.phase == DayDirector.Phase.TUTORIAL:
+			_tutorial_reader(screen)
 		else:
-			var pile := str(args.get("pile", "tutorial"))
-			session.start(bank.d1_queue.get(pile, bank.d1_queue.tutorial))
-		screen.setup(session, bank)
+			if director:
+				_fill_reader(screen)
+			else:
+				var pile := str(args.get("pile", "tutorial"))
+				session.start(bank.d1_queue.get(pile, bank.d1_queue.tutorial))
+			screen.setup(session, bank)
 	elif s == GameFlow.Screen.LEAVE:
 		screen = DayEndScreen.new()
 	else:
@@ -213,6 +216,19 @@ func _stability_dots() -> Array:
 		var st: float = float(session.records.get(w, {}).get("stability", 0.0))
 		out.append(0 if st <= 0.0 else (1 if st < 1.0 else (2 if st < 3.0 else (3 if st < 7.0 else 4))))
 	return out
+
+
+## T-2 on the reader: the chief's lines run over the reader and put documents 1-5 in.
+func _tutorial_reader(rs: ReaderScreen) -> void:
+	var talk := TutorialTalk.new()
+	talk.model = rs.model
+	talk.director = director
+	talk.runner.vars["이름"] = director.player_name
+	talk.runner.shown.connect(director.on_line_shown)
+	talk.runner.shown.connect(func(_e): _save())
+	rs.tutorial = talk
+	rs.setup(session, bank)
+	talk.start(DialogueRunner.scene_from_file(STORY, "D1", DayDirector.TUTORIAL_SCENE), director.resume_after)
 
 
 ## Tutorial: the card the script names goes on top and the reader stops after it.
