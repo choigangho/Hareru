@@ -151,3 +151,17 @@ func test_name_input() -> void:
 	r2.load_scene([n, _line("a", "주임", "", "x")])
 	r2.submit_name("")
 	t.eq(r2.vars["이름"], "신입", "empty keeps the default")
+
+
+func test_shown_lines_for_history() -> void:
+	var r := DialogueRunner.new()
+	var got := []
+	r.shown.connect(func(e): got.append(e))
+	r.vars["이름"] = "하루"
+	r.load_scene([_line("a", "연출"), _line("b", "주인공", "", "{이름}입니다"), _line("c", "주임", "はい。", "네.")])
+	r.advance()
+	r.advance()
+	t.eq(got.size(), 2, "direction lines are not history")
+	t.eq(got[0].who, "하루", "name as it was")
+	t.eq(got[0].text, "하루입니다", "vars filled")
+	t.eq(got[1].meaning, "네.", "Japanese line keeps its meaning")

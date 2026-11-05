@@ -180,6 +180,9 @@ func _dialog_screen() -> Node2D:
 	ds.setup(DialogueRunner.scene_from_file(STORY, "D1", key), key, director.resume_after)
 	ds.runner.skip_ids = director.skip_ids
 	ds.runner.vars["이름"] = director.player_name
+	ds.runner.shown.connect(director.on_line_shown)
+	if ds is DialogScreen:
+		ds.history = director.history
 	if director.work_time >= 0:
 		ds.runner.vars["출근"] = "%02d:%02d" % [director.work_time / 60, director.work_time % 60]
 	ds.runner.time_given.connect(func(m: int):

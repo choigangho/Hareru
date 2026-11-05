@@ -200,3 +200,17 @@ func test_start_at_sets_earlier_changes() -> void:
 	t.eq(d.light, LabScreen.LightState.BEFORE_LAMP, "lamp not yet")
 	d.start_at("T-9")
 	t.eq(d.light, LabScreen.LightState.AFTER_LAMP, "lamp on before T-9")
+
+
+func test_history_keeps_lines_once_and_saves() -> void:
+	var d := _director()
+	d.on_line_shown({"id": "D1-100", "who": "주임 연구원", "text": "a", "meaning": ""})
+	d.on_line_shown({"id": "D1-100", "who": "주임 연구원", "text": "a", "meaning": ""})
+	d.on_line_shown({"id": "D1-101", "who": "하루", "text": "b", "meaning": ""})
+	t.eq(d.history.size(), 2, "a rebuilt screen on the same line is not kept twice")
+	for i in DayDirector.HISTORY_MAX + 5:
+		d.on_line_shown({"id": "X-%d" % i, "text": ""})
+	t.eq(d.history.size(), DayDirector.HISTORY_MAX, "capped")
+	var e := _director()
+	e.from_dict(JSON.parse_string(JSON.stringify(d.to_dict())))
+	t.eq(e.history.back().id, d.history.back().id, "history survives the save")

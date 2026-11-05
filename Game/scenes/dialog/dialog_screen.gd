@@ -35,6 +35,11 @@ var panel := ""
 var panel_view: PanelView
 var dots: Array = []
 var dock_nodes: Array = []
+var history: Array = []       # the director's list of lines seen today (shared reference)
+var peek := 0                 # 0 = live line, n = n lines back shown in the dock
+var history_view: HistoryView
+const KNOB_UP := Rect2(1216, 548, 64, 64)     # dock's upper knob: previous line (§9 ≥ 64)
+const KNOB_DOWN := Rect2(1216, 612, 64, 64)   # lower knob: all of today's lines
 var closeup_layer: Node2D   # dim + paper between the lab and the dock (memo mock: dim 150, x2 at 220,100)
 const CLOSEUPS := {"memo": ["closeups/memo_closeup_kana.png", Vector2(220, 100)]}
 var bucket_full := false
@@ -82,6 +87,14 @@ func _ready() -> void:
 		_refresh())
 	players.add_child(panel_view)
 	set_panel(panel)
+	var hlayer := CanvasLayer.new()
+	hlayer.layer = 7
+	add_child(hlayer)
+	history_view = HistoryView.new()
+	history_view.visible = false
+	history_view.closed.connect(func(): history_view.visible = false)
+	hlayer.add_child(history_view)
+	runner.shown.connect(func(_e): _set_peek(0))
 	runner.finished.connect(func(): EventBus.dialog_finished.emit(scene_key))
 	runner.load_scene(_lines, _start_after)
 	_refresh()
@@ -125,8 +138,65 @@ func set_closeup(n: String) -> void:
 	closeup_layer.add_child(paper)
 
 
+## Lines before the current one (the current line is the newest history entry).
+func past_lines() -> Array:
+	var p := history.duplicate()
+	if not p.is_empty() and p.back().get("id", "") == runner.current().get("id", ""):
+		p.pop_back()
+	return p
+
+
+func _set_peek(n: int) -> void:
+	var p := past_lines()
+	peek = clampi(n, 0, p.size())
+	if text:
+		text.peek = p[p.size() - peek] if peek > 0 else {}
+	if peek > 0 and portrait:
+		var tex := portrait_for(text.peek.get("speaker", ""), text.peek.get("expression", ""))
+		portrait.visible = tex != "" and panel == ""
+		if tex != "":
+			portrait.texture = load(ART + "portraits/%s.png" % tex)
+	elif portrait:
+		_refresh()
+
+
+func open_history() -> void:
+	_set_peek(0)
+	history_view.entries = past_lines()
+	history_view.scroll = 0
+	history_view.visible = true
+	history_view.queue_redraw()
+
+
+## History keys work in every dialog state: ←/upper knob = one line back, → = forward,
+## wheel up / H / lower knob = all of today's lines. Returns true when the event was used.
+func _history_input(e: InputEvent) -> bool:
+	var click: bool = e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT
+	if e is InputEventKey and e.pressed and not e.echo and e.keycode == KEY_LEFT:
+		_set_peek(peek + 1)
+	elif e is InputEventKey and e.pressed and not e.echo and e.keycode == KEY_RIGHT and peek > 0:
+		_set_peek(peek - 1)
+	elif e is InputEventKey and e.pressed and not e.echo and e.keycode == KEY_H:
+		open_history()
+	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_WHEEL_UP:
+		open_history()
+	elif click and panel == "" and KNOB_UP.has_point(e.position):
+		_set_peek(peek + 1)
+	elif click and panel == "" and KNOB_DOWN.has_point(e.position):
+		open_history()
+	elif peek > 0 and (click or e.is_action_pressed("ui_accept") or e.is_action_pressed("ui_cancel")):
+		_set_peek(0)       # back to the live line; does not advance
+	else:
+		return false
+	return true
+
+
 func _unhandled_input(e: InputEvent) -> void:
 	if runner.is_done() or runner.hold or typewriter:
+		return
+	if history_view and history_view.visible:
+		return
+	if _history_input(e):
 		return
 	if panel != "":
 		_panel_input(e)

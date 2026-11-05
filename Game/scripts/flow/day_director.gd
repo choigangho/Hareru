@@ -38,6 +38,8 @@ var closeup := ""          # close-up cut on screen ("" = none)
 var panel := ""            # device panel open in the dialog ("logbook" / "settings")
 var target := "desk"       # what glows in free lab time: desk / clipboard / breaker
 var work_time := -1        # D1-509 minutes after midnight, -1 = later / not set
+var history: Array = []    # lines seen today, oldest first (지난 대사), capped at HISTORY_MAX
+const HISTORY_MAX := 400
 var tutorial: Array = []   # word ids of documents 1-5
 var task: Array = []       # word ids of the 15 task documents
 
@@ -131,6 +133,14 @@ func on_quest(_line: Dictionary) -> void:
 	leak_fixed = true   # Day 1 has one quest: 천장 누수 막기
 
 
+func on_line_shown(e: Dictionary) -> void:
+	if not history.is_empty() and history.back().get("id", "") == e.get("id", ""):
+		return   # the same line again (screen rebuilt on it)
+	history.append(e)
+	if history.size() > HISTORY_MAX:
+		history.pop_front()
+
+
 func on_name(n: String) -> void:
 	player_name = n
 
@@ -209,7 +219,8 @@ func to_dict() -> Dictionary:
 	return {"phase": phase, "scene_i": scene_i, "resume_after": resume_after, "card_n": card_n,
 		"light": light, "skip_ids": skip_ids.duplicate(), "pending": pending, "task_started": task_started,
 		"leak_fixed": leak_fixed, "bucket_full": bucket_full, "player_name": player_name,
-		"closeup": closeup, "panel": panel, "target": target, "work_time": work_time}
+		"closeup": closeup, "panel": panel, "target": target, "work_time": work_time,
+		"history": history.duplicate(true)}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -228,3 +239,4 @@ func from_dict(d: Dictionary) -> void:
 	panel = str(d.get("panel", ""))
 	target = str(d.get("target", "desk"))
 	work_time = int(d.get("work_time", -1))
+	history = Array(d.get("history", [])).duplicate(true)

@@ -17,6 +17,7 @@ const TEXT_BOX := Rect2(272, 572, 952, 116)  # dock text screen in screen px
 const NAME_POS := Vector2(302, 544)
 
 var runner: DialogueRunner
+var peek := {}   # a past line shown in the dock instead of the live one (← / upper knob), no voice
 
 
 func _ready() -> void:
@@ -49,6 +50,9 @@ static func layout(segs: Array, font: Font, width: float) -> Array:
 
 func _draw() -> void:
 	if runner != null and runner.hold:
+		return
+	if not peek.is_empty():
+		_draw_peek()
 		return
 	if runner == null or runner.current().is_empty() or runner.is_choice() and runner.main_text() == "":
 		_draw_name()
@@ -90,6 +94,28 @@ func _draw() -> void:
 			draw_string(f, Vector2(TEXT_X, my + f.get_ascent(16)), "뜻 보기: 줄 누르기 / Tab", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, PH_DIM)
 	if not runner.is_choice():
 		draw_colored_polygon(PackedVector2Array([Vector2(1196, 668), Vector2(1210, 668), Vector2(1203, 677)]), PH)
+
+
+## A past line: full text with furigana, its meaning under it, a small "지난 대사" tag.
+func _draw_peek() -> void:
+	var f := Fonts.gothic()
+	var who: String = peek.get("who", "")
+	if who != "":
+		draw_string(f, NAME_POS + Vector2(0, f.get_ascent(19)), who, HORIZONTAL_ALIGNMENT_LEFT, -1, 19, CREAM)
+	draw_string(f, Vector2(1000, NAME_POS.y + f.get_ascent(16)), "◀ 지난 대사 · → 지금으로", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, PH_DIM)
+	var runs := layout(Ruby.parse(peek.text), f, TEXT_W)
+	var asc := f.get_ascent(SIZE)
+	var col := PH_DIM
+	for r in runs:
+		var pos := Vector2(TEXT_X + r.x, TEXT_TOP + r.y + asc)
+		draw_string(f, pos, r.text, HORIZONTAL_ALIGNMENT_LEFT, -1, SIZE, AMBER if r.emph else col)
+		if r.ruby != "":
+			var rw := f.get_string_size(r.ruby, HORIZONTAL_ALIGNMENT_LEFT, -1, RUBY_SIZE).x
+			draw_string(f, Vector2(pos.x + (r.w - rw) / 2.0, TEXT_TOP + r.y - 3), r.ruby, HORIZONTAL_ALIGNMENT_LEFT, -1, RUBY_SIZE, PH_DIM)
+	var m: String = peek.get("meaning", "")
+	if m != "":
+		var last_y: float = runs.back().y if not runs.is_empty() else 0.0
+		draw_string(f, Vector2(TEXT_X, TEXT_TOP + last_y + 42 + f.get_ascent(24)), "(" + m + ")", HORIZONTAL_ALIGNMENT_LEFT, TEXT_W, 24, CREAM)
 
 
 func _draw_name() -> void:

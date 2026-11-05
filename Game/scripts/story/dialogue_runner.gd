@@ -8,6 +8,7 @@ signal cue(line: Dictionary)         # text-less 시스템 lines (a document goe
 signal quest_done(line: Dictionary)  # a quest keycap was pressed (D1-312 천장 누수 막기)
 signal name_given(player_name: String)
 signal time_given(minutes: int)      # D1-509 work time, -1 = later
+signal shown(entry: Dictionary)      # a line came up: kept for "지난 대사" (text only, no voice)
 signal finished
 
 const TEXTLESS := ["연출"]
@@ -77,8 +78,16 @@ func next() -> bool:
 			continue
 		revealed = 0.0
 		meaning_open = false
+		shown.emit(entry())
 		return true
 	return false
+
+
+## What the history keeps of the current line (names and {vars} filled as they were then).
+func entry() -> Dictionary:
+	var l := current()
+	return {"id": l.get("id", ""), "who": speaker_name(), "speaker": l.get("speaker", ""),
+		"expression": l.get("expression", ""), "text": main_text(), "meaning": meaning()}
 
 
 func jump_to(line_id: String) -> void:

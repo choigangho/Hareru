@@ -48,6 +48,10 @@ func _step() -> bool:
 	# --shot-line=D1-803: screenshot when that line is fully typed, then quit
 	if want != "" and (main.screen is DialogScreen or main.screen is IntroScreen) and main.screen.runner.current().get("id", "") == want:
 		main.screen.runner.revealed = main.screen.runner.total_chars()
+		if main.screen is DialogScreen and main.args.has("peek"):
+			main.screen._set_peek(int(main.args.peek))
+		if main.screen is DialogScreen and main.args.has("history"):
+			main.screen.open_history()
 		set_process(false)
 		main._take_shot(str(main.args.get("shot", "shot.png")), 5)
 		return true
