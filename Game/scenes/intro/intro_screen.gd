@@ -1,7 +1,7 @@
 class_name IntroScreen
 extends Node2D
-## T-0 intro (mock M-4): typed narration on the old CRT, full-screen cuts (city, code signs,
-## NeuroLex logo in the CRT, alley building) and the voice keycaps. Same runner API as
+## T-0 intro (mock M-4): typed narration on the old CRT (D1-001~003), full-screen cuts (city,
+## code signs, NeuroLex logo, alley building) and the voice keycaps. Same runner API as
 ## DialogScreen so the day director drives it the same way. Art 640x360 in the x2 world.
 ## Keys: Enter/click = next (finishes typing first), Esc = skip the intro (to the voice choice).
 
@@ -18,15 +18,17 @@ const VOICE_LOCKED := [false, true, true]       # owner 2026-11-03: B · C on ho
 const SKIP_TO := "D1-023"                       # Esc: straight to the alley
 
 ## Which picture each line sits on (by line number): crt, city, sign, logo, building.
+## Owner 2026-11-04 (D-14): the CRT only for D1-001~003 (city showing through in green);
+## the later narration that was on the CRT sits on the picture before it (logo, sign).
 static func backdrop_for(line_id: String) -> String:
 	var n := int(line_id.get_slice("-", 1))
-	if n <= 2 or (n >= 11 and n <= 13) or (n >= 17 and n <= 22):
+	if n <= 3:
 		return "crt"
 	if n <= 6:
-		return "city"   # owner 2026-11-04: the city fills the screen from D1-003 (D-12)
-	if n == 10:
+		return "city"
+	if n >= 10 and n <= 13:
 		return "logo"
-	if n <= 16:
+	if n <= 22:
 		return "sign"
 	return "building"
 
@@ -62,6 +64,10 @@ func _ready() -> void:
 	pics.sign = _pic("intro_sign_closeup_v4.png", 2)
 	pics.building = _pic("intro_building_v1.png", 2)
 	pics.crt_on = _pic("intro_crt_screen_on.png", 1)
+	pics.crt_city = _pic("intro_city_v2.png", 1)    # under the frame: only the glass shows it
+	var ph := ShaderMaterial.new()
+	ph.shader = preload("res://shaders/phosphor.gdshader")
+	pics.crt_city.material = ph
 	pics.logo = _pic("intro_neurolex_logo.png", 2)   # full-screen cut like the others (owner 2026-11-04)
 	pics.frame = _pic("intro_crt_frame.png", 1)
 	key_tex = DialogScreen._x2("res://art/ui/ui_keycap_choice_idle.png")
@@ -118,6 +124,7 @@ func _refresh() -> void:
 	match b:
 		"crt":
 			pics.crt_on.visible = true
+			pics.crt_city.visible = true
 			pics.frame.visible = true
 		_:
 			pics[b].visible = true
@@ -183,6 +190,9 @@ func _draw_text() -> void:
 	var now := Ruby.plain_text(runner.main_text()).left(int(runner.revealed))
 	if backdrop == "crt":
 		var y := CRT_TEXT.y
+		# dark band behind the typed lines so they read over the city
+		var rows := paragraph.size() + (0 if runner.is_choice() else 1)
+		text.draw_rect(Rect2(GLASS.position.x, CRT_TEXT.y - 52, 890, 52 + rows * CRT_LINE_H - 6), Color8(6, 16, 10, 200))
 		for p in paragraph:
 			text.draw_string(f, Vector2(CRT_TEXT.x, y), Ruby.plain_text(p), HORIZONTAL_ALIGNMENT_LEFT, GLASS.size.x - 80, SIZE, DialogText.PH)
 			y += CRT_LINE_H
