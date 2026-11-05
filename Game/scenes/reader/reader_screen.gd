@@ -204,9 +204,10 @@ func _part(n: String, pos: Vector2, parent: Node) -> Sprite2D:
 	return s
 
 
-## Which face the monitor shows: only while the chief (주임) is talking.
+## Which face the monitor shows: only while the chief (주임) talks at the very start of the
+## tutorial, before document 1 goes in (owner 2026-11-04: not on every line).
 func chief_face() -> String:
-	if tutorial == null or not tutorial.is_talking():
+	if tutorial == null or not tutorial.is_talking() or tutorial.director.card_n > 0:
 		return ""
 	var l := tutorial.runner.current()
 	if l.get("speaker", "") != "주임":
