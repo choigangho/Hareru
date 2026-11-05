@@ -92,6 +92,7 @@ func test_day_end_title_fades_in() -> void:
 
 func test_intro_backdrops_follow_the_script() -> void:
 	t.eq(IntroScreen.backdrop_for("D1-001"), "crt", "typing on the CRT")
+	t.eq(IntroScreen.backdrop_for("D1-003"), "city", "city full screen from D1-003 (D-12)")
 	t.eq(IntroScreen.backdrop_for("D1-006"), "city", "city cut (D1-006)")
 	t.eq(IntroScreen.backdrop_for("D1-007"), "sign", "code sign close-up")
 	t.eq(IntroScreen.backdrop_for("D1-010"), "logo", "NeuroLex logo 1 cut")

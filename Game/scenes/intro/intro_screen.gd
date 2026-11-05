@@ -20,10 +20,10 @@ const SKIP_TO := "D1-023"                       # Esc: straight to the alley
 ## Which picture each line sits on (by line number): crt, city, sign, logo, building.
 static func backdrop_for(line_id: String) -> String:
 	var n := int(line_id.get_slice("-", 1))
-	if n <= 5 or (n >= 11 and n <= 13) or (n >= 17 and n <= 22):
+	if n <= 2 or (n >= 11 and n <= 13) or (n >= 17 and n <= 22):
 		return "crt"
-	if n == 6:
-		return "city"
+	if n <= 6:
+		return "city"   # owner 2026-11-04: the city fills the screen from D1-003 (D-12)
 	if n == 10:
 		return "logo"
 	if n <= 16:
