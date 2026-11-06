@@ -22,6 +22,7 @@ var reaction := -1.0         # seconds from scan start to handle pull
 var last_grade := 0
 var last_key := 0
 var shown_id := ""
+var sense_reps := 0          # reviews before this card: picks its sense (kept through the stamp)
 var paused := false          # window lost focus before reading (C-3)
 var _exposure_counted := false
 var clock := 0.0             # unix time source for FSRS (set by the screen)
@@ -52,6 +53,7 @@ func _begin_card() -> void:
 	reaction = -1.0
 	last_key = 0
 	shown_id = session.current()
+	sense_reps = int(session.records.get(shown_id, {}).get("reps", 0))
 	_exposure_counted = false
 	card_changed.emit(shown_id)
 
@@ -109,6 +111,16 @@ func head_frame() -> int:
 		if t >= pt - SWEEP and t < pt:
 			return 1 + int((t - (pt - SWEEP)) / SWEEP * 4.0)
 	return 0
+
+
+## Scan bar on the front reader: 0..1 down the glass during a pass, -1 when parked.
+func sweep() -> float:
+	if phase != Phase.SCAN or t >= SCAN_END:
+		return -1.0
+	for pt in PASS_TIMES:
+		if t >= pt - SWEEP and t < pt:
+			return (t - (pt - SWEEP)) / SWEEP
+	return -1.0
 
 
 func can_read() -> bool:

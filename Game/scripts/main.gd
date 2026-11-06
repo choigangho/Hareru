@@ -5,6 +5,7 @@ extends Node
 ##   --day --shot=path.png [--wait=frames]
 ##   dialog: --scene=T-1 (D1 scene key) [--line=D1-108] [--typed] [--meaning]
 ##   reader: --pile=tutorial|task [--at=seconds into scan] [--read] [--grade=1-4]
+##           [--word=id] [--met=id,id (learned)] [--seen=id,id (passed)] [--scroll=px]
 
 const ART_SCALE := 2
 const STORY := "res://data/story_n5.json"
@@ -258,6 +259,18 @@ func _apply_args() -> void:
 			screen.runner.meaning_open = true
 	if screen is ReaderScreen:
 		var m: ReaderModel = screen.model
+		screen.keep_focus = args.has("shot") and not args.has("autoplay")
+		if screen.keep_focus:
+			m.paused = false
+		if args.has("word"):   # preview: this word on top, with words met before (folder tabs)
+			m.session.queue.erase(str(args.word))
+			m.session.queue.push_front(str(args.word))
+			m.shown_id = str(args.word)
+			m.sense_reps = int(m.session.records.get(m.shown_id, {}).get("reps", 0))
+		for id in str(args.get("met", "")).split(",", false):
+			m.session.records[id] = {"reps": 1}
+		for id in str(args.get("seen", "")).split(",", false):
+			m.session.exposures[id] = 1
 		m.tick(ReaderModel.INSERT_TIME)
 		if args.has("at"):
 			m.tick(float(args.at))
@@ -265,6 +278,10 @@ func _apply_args() -> void:
 			m.read()
 		if args.has("grade"):
 			m.grade(int(args.grade))
+		if args.has("scroll"):
+			screen.paper.step(0.0)
+			screen.paper.scroll.move(float(args.scroll))
+			screen.paper.scroll.s = screen.paper.scroll.target
 	if screen is LabScreen:
 		var lights := {"before": LabScreen.LightState.BEFORE_LAMP, "after": LabScreen.LightState.AFTER_LAMP, "night": LabScreen.LightState.NIGHT}
 		if args.has("light") and lights.has(str(args.light)):

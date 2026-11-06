@@ -1,25 +1,28 @@
 class_name ReaderScreen
 extends Node2D
-## Top-down reader desk (mock M-3). Art is 320x180 shown x4 (this node scales x2 inside the x2 world).
-## Keys: Space/Enter or click the handle = read, 1-4 or click a key = grade, Esc = stand up.
+## Front reader (v13, owner 2026-11-04). Art is 320x180 shown x4 (this node scales x2 inside
+## the x2 world); the paper, scan bar, plates, receipt, folders and monitor are drawn on top
+## at screen resolution (ReaderPaper, ReaderDesk).
+## Keys: Space/Enter or click the paper = read, 1-4 or click a lever = grade, Esc = stand up,
+## wheel / two fingers / ↑↓ over the paper = scroll it.
 
-const ART := "res://art/reader/"
-const STAMP_POS := Vector2(186, 90)
-const HANDLE_RECT := Rect2(920, 140, 140, 500)   # screen px around the orange grip
-const STAND_RECT := Rect2(24, 640, 176, 64)       # "일어서기" keycap on the desk (§9: Esc also works)
+const ART := "res://art/reader_front/"
+const STAND_RECT := Rect2(24, 640, 176, 64)       # "일어서기" keycap on the printer base (§9: Esc also works)
 const BAND := Rect2(0, 650, 1280, 70)             # subtitle band, same as the dialog's
-const FACES := {"calm": "monitor_face_calm", "smile": "monitor_face_smile", "flustered": "monitor_face_flustered"}
+const LOG_MAX := 12
 
 var model := ReaderModel.new()
 var bank: WordBank
-var parts := {}
-var text: ReaderText
+var paper: ReaderPaper
+var desk: ReaderDesk
 var ui: CanvasLayer
-var top: Node2D
 var stand_button: NinePatchRect
 var stand_blocked_flash := 0.0
 var tutorial: TutorialTalk = null   # T-2: the chief talks over the reader (owner 2026-11-04)
 var talk_layer: Control
+var reading_log := []                     # reading log on the receipt, newest first
+var _log_no := 0
+var keep_focus := false             # screenshots: a window opening must not restart the card (C-3)
 
 
 func setup(session: StudySession, word_bank: WordBank) -> void:
@@ -31,46 +34,23 @@ func setup(session: StudySession, word_bank: WordBank) -> void:
 
 
 func _ready() -> void:
-	# Draw order: desk + paper (world) → paper text (layer 1) → example mosaic (layer 2)
-	# → moving machine parts above the paper (layer 3): the head passes OVER the text.
 	scale = Vector2(2, 2)
-	_part("desk_reader_bg", Vector2.ZERO, self)
-	_part("paper_on_mat", Vector2.ZERO, self)
-	var top_layer := CanvasLayer.new()
-	top_layer.layer = 3
-	add_child(top_layer)
-	top = Node2D.new()
-	top.scale = Vector2(4, 4)
-	top_layer.add_child(top)
-	for n in ["head_park", "head_scan_1", "head_scan_2", "head_scan_3", "head_scan_4", "arm_up", "arm_half", "arm_down", "monitor_face_calm", "monitor_face_smile", "monitor_face_flustered"]:
-		_part(n, Vector2.ZERO, top)
-	for i in range(1, 5):
-		_part("key_%d_lit" % i, Vector2.ZERO, top)
-		_part("key_%d_down" % i, Vector2.ZERO, top)
-	_part("stamp_doku", STAMP_POS, top)
-	_part("stamp_sai", STAMP_POS, top)
-	for n in FACES.values():
-		parts[n].visible = false   # chief's face only while she talks (mock ③④)
+	var bg := Sprite2D.new()
+	bg.texture = load(ART + "reader_bg.png")
+	bg.centered = false
+	add_child(bg)
 	ui = CanvasLayer.new()
 	add_child(ui)
-	text = ReaderText.new()
-	text.model = model
-	text.bank = bank
-	ui.add_child(text)
+	paper = ReaderPaper.new()
+	paper.model = model
+	paper.bank = bank
+	ui.add_child(paper)
+	desk = ReaderDesk.new()
+	desk.model = model
+	desk.bank = bank
+	desk.screen = self
+	ui.add_child(desk)
 	_build_stand_button()
-	var mlayer := CanvasLayer.new()
-	mlayer.layer = 2
-	add_child(mlayer)
-	var mos := ColorRect.new()
-	mos.position = Vector2(450, 360)
-	mos.size = Vector2(436, 44)
-	var mat := ShaderMaterial.new()
-	mat.shader = preload("res://shaders/mosaic.gdshader")
-	mat.set_shader_parameter("rect_size", mos.size)
-	mos.material = mat
-	mos.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	mlayer.add_child(mos)
-	text.mosaic = mos
 	if tutorial:
 		stand_button.visible = false   # the script ends the tutorial (D1-257), not the player
 		var tl := CanvasLayer.new()
@@ -84,7 +64,7 @@ func _ready() -> void:
 		tutorial.finished.connect(func(): EventBus.dialog_finished.emit(DayDirector.TUTORIAL_SCENE))
 	else:
 		model.finished.connect(func(): EventBus.reading_finished.emit())
-	_apply()
+	_apply(0.0)
 
 
 func _process(delta: float) -> void:
@@ -96,38 +76,19 @@ func _process(delta: float) -> void:
 		talk_layer.queue_redraw()
 	model.tick(delta)
 	stand_blocked_flash = maxf(0.0, stand_blocked_flash - delta)
-	_apply()
+	_apply(delta)
 
 
-func _apply() -> void:
-	var P := ReaderModel.Phase
-	var ph := model.phase
-	parts.paper_on_mat.visible = ph != P.FINISHED
-	parts.paper_on_mat.position.x = -40.0 * (1.0 - clampf(model.t / ReaderModel.INSERT_TIME, 0, 1)) if ph == P.INSERT else 0.0
-	var hf := model.head_frame()
-	parts.head_park.visible = hf == 0
-	for i in range(1, 5):
-		parts["head_scan_%d" % i].visible = hf == i
-	var read_anim := ph == P.READ and model.t < 0.25
-	parts.arm_up.visible = ph in [P.INSERT, P.SCAN, P.FINISHED]
-	parts.arm_half.visible = read_anim
-	parts.arm_down.visible = (ph == P.READ and not read_anim) or ph == P.STAMP
-	for i in range(1, 5):
-		parts["key_%d_lit" % i].visible = ph == P.READ
-		parts["key_%d_down" % i].visible = ph == P.STAMP and model.last_key == i
-	# while a read card waits for its key, the stand-up keycap is dimmed; a blocked press makes the lamps blink
+func _apply(delta: float) -> void:
+	paper.step(delta)
+	desk.queue_redraw()
+	# while a read card waits for its key, the stand-up keycap is dimmed
 	stand_button.modulate = Color(1, 1, 1, 0.45) if not model.can_stand_up() else Color.WHITE
-	if stand_blocked_flash > 0.0 and int(stand_blocked_flash * 10) % 2 == 0:
-		for i in range(1, 5):
-			parts["key_%d_lit" % i].visible = false
-	var face := chief_face()
-	for k in FACES:
-		parts[FACES[k]].visible = k == face
-	parts.stamp_doku.visible = ph == P.STAMP and model.stamped_graduated()
-	parts.stamp_sai.visible = ph == P.STAMP and not model.stamped_graduated()
 
 
 func _unhandled_input(e: InputEvent) -> void:
+	if _scroll_input(e):
+		return
 	if tutorial and tutorial.is_talking():
 		var click: bool = e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT
 		if click or e.is_action_pressed("ui_accept"):
@@ -141,23 +102,58 @@ func _unhandled_input(e: InputEvent) -> void:
 		tutorial.update()
 
 
+## Wheel / trackpad two fingers over the paper, or ↑↓, move the paper (same step as Godot's
+## ScrollContainer: an eighth of the view per notch). Returns true when the event was used.
+func _scroll_input(e: InputEvent) -> bool:
+	var step := PaperScroll.VIEW / 8.0
+	if e is InputEventMouseButton and e.pressed and e.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		if not ReaderPaper.on_glass(e.position):
+			return false
+		var f: float = e.factor if e.factor > 0.0 else 1.0
+		paper.scroll.move(step * f * (-1.0 if e.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0))
+		return true
+	if e is InputEventPanGesture:
+		if not ReaderPaper.on_glass(e.position):
+			return false
+		paper.scroll.move(PaperScroll.VIEW * e.delta.y / 8.0)
+		return true
+	if e is InputEventKey and e.pressed and e.keycode in [KEY_UP, KEY_DOWN] and paper.scroll.can_scroll():
+		paper.scroll.move(step * (-1.0 if e.keycode == KEY_UP else 1.0))
+		return true
+	return false
+
+
 func _reader_input(e: InputEvent) -> void:
 	if e.is_action_pressed("ui_cancel"):
 		_try_stand_up()
 		return
 	if e is InputEventKey and e.pressed and not e.echo and e.keycode >= KEY_1 and e.keycode <= KEY_4:
-		model.grade(e.keycode - KEY_1 + 1)
+		_grade(e.keycode - KEY_1 + 1)
 	elif e.is_action_pressed("ui_accept"):
 		model.read()
 	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
 		if STAND_RECT.has_point(e.position):
 			_try_stand_up()
 			return
-		if HANDLE_RECT.has_point(e.position):
+		if ReaderPaper.on_glass(e.position):
 			model.read()
 		for i in 4:
-			if (ReaderText.KEY_RECTS[i] as Rect2).has_point(e.position):
-				model.grade(i + 1)
+			if (ReaderDesk.KEY_RECTS[i] as Rect2).has_point(e.position):
+				_grade(i + 1)
+
+
+func _grade(key: int) -> void:
+	var id := model.word_id()
+	var reaction := model.reaction
+	if model.grade(key) == 0:
+		return
+	var w := bank.word(id)
+	var now := Time.get_time_dict_from_system()
+	_log_no += 1
+	reading_log.push_front({"no": _log_no, "time": "%02d:%02d" % [now.hour, now.minute], "term": w.get("term", id),
+		"reading": w.get("reading", ""), "reaction": reaction, "key": ReaderDesk.KEY_NAMES[key - 1]})
+	if reading_log.size() > LOG_MAX:
+		reading_log.resize(LOG_MAX)
 
 
 func _try_stand_up() -> void:
@@ -168,6 +164,8 @@ func _try_stand_up() -> void:
 
 
 func _notification(what: int) -> void:
+	if keep_focus:
+		return
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
 		model.focus_lost()
 	elif what == NOTIFICATION_APPLICATION_FOCUS_IN:
@@ -191,17 +189,6 @@ func _build_stand_button() -> void:
 	box.add_child(label)
 	ui.add_child(box)
 	stand_button = box
-
-
-func _part(n: String, pos: Vector2, parent: Node) -> Sprite2D:
-	var s := Sprite2D.new()
-	s.name = n
-	s.texture = load(ART + n + ".png")
-	s.centered = false
-	s.position = pos
-	parent.add_child(s)
-	parts[n] = s
-	return s
 
 
 ## Which face the monitor shows: only while the chief (주임) talks at the very start of the

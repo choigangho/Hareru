@@ -16,6 +16,20 @@ static func gothic() -> Font:
 	return _gothic
 
 
+static var _gothic_bold: Font
+
+
+## Bold gothic (the current sense on the reader's meaning line, D-15).
+static func gothic_bold() -> Font:
+	if _gothic_bold == null:
+		var f := SystemFont.new()
+		f.font_names = (gothic() as SystemFont).font_names
+		f.font_weight = 700
+		f.antialiasing = TextServer.FONT_ANTIALIASING_GRAY
+		_gothic_bold = f
+	return _gothic_bold
+
+
 static func mincho() -> Font:
 	if _mincho == null:
 		var f := SystemFont.new()
