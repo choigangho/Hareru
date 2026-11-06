@@ -21,6 +21,7 @@ var args := {}
 
 
 func _ready() -> void:
+	add_child(Sound.new())
 	world = Node2D.new()
 	world.name = "World"
 	world.scale = Vector2(ART_SCALE, ART_SCALE)
@@ -166,6 +167,20 @@ func _show(s: int) -> void:
 		screen.title = GameFlow.Screen.keys()[s]
 	screen.name = "Screen"
 	world.add_child(screen)
+	_sound_place(s)
+
+
+## Loops for the place on screen: the street (intro), the lab, the reader, the night (leave).
+func _sound_place(s: int) -> void:
+	var leak := director != null and not director.leak_fixed
+	if s == GameFlow.Screen.READER:
+		Sound.go("reader", leak)
+	elif s == GameFlow.Screen.LEAVE:
+		Sound.go("night")
+	elif screen is IntroScreen:
+		Sound.go("outside")
+	else:
+		Sound.go("lab", leak)
 
 
 func _dialog_screen() -> Node2D:
@@ -193,6 +208,9 @@ func _dialog_screen() -> Node2D:
 		director.on_work_time(m)
 		_save())
 	ds.runner.quest_done.connect(director.on_quest)
+	ds.runner.quest_done.connect(func(l: Dictionary): Sound.on_direction(l))
+	ds.runner.shown.connect(Sound.on_line)
+	ds.runner.direction.connect(Sound.on_direction)
 	ds.runner.name_given.connect(func(n: String):
 		director.on_name(n)
 		_save())
@@ -227,6 +245,8 @@ func _tutorial_reader(rs: ReaderScreen) -> void:
 	talk.runner.vars["이름"] = director.player_name
 	talk.runner.shown.connect(director.on_line_shown)
 	talk.runner.shown.connect(func(_e): _save())
+	talk.runner.shown.connect(Sound.on_line)
+	talk.runner.direction.connect(Sound.on_direction)
 	rs.tutorial = talk
 	rs.setup(session, bank)
 	talk.start(DialogueRunner.scene_from_file(STORY, "D1", DayDirector.TUTORIAL_SCENE), director.resume_after)

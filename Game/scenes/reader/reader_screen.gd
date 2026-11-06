@@ -22,6 +22,8 @@ var tutorial: TutorialTalk = null   # T-2: the chief talks over the reader (owne
 var talk_layer: Control
 var reading_log := []                     # reading log on the receipt, newest first
 var _log_no := 0
+var _last_phase := -1
+var _was_sweeping := false
 var keep_focus := false             # screenshots: a window opening must not restart the card (C-3)
 
 
@@ -75,6 +77,7 @@ func _process(delta: float) -> void:
 			tutorial.runner.tick(delta)
 		talk_layer.queue_redraw()
 	model.tick(delta)
+	_sounds()
 	stand_blocked_flash = maxf(0.0, stand_blocked_flash - delta)
 	_apply(delta)
 
@@ -104,6 +107,35 @@ func _unhandled_input(e: InputEvent) -> void:
 
 ## Wheel / trackpad two fingers over the paper, or ↑↓, move the paper (same step as Godot's
 ## ScrollContainer: an eighth of the view per notch). Returns true when the event was used.
+## Machine sounds follow the model: sheet fed in, each scan pass, the word read aloud after the
+## handle, lever + stamp + receipt print after a key.
+func _sounds() -> void:
+	var P := ReaderModel.Phase
+	var ph := model.phase
+	var sweeping := model.sweep() >= 0.0
+	if sweeping and not _was_sweeping:
+		Sound.fx("scan_pass", -16.0, 0.03)
+	_was_sweeping = sweeping
+	if ph == _last_phase:
+		return
+	_last_phase = ph
+	match ph:
+		P.INSERT:
+			Sound.fx("paper_feed", -10.0, 0.05)
+		P.READ:
+			Sound.say_word(model.word_id())
+		P.STAMP:
+			Sound.fx("lever", -6.0, 0.05)
+			get_tree().create_timer(0.12).timeout.connect(func(): Sound.fx("stamp", -4.0, 0.04))
+			get_tree().create_timer(0.35).timeout.connect(func(): Sound.fx("receipt_print", -14.0))
+
+
+## After reading, the paper reads its example aloud when touched.
+func _say_example() -> void:
+	var n: int = maxi(1, bank.word(model.word_id()).get("senses", []).size())
+	Sound.say_word(model.word_id(), "s%d_example" % (model.sense_reps % n + 1))
+
+
 func _scroll_input(e: InputEvent) -> bool:
 	var step := PaperScroll.VIEW / 8.0
 	if e is InputEventMouseButton and e.pressed and e.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
@@ -136,7 +168,10 @@ func _reader_input(e: InputEvent) -> void:
 			_try_stand_up()
 			return
 		if ReaderPaper.on_glass(e.position):
-			model.read()
+			if model.phase in [ReaderModel.Phase.READ, ReaderModel.Phase.STAMP]:
+				_say_example()
+			else:
+				model.read()
 		for i in 4:
 			if (ReaderDesk.KEY_RECTS[i] as Rect2).has_point(e.position):
 				_grade(i + 1)

@@ -103,6 +103,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not runner.is_done():
 		runner.tick(delta)
+		Sound.type_tick(runner.revealed, false)
 
 
 ## Device panel over the lab; the dock gives way to the subtitle band (owner 2026-11-04).

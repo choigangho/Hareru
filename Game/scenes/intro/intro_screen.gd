@@ -108,6 +108,7 @@ func _pic(file: String, s: int) -> Sprite2D:
 func _process(delta: float) -> void:
 	if not runner.is_done():
 		runner.tick(delta)
+		Sound.type_tick(runner.revealed, true)
 	text.queue_redraw()
 
 
