@@ -1,7 +1,7 @@
 # Docs/04_Design — P1 설계 고정 산출물
 
 > 상태: **P1 결정 확정** (2026-11-03) — 결정 28개 모두 소유자 확정 (4가지는 소유자 수정 반영). 시안(MOCKUPS) 확정 ✅ 2026-11-04 → **P1 완료**. 로드맵: [ROADMAP.md](../00_Project/ROADMAP.md) P1.
-> 기획 원본은 세계관 [01_World](../01_World/README.md) · 인물 [02_Characters](../02_Characters/README.md) · 스토리 [03_Story](../03_Story/README.md) (2026-11-04 STORY_BIBLE · GAME_DESIGN에서 나눔) · [N5_SCRIPT](../03_Story/Acts/N5/N5_SCRIPT.md). 이 폴더는 그것을 **Godot 슬라이스에서 무엇을 만들지**로 고정한다.
+> 기획 원본은 세계관 · 인물 · 스토리 ([목차](../README.md) — 01_World · [CHARACTERS](../02_Characters/CHARACTERS.md) · [MAIN_PLOT](../03_Story/MAIN_PLOT.md)) (2026-11-04 STORY_BIBLE · GAME_DESIGN에서 나눔) · [N5_SCRIPT](../03_Story/Acts/N5/N5_SCRIPT.md). 이 폴더는 그것을 **Godot 슬라이스에서 무엇을 만들지**로 고정한다.
 
 | 문서 | 내용 |
 | :--- | :--- |

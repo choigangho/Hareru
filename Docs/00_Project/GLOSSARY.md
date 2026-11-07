@@ -13,6 +13,6 @@
 | 바벨 패치 | Babel Patch | 2079년 뇌파 통신 프로토콜 일괄 배포 | [TIMELINE](../01_World/TIMELINE.md) |
 | 백화 | 白化 | 한자를 읽는 능력이 사라지는 현상. 화면에는 쓰지 않음 (S-5) | [LANGUAGE](../01_World/LANGUAGE.md) · [SPEECH_DECAY](../04_Design/SPEECH_DECAY.md) |
 | NJL | 国立言語遺産研究所 (こくりつげんごいさんけんきゅうじょ) | 무대가 되는 가상 연구소 | [NJL](../01_World/NJL.md) |
-| 주임 연구원 | 主任研究員 | 하루의 직함. '가이드'라고 부르지 않음 | [chief](../02_Characters/chief.md) |
+| 주임 연구원 | 主任研究員 | 하루의 직함. '가이드'라고 부르지 않음 | [chief](../02_Characters/CHARACTERS.md) |
 | 대분류 | — | 단어의 분야 11개 + 분야 없음. 담당 음성 인물을 정함 | [VOICE_RULES](../06_Voice/VOICE_RULES.md) |
 | 판독 · 판독기 | 判読 · 判読機 | 단어 학습 장면과 그 기계 (自炊式 判読機) | [CORE_LOOP](../04_Design/CORE_LOOP.md) |

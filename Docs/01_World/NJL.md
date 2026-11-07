@@ -2,7 +2,7 @@
 
 > 상태: **초안** (2026-11-04 정리 — 내용은 원문 그대로 옮김)
 > 원본 여부: 이 주제의 원본은 이 파일. 옮겨 온 곳: [GAME_DESIGN §2 · §5.1 · §11](../Archive/GAME_DESIGN.md)
-> 관련: [Places/lab](Places/lab.md)
+> 관련: [Places/lab](PLACES.md)
 
 > 주의: 아래 '2XXX년'은 옛 표기. 시대는 [TIMELINE](TIMELINE.md)(2094년)이 기준. 경영 시스템 범위는 결정 C-2에 따라 P3에서 정한다 ([04_Design/README](../04_Design/README.md)).
 

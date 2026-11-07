@@ -8,7 +8,7 @@
 
 ## 1. 상태 머신 — 화면 상태는 enum 하나
 
-[`Game/scripts/flow/game_flow.gd`](../Game/scripts/flow/game_flow.gd)
+[`Game/scripts/flow/game_flow.gd`](../../Game/scripts/flow/game_flow.gd)
 
 ```gdscript
 enum Screen { LAB, DIALOG, READER, LEAVE }
@@ -26,7 +26,7 @@ func go_to(to_screen) -> bool:
 
 ## 2. 이벤트 버스 — 화면끼리 서로 모르게
 
-[`Game/scripts/autoload/event_bus.gd`](../Game/scripts/autoload/event_bus.gd)는 신호만 있는 전역 노드다.
+[`Game/scripts/autoload/event_bus.gd`](../../Game/scripts/autoload/event_bus.gd)는 신호만 있는 전역 노드다.
 
 ```gdscript
 signal dialog_finished(scene_key)
@@ -35,7 +35,7 @@ signal stand_up
 ```
 
 - 대화 화면은 "끝났다"고 **외치기만** 한다. 누가 듣는지 모른다.
-- [`main.gd`](../Game/scripts/main.gd)가 듣고 `flow.go_to(LAB)`를 부른다.
+- [`main.gd`](../../Game/scripts/main.gd)가 듣고 `flow.go_to(LAB)`를 부른다.
 - 그래서 대화 화면을 고칠 때 판독 화면 코드를 열 필요가 없다. 직접 참조가 있으면 한쪽 이름만 바꿔도 다른 쪽이 깨진다.
 
 ## 3. 로직과 그리기를 나눈 이유

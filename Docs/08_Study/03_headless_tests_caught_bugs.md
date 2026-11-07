@@ -5,7 +5,7 @@
 > 짧은 답: **눈은 "지금 이 장면"만 본다.** 테스트는 순서 · 시간 · 경계값처럼 한 장면에 안 보이는 것을 본다.
 > 이번 P2에서만 실제로 세 번 잡았다.
 
-실행: `godot --headless --path Game -s res://tests/run_tests.gd` (러너: [`Game/tests/run_tests.gd`](../Game/tests/run_tests.gd))
+실행: `godot --headless --path Game -s res://tests/run_tests.gd` (러너: [`Game/tests/run_tests.gd`](../../Game/tests/run_tests.gd))
 
 ---
 

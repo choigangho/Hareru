@@ -2,9 +2,9 @@
 
 > 상태: **확정** (2026-11-04 정리 — 내용은 원문 그대로 옮김)
 > 원본 여부: 이 주제의 원본은 이 파일. 옮겨 온 곳: [STORY_BIBLE §2.2 · §6](../Archive/STORY_BIBLE.md) · [TOWN_DRAFT §6](../Archive/TOWN_DRAFT.md) · [GAME_DESIGN §7](../Archive/GAME_DESIGN.md)
-> 관련: [SECRETS](SECRETS.md) · [Acts/](Acts/README.md)
+> 관련: [SECRETS](SECRETS.md) · [N5_SCRIPT](Acts/N5/N5_SCRIPT.md)
 
-급수별 막 구성은 [Acts/](Acts/README.md). 반전은 [SECRETS](SECRETS.md).
+급수별 막 대본은 `Acts/N?/` (지금은 [N5](Acts/N5/N5_SCRIPT.md)만). 반전은 [SECRETS](SECRETS.md).
 
 ### 2.2 주인공의 단어 암기량 ∝ 하루와의 기억 복원도
 - 하루는 출근 첫날 문이 열리는 순간 주인공을 알아봄.

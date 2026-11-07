@@ -1,5 +1,5 @@
 > 보관 (2026-11-04): 이 문서는 나뉘어 옮겨졌다 — 여기를 근거로 작업하지 않는다.
-> §0·§1·§2 → [01_World/Places](../01_World/Places/README.md) · §1-1 → [LANGUAGE](../01_World/LANGUAGE.md) (+ 마지막 줄 → SECRETS) · §3·§5·§8 → [06_Voice/VOICE_RULES](../06_Voice/VOICE_RULES.md) · §4 → [mio](../02_Characters/mio.md) · §6 → [MAIN_PLOT](../03_Story/MAIN_PLOT.md) + 장소 파일 · §7(캐논 수정 제안) → 옮기지 않음 (반영 완료분)
+> §0·§1·§2 → [01_World/Places](../01_World/PLACES.md) · §1-1 → [LANGUAGE](../01_World/LANGUAGE.md) (+ 마지막 줄 → SECRETS) · §3·§5·§8 → [06_Voice/VOICE_RULES](../06_Voice/VOICE_RULES.md) · §4 → [mio](../02_Characters/CHARACTERS.md) · §6 → [MAIN_PLOT](../03_Story/MAIN_PLOT.md) + 장소 파일 · §7(캐논 수정 제안) → 옮기지 않음 (반영 완료분)
 
 # 연구소 주변 — 장소 × 인물 × 음성 (초안 v0.3)
 

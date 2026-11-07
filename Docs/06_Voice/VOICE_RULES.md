@@ -3,7 +3,7 @@
 > 상태: **확정** (2026-11-04 정리 — 내용은 원문 그대로 옮김)
 > 원본 여부: 이 주제의 원본은 이 파일. 옮겨 온 곳: [TOWN_DRAFT §3 · §5 · §8](../Archive/TOWN_DRAFT.md)
 
-음성은 NJL 게임 인물만 쓴다 (예전 10인 성우 라인업 금지). 인물 목록은 [02_Characters](../02_Characters/README.md).
+음성은 NJL 게임 인물만 쓴다 (예전 10인 성우 라인업 금지). 인물 목록은 [02_Characters](../02_Characters/CHARACTERS.md).
 
 ## 3. 음성 배정 규칙
 

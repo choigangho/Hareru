@@ -1,5 +1,5 @@
 > 보관 (2026-11-04): 이 문서는 나뉘어 옮겨졌다 — 여기를 근거로 작업하지 않는다.
-> §2·§5.1·§11 → [01_World/NJL](../01_World/NJL.md) · §2.1 결정·§6 → [chief](../02_Characters/chief.md) · §3·§5.2~5.6·§8 → [04_Design/INSTITUTE_IDEAS](../04_Design/INSTITUTE_IDEAS.md) · §4 → [ECONOMY](../04_Design/ECONOMY.md) · §6.1 → [SECRETS](../03_Story/SECRETS.md) · §6.2 → [WRITING_RULES](../03_Story/WRITING_RULES.md) · §7 → [MAIN_PLOT](../03_Story/MAIN_PLOT.md) · §2.2(옛 이름 라인업) · §9(SwiftUI 기술) · §10 · §12 → 옮기지 않음 (여기에만)
+> §2·§5.1·§11 → [01_World/NJL](../01_World/NJL.md) · §2.1 결정·§6 → [chief](../02_Characters/CHARACTERS.md) · §3·§5.2~5.6·§8 → [04_Design/INSTITUTE_IDEAS](../04_Design/INSTITUTE_IDEAS.md) · §4 → [ECONOMY](../04_Design/ECONOMY.md) · §6.1 → [SECRETS](../03_Story/SECRETS.md) · §6.2 → [WRITING_RULES](../03_Story/WRITING_RULES.md) · §7 → [MAIN_PLOT](../03_Story/MAIN_PLOT.md) · §2.2(옛 이름 라인업) · §9(SwiftUI 기술) · §10 · §12 → 옮기지 않음 (여기에만)
 
 # Hareru 게임 챕터 기획서 (가제: 「漢字復興計画」 한자 부흥 계획)
 

@@ -5,8 +5,9 @@
 ## 지금 단계
 - Godot 전환 중. 순서와 규칙의 원본은 [Docs/00_Project/ROADMAP.md](Docs/00_Project/ROADMAP.md) (§3 작업 규칙, §3-1 에셋 제작 규칙).
 - 문서 목차와 문서 규칙은 [Docs/README.md](Docs/README.md). 결정 목차 · 대전제는 [Docs/00_Project/DECISIONS.md](Docs/00_Project/DECISIONS.md).
-- 세계관 원본(캐논)은 [01_World](Docs/01_World/README.md) · [02_Characters](Docs/02_Characters/README.md) · [03_Story](Docs/03_Story/README.md). 반전은 [SECRETS](Docs/03_Story/SECRETS.md)에만. 설계 산출물은 [Docs/04_Design/](Docs/04_Design/README.md).
+- 세계관 원본(캐논)은 `Docs/01_World` · [02_Characters/CHARACTERS](Docs/02_Characters/CHARACTERS.md) · `Docs/03_Story` (파일 목록은 [Docs/README](Docs/README.md)). 반전은 [SECRETS](Docs/03_Story/SECRETS.md)에만. 설계 산출물은 [Docs/04_Design/](Docs/04_Design/README.md).
 - `Docs/Archive/`는 대체된 옛 문서다. 근거로 쓰지 않는다.
+- `_trash/`는 휴지통이다 (git 밖, 지우지 않고 옮겨 둔 것). 근거로 쓰지 않고 검색에서 뺀다. 파일을 없앨 때는 지우지 말고 여기로 옮긴다.
 - Swift 앱(`Sources/`)은 기능 동결. `GodotSpike/`는 버리는 참고 코드.
 
 ## 꼭 지킬 것

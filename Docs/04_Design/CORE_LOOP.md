@@ -1,6 +1,6 @@
 # 핵심 루프 (Core Loop)
 
-> 상태: **P1 확정** (2026-11-03) — 결정 28개 소유자 확정. 시안(MOCKUPS)은 확정 대기. 원본: [STORY_BIBLE](../Archive/STORY_BIBLE.md) · [N5_SCRIPT](../03_Story/Acts/N5/N5_SCRIPT.md) · [GAME_DESIGN](../Archive/GAME_DESIGN.md) §3~4 · 스파이크 [`GodotSpike/scripts/`](../../GodotSpike/scripts/).
+> 상태: **P1 확정** (2026-11-03) — 결정 28개 소유자 확정. 시안(MOCKUPS)은 확정 대기. 원본: [STORY_BIBLE](../Archive/STORY_BIBLE.md) · [N5_SCRIPT](../03_Story/Acts/N5/N5_SCRIPT.md) · [GAME_DESIGN](../Archive/GAME_DESIGN.md) §3~4 · 스파이크 [`GodotSpike/scripts/`](../../_trash/GodotSpike/scripts/).
 > 이 문서는 **하루 흐름**과 **판독 1장 안의 흐름**만 다룬다. 날짜 · 해금 · 급수는 [PROGRESSION.md](PROGRESSION.md), 잊은 단어 표현은 [SPEECH_DECAY.md](SPEECH_DECAY.md).
 
 ---

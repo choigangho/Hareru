@@ -61,7 +61,7 @@ t.tween_property(camera, "zoom", Vector2(2.2, 2.2), 0.9)
 좌표 변환 + 상태 동기화 + 애니메이션 타이밍을 매번 손으로 맞춰야 한다.
 결국 종이(카드)는 늘 화면 위에 **떠 있는** SwiftUI 패널이 됐다. 이게 "그냥 화면" 느낌의 정체다.
 
-Godot에서는 후리가나를 직접 만들었다 ([ruby_text.gd](../GodotSpike/scripts/ruby_text.gd), 약 120줄).
+Godot에서는 후리가나를 직접 만들었다 ([ruby_text.gd](../../_trash/GodotSpike/scripts/ruby_text.gd), 약 120줄).
 글자도 세계 안의 물체라서, 종이와 같이 기울고, 같이 날아가고, 같은 셰이더를 받는다.
 
 ---
@@ -92,7 +92,7 @@ VoiceOver(접근성), 알림, iOS 앱 생명주기, 앱스토어 심사 대응. 
 ### (4) 확인 루프가 짧았다
 
 - SwiftUI: 빌드 수십 초 → 시뮬레이터 실행 → 탭으로 화면까지 이동 → 스크린샷.
-- Godot: `godot --path . -- --shot=a.png --desk --reveal` 한 줄로 실행 → 원하는 상태 → 스크린샷 → 종료 ([main.gd](../GodotSpike/scripts/main.gd)의 `_run_shot_args`).
+- Godot: `godot --path . -- --shot=a.png --desk --reveal` 한 줄로 실행 → 원하는 상태 → 스크린샷 → 종료 ([main.gd](../../_trash/GodotSpike/scripts/main.gd)의 `_run_shot_args`).
 
 눈으로 확인하는 루프가 짧을수록 시도를 많이 할 수 있다. 이건 엔진 덕도 있지만, **확인 장치를 처음부터 만들어 둔 덕**이 더 크다.
 SwiftUI에서도 프리뷰나 스냅샷 테스트로 비슷하게 만들 수 있다.
@@ -140,19 +140,19 @@ Hareru는 처음엔 1행이었고, "기억하는 단어로만 말하는 세계"�
 | 개념 | 한 줄 설명 | 이 저장소에서 |
 | :--- | :--- | :--- |
 | 선언형 UI | 상태 → 화면을 선언, 프레임워크가 차이를 계산 | `Sources/Hareru/Features/**` |
-| 씬 그래프 | 물체를 트리로 두고 부모 좌표를 상속 | [main.gd](../GodotSpike/scripts/main.gd) |
-| 게임 루프 | 매 프레임 `_process` → 그리기 반복 | [reader.gd](../GodotSpike/scripts/reader.gd) `_process` |
+| 씬 그래프 | 물체를 트리로 두고 부모 좌표를 상속 | [main.gd](../../_trash/GodotSpike/scripts/main.gd) |
+| 게임 루프 | 매 프레임 `_process` → 그리기 반복 | [reader.gd](../../_trash/GodotSpike/scripts/reader.gd) `_process` |
 | 즉시 그리기 | `_draw`에서 도형을 직접 그림 (immediate mode) | reader.gd `_draw_*` |
 | 트윈 | 시작값→끝값을 시간에 따라 보간 | reader.gd `_run_scans` |
-| 프래그먼트 셰이더 | 픽셀마다 실행되는 GPU 프로그램 | [scan_reveal.gdshader](../GodotSpike/shaders/scan_reveal.gdshader), [focus_dim.gdshader](../GodotSpike/shaders/focus_dim.gdshader) |
+| 프래그먼트 셰이더 | 픽셀마다 실행되는 GPU 프로그램 | [scan_reveal.gdshader](../../_trash/GodotSpike/shaders/scan_reveal.gdshader), [focus_dim.gdshader](../../_trash/GodotSpike/shaders/focus_dim.gdshader) |
 | 화면 텍스처 + 밉맵 블러 | 이미 그린 화면을 다시 읽어 흐리게 | focus_dim.gdshader `textureLod` |
-| 간격 반복(FSRS) | 망각 곡선으로 다음 복습일 계산 | [fsrs.gd](../GodotSpike/scripts/fsrs.gd) ↔ `Sources/Hareru/Services/SRS/FSRSEngine.swift` |
+| 간격 반복(FSRS) | 망각 곡선으로 다음 복습일 계산 | [fsrs.gd](../../_trash/GodotSpike/scripts/fsrs.gd) ↔ `Sources/Hareru/Services/SRS/FSRSEngine.swift` |
 | 경로 의존성 | 기존 선택이 다음 선택을 끌어당김 | 이 글 2-(1) |
 | 스파이크 | 질문 하나에 답하는 버리는 코드 | `GodotSpike/` 전체 |
 
 ## 6. 직접 해 볼 것
 
-1. [fsrs.gd](../GodotSpike/scripts/fsrs.gd)와 `FSRSEngine.swift`를 나란히 놓고 한 함수씩 대응시켜 읽기. 같은 알고리즘이 두 언어에서 어떻게 생겼는지.
-2. [scan_reveal.gdshader](../GodotSpike/shaders/scan_reveal.gdshader)의 `3.0`(덩어리 크기)과 `0.08`(안 드러난 부분의 투명도)을 바꿔 보고 느낌 비교하기.
+1. [fsrs.gd](../../_trash/GodotSpike/scripts/fsrs.gd)와 `FSRSEngine.swift`를 나란히 놓고 한 함수씩 대응시켜 읽기. 같은 알고리즘이 두 언어에서 어떻게 생겼는지.
+2. [scan_reveal.gdshader](../../_trash/GodotSpike/shaders/scan_reveal.gdshader)의 `3.0`(덩어리 크기)과 `0.08`(안 드러난 부분의 투명도)을 바꿔 보고 느낌 비교하기.
 3. SwiftUI로 "카메라가 다가가는" 효과를 30줄 안에서 흉내 내 보고, 어디서 깨지는지 직접 확인하기 (화면 회전, 스크롤 뷰 안에 넣기).
 4. 같은 판독 장면을 SpriteKit 단독(SwiftUI 없이)으로 만든다면 후리가나를 어떻게 할지 설계만 해 보기.

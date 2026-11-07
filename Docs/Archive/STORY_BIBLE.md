@@ -1,5 +1,5 @@
 > 보관 (2026-11-04): 이 문서는 나뉘어 옮겨졌다 — 여기를 근거로 작업하지 않는다.
-> §1.1·1.1-1 → [01_World/TIMELINE](../01_World/TIMELINE.md) · §1.2 → [LANGUAGE](../01_World/LANGUAGE.md) · §1.3 → [NEUROLEX](../01_World/NEUROLEX.md) + [SECRETS](../03_Story/SECRETS.md) · §2.1·2.2-1·2.3 → [SECRETS](../03_Story/SECRETS.md) · §2.2·§6 → [MAIN_PLOT](../03_Story/MAIN_PLOT.md) · §3 → [02_Characters](../02_Characters/README.md) · §4·§5 → [04_Design/UI_PRINCIPLES](../04_Design/UI_PRINCIPLES.md)
+> §1.1·1.1-1 → [01_World/TIMELINE](../01_World/TIMELINE.md) · §1.2 → [LANGUAGE](../01_World/LANGUAGE.md) · §1.3 → [NEUROLEX](../01_World/NEUROLEX.md) + [SECRETS](../03_Story/SECRETS.md) · §2.1·2.2-1·2.3 → [SECRETS](../03_Story/SECRETS.md) · §2.2·§6 → [MAIN_PLOT](../03_Story/MAIN_PLOT.md) · §3 → [02_Characters](../02_Characters/CHARACTERS.md) · §4·§5 → [04_Design/UI_PRINCIPLES](../04_Design/UI_PRINCIPLES.md)
 
 # Hareru (晴れる) — 공식 스토리 바이블 (v0.5 확정본)
 
