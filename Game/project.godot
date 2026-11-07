@@ -19,3 +19,8 @@ window/stretch/aspect="keep"
 [rendering]
 textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
+
+[audio]
+
+; Web: "Sample" playback (the web default) ignores buses made at run time and volume fades -> silent. Stream works.
+general/default_playback_type.web=0
