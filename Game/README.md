@@ -37,9 +37,9 @@ godot --path Game -- --shot=out.png --light=before|after|night [--day] [--screen
 ## 웹 데모 (GitHub Pages)
 - 주소: https://choigangho.github.io/Hareru/ — `gh-pages` 브랜치를 그대로 보여 줌.
 - 웹판만 `fonts/web/`의 Noto 글꼴(OFL, 게임 글자만 남긴 판)을 씀 — 웹에는 시스템 글꼴이 없음. 대사에 새 한자가 늘면 글꼴을 다시 줄여야 함 (`fonts.gd` 주석).
+- 브라우저는 index.pck를 한동안 캐시한다 (Pages: 10분). 이름이 그대로면 다시 와도 옛 게임이 돌아서, 빌드마다 이름을 바꾼다.
 - 다시 올리기:
 ```
-godot --headless --path Game --export-release "Web" ../build/web/index.html
-touch build/web/.nojekyll
+python3 Game/tools/build_web.py   # 내보내기 + 게임 데이터 파일 이름을 빌드마다 바꿈 (index-<해시>.pck)
 # build/web 내용을 gh-pages 브랜치 커밋 하나로 만들어 push (작업 폴더는 건드리지 않음)
 ```
