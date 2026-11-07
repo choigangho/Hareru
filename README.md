@@ -8,6 +8,10 @@
 
 <img src="Game/shots/d1_lab_desk_waits.png" alt="비 오는 밤의 국립언어유산연구소: 담쟁이가 덮인 벽, 초록 인광 모니터, 책상에 앉은 두 연구원" width="760">
 
+### [▶ 브라우저에서 바로 해 보기 — Day 1 데모](https://choigangho.github.io/Hareru/)
+
+<sub>PC 브라우저 권장 · 소리 있음 · 클릭/스페이스로 진행 · 진행은 브라우저에 저장됩니다 (첫 로딩 약 45MB)</sub>
+
 </div>
 
 ---

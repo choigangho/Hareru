@@ -33,3 +33,13 @@ godot --path Game -- --shot=out.png --light=before|after|night [--day] [--screen
 - 템플릿: Godot 4.7.2 공식 내보내기 템플릿 중 `windows_*` (`~/Library/Application Support/Godot/export_templates/4.7.2.stable/`)
 - `godot --headless --path Game --export-release "Windows" <폴더>/Hareru.exe` — pck를 exe 안에 넣은 파일 하나 (약 110MB, zip 38MB)
 - 글꼴은 시스템 글꼴 목록(Mac 히라기노 → 윈도우 Yu Gothic · 맑은 고딕 · Yu Mincho)에서 고름 (BACKLOG 17 픽셀 글꼴 정해지면 파일로 넣음)
+
+## 웹 데모 (GitHub Pages)
+- 주소: https://choigangho.github.io/Hareru/ — `gh-pages` 브랜치를 그대로 보여 줌.
+- 웹판만 `fonts/web/`의 Noto 글꼴(OFL, 게임 글자만 남긴 판)을 씀 — 웹에는 시스템 글꼴이 없음. 대사에 새 한자가 늘면 글꼴을 다시 줄여야 함 (`fonts.gd` 주석).
+- 다시 올리기:
+```
+godot --headless --path Game --export-release "Web" ../build/web/index.html
+touch build/web/.nojekyll
+# build/web 내용을 gh-pages 브랜치 커밋 하나로 만들어 push (작업 폴더는 건드리지 않음)
+```
