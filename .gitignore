@@ -40,3 +40,6 @@ Docs/05_Art/UI/previews/preview_phosphor_stats_mock.*
 
 # 휴지통 — 지우지 않고 옮겨 둔 것 (git 밖)
 _trash/
+
+# 웹 데모 내보내기 결과 (gh-pages 브랜치로 올림)
+/build/
