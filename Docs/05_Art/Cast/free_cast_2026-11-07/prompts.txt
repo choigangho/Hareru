@@ -1,0 +1,63 @@
+junk_granny  chief  elderly small woman running a junk shop, grey hair in a bun, round glasses, long knitted cardigan, holding an old cassette radio, slippers
+lex_clerk    hero   young office worker of a big tech company, neat dark hair, slim grey suit, thin cyan glowing earpiece behind the ear, holding a sleek tablet, expressionless
+film_kid     chief  small child about 8 years old, oversized yellowish raincoat with hood down, short bob hair, holding an old film camera with both hands, rubber boots
+old_robot    hero   small boxy old service robot, cream-colored plastic body with scratches, one round amber lamp eye, short stubby legs, a paper tag hanging from its neck
+record_lady  chief  woman in her thirties running a record shop, wavy dark hair tied loosely, big headphones around her neck, loose knit sweater, holding a vinyl record sleeve
+repairman    hero   young repairman, messy hair with a bandana, welding goggles on head, work overalls with a tool belt, holding a soldering iron, cables over his shoulder
+# set 2 (cyan only on broken_link_teen; added mustard, leaf green, brick red)
+umbrella_grandpa  hero   old umbrella repairman, white hair, mustache, brown vest, patched umbrella
+bus_driver        chief  tired night-bus driver woman, cap, navy uniform, dented thermos
+radio_dj          hero   pirate-radio DJ, shaggy hair, round sunglasses up, cardigan, chunky mic
+librarian         chief  librarian, braid, half-moon glasses on chain, mustard cardigan, book stack
+broken_link_teen  hero   teen with broken neural-link implant, hoodie, taped cyan implant
+rooftop_gardener  chief  rooftop gardener, straw hat, pigtails, green apron, watering can
+# set 3
+night_guard       hero   big burly night guard, buzz cut, faded uniform, heavy flashlight
+letter_writer     chief  elegant older letter-writer, silver bun, dark red haori, fountain pen, letter
+clock_apprentice  hero   clock-shop apprentice ~13, loupe headband, leather apron, pocket watch
+uptown_girl       chief  high-tech side young woman, cyan visor, white coat, cyan phone (cyan palette)
+rainy_salaryman   hero   tired salaryman, loosened tie, trench coat, umbrella, briefcase
+photo_studio      chief  photo studio owner, beret, suspenders, bellows camera, light meter
+# set 4 (prompt now says "very big head and small body")
+snack_vendor      chief  street snack vendor, patterned headscarf, apron, bag of fish pastries
+stray_cat         hero   fluffy tabby stray cat sitting, torn ear, paper tag collar
+tram_conductor    chief  tram conductor girl, cap, green uniform, ticket bag, ticket punch
+bartender         hero   bartender, slicked hair, vest and bow tie, shaker
+paper_boy         hero   newspaper boy ~11, flat cap, nose band-aid, striped sweater, paper bag
+town_nurse        chief  town clinic nurse, nurse cap, pink dress, apron, clipboard, thermometer
+# owner request
+headphone_shop_owner  hero   wired-headphone shop owner 50s, reading glasses, cardigan, headphones over forearm, cable tester
+headphone_fan         chief  wired-headphone enthusiast girl, chunky headphones, coiled cable to cassette player, hoodie
+barber                hero   barber, pompadour, curled mustache, white jacket, striped towel, scissors and comb
+# portraits (fixed: 96x96 bust, style = Game/art/portraits/{chief,hero}_default.png, portrait palette + accents)
+# cut-ins (fixed: 128x64 face strip, style = chief_default cropped 64x64 face) — anchor traits (glasses) can leak
+# set 5 — 매체별 가게 주인 (2026-11-07, 소유자 판정 규칙 반영: 단발·안경 금지, 근미래 평상복), 68x68 pro_flash seed 7, 각 5회 = 20
+headphone_shop_owner2  hero   wired-headphone shop owner late 20s, side-shaved messy top, no glasses, charcoal turtleneck, canvas apron with coiled cables, one headphone cup to ear, cable tester
+film_camera_owner      chief  film-camera shop owner 60s woman, silver pixie cut, no glasses, loupe on cord, olive vest with film canisters, rangefinder
+cassette_owner         hero   cassette shop owner 40s, heavy-set, beard, knit beanie, dark work jacket, mustard tee, crate of cassettes
+typewriter_owner       chief  typewriter repair shop owner 40s woman, high ponytail, no glasses, navy shirt rolled sleeves, brick-red apron, portable typewriter
+# set 6 — 1차 보류 재설계 (2026-11-07), 68x68 pro_flash seed 7, 각 5회 = 30 (길고양이는 상한 때문에 다음으로)
+bartender2         chief  stout bar owner woman 40s, spiky mustard hair, gold hoop, black vest wine shirt, towel, big shaker
+broken_link_teen2  hero   cheerful teen, hood down, sticker-patched cyan implant, mustard bomber, peace sign (cyan ok)
+headphone_fan2     chief  tall lanky 17yo girl, long braid, green wired headphones, cassette player on belt, long charcoal coat
+lex_exec           hero   NeuroLex enforcement exec, slicked-back hair, cyan temple line, long black high-collar coat, gloves, hands behind back (cyan ok)
+archive_keeper     hero   paper-book archive keeper, bald, grey beard, mustard cardigan, book stack with slips
+rooftop_gardener2  chief  tanned freckled young woman, curly two puffs, green overalls, ivy on wrist, seedling tray
+
+## Set 7 — NeuroLex 쪽 인물 (2026-11-07, 6 x 5 gens = 30, set cap reached)
+create_image_pro_flash 68x68, seed 7, fixed palette + #3fb8c4 #1f7f8a, standard prefix.
+- nl_director (chief anchor): cold elegant female exec, long black hair + silver streak (NOT bob), white/black high-collar coat, teal L pin, black gloves.
+- nl_enforcer (hero anchor): matte black segmented armor, black faceplate with one teal visor slit, teal L chest, short baton.
+- nl_chip_clerk (chief anchor): smiling clerk, high ponytail, white uniform teal trim, headset mic, holding white chip box.
+- nl_sign_tech (hero anchor): young male LexCode sign technician, grey jumpsuit teal stripes, teal scanner, lanyard ID.
+- nl_holo_ad (chief anchor): translucent teal hologram spokeswoman, long hair, raised hand, bottom dissolving to pixels.
+- nl_lawyer (hero anchor): elderly lawyer, silver slicked hair, white beard, charcoal suit, overcoat on shoulders, teal tie pin, cane.
+
+## Set 8 — 선발작 기준 (2026-11-07, 6 x 5 gens = 30, set cap reached)
+create_image_pro_flash 68x68, seed 7, fixed palette (+cyan only for nl_*), style_image = a picked sprite.
+- barber2 (style: headphone_shop_owner v1 — keep face/build): white barber tunic, comb in pocket, scissors + folded razor, towel on shoulder.
+- typewriter_owner2 (style: letter_writer): lean, long face, thin mustache, pencil behind ear, ink-stained fingers, knit vest, carrying a typewriter.
+- stray_cat2 (style: record_lady): chubby calico, notched ear, grumpy half-lidded, kinked tail, cassette-tape ribbon collar.
+- headphone_fan3 (style: headphone_shop_owner2): chubby teen boy, buzzed hair, huge over-ear headphones, coiled cable to belt player, mustard knit, eyes closed.
+- nl_holo_ad2 (style: nl_director): middle-aged salesman hologram, swept-back hair, high-collar suit, legs dissolve into teal pixels.
+- nl_associate (style: lex_exec): young woman, low bun + side undercut, teal temple line, asymmetric high-collar jacket, tablet.

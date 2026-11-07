@@ -1,0 +1,12 @@
+# 컷인 (2026-11-07) — create_image_pro, seed 7, no_background=False, 각 10회 (합계 30)
+# 게임 화면 320x180 기준. 띠 컷인 320x96, 전체 컷인 320x180
+# style_image = scenes/headphone_shop.png, reference_images = 해당 인물 바스트(96) + 스프라이트(68 캔버스, 키 60~62px)
+chief_decisive_band (320x96): 주임 — 결정적 대사, 안경 반사 + 굳은 눈 (refs: Game portraits/chief_default, chars/chief_idle_south)
+hero_shock_full (320x180): 주인공 — 충격, 모니터 시안빛 아래 조명 + 흩날리는 종이 (refs: hero_default, hero_idle_south)
+headphone_fan_move_band (320x96): 헤드폰 마니아 — 필살기, 헤드폰 쓰며 음파 폭발 (refs: headphone_fan_bust, headphone_fan_south)
+mock_ingame_1/2: 장면을 어둡게 하고 띠 컷인을 얹은 합성 예시 (생성 아님)
+
+# 2차 (2026-11-07) — 배경 섞임 수정: style_image = headphone_fan_move_band 얼굴 부분만 자른 140x96, style_copy = outline/detail/shading (색은 안 따옴), 프롬프트에 "배경은 어두운 그라데이션 + 집중선만"
+barber_move_band (320x96): 이발사 — 필살기, 가위·빗 휘두르며 윙크 (refs: portraits/barber_bust, barber_south)
+radio_dj_onair_band (320x96): 라디오 DJ — ON AIR 절정, 마이크에 외침 (refs: radio_dj_south)
+uptown_girl_reveal_full (320x180): 윗동네 소녀 — 시안 바이저 냉소, 하이테크 쪽이라 시안 허용 (refs: uptown_girl_south). 좌우 흰 테두리 줄은 옆 픽셀로 메움

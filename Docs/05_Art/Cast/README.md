@@ -1,5 +1,7 @@
 # 음성 캐릭터 출연진 스프라이트
 
+> **자유 캐스트 (2026-11-07):** 세계관 기반 조연 후보와 소유자 선발 결과는 [free_cast_2026-11-07/](free_cast_2026-11-07/README.md).
+
 > **v2 — Pixellab (2026-11-02) — ❌ 채택 안 함, 앱은 v1으로 되돌림** (이유는 `Docs/05_Art/Characters/README.md`): 9인 전원을 Pixellab `create_character` v3(48×48, 8방향) + 걷기 템플릿 `walking-6-frames`(남동 6프레임)로 다시 만듦. `courier_rin`은 v1 시트가 없어 지금 앱에 스프라이트 없음.
 > 원본: `pixellab/<voiceId>/` · id 목록: `Docs/05_Art/Characters/pixellab/characters.json` · 처리: `Docs/05_Art/Characters/tools/pixellab_import.py` · 미리보기: `previews/preview_<voiceId>_pixellab_x6.png`.
 > 생성 기록·크레딧은 `Docs/05_Art/Characters/README.md` (11명 합계). 아래 표의 호박색 포인트를 프롬프트에 그대로 넣음. 이하 '처리' 절은 v1(사용자 제공 시트) 기록.

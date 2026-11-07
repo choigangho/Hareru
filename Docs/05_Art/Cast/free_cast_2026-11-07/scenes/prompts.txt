@@ -1,0 +1,6 @@
+# 장면 에셋 (2026-11-07) — create_image_pro 320x180, seed 7, no_background=False
+# style_image = Game 인트로 intro_building_v1, reference_images = free_cast 스프라이트 (_south.png)
+barber_rain_night: 비 오는 밤 골목 이발소 — 이발사 + 비 맞은 회사원 (refs: barber, rainy_salaryman)
+headphone_shop: 유선 헤드폰 가게 내부 — 사장 + 헤드폰 마니아 + 고양이 (refs: headphone_shop_owner, headphone_fan, stray_cat)
+rooftop_garden: 해질녘 옥상 텃밭 — 정원사 + 필름 카메라 아이 + 낡은 로봇, 멀리 시안 타워 (refs: rooftop_gardener, film_kid, old_robot)
+# 각 10회, 합계 30회 (세트 상한)
