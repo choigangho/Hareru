@@ -46,18 +46,45 @@ Hareru는 **과학적인 복습 알고리즘(FSRS)** 위에 **픽셀 아트 연�
 
 **말 잃기:** 오래 복습하지 않아 잊은 단어는 인물도 그 단어를 말하지 못합니다. 외운 만큼 대화가 선명해지고, 잊은 만큼 흐려집니다. 설계는 [`Docs/04_Design/`](Docs/04_Design/README.md)에 있습니다.
 
+---
+
+## 움직이는 장면
+
 <table>
 <tr>
 <td align="center" width="50%">
-<img src="Game/shots/reader_v13.png" alt="정면 판독기: 말려 올라온 종이에 はい와 초록 스캔선, 아래에 평가 스위치 4개"><br>
-<b>판독</b> · 종이 한 장에 뜻 하나
+<img src="Docs/05_Art/previews_readme/game_intro.gif" alt="인트로: 레트로 모니터 부팅, 렉스코드 빌딩, 담쟁이 덮인 연구소 건물, 연구소에서 주임 연구원과의 첫 대화"><br>
+<b>인트로</b> · 부팅 → 2094년의 도시 → 연구소
 </td>
 <td align="center" width="50%">
-<img src="Game/shots/d1_intro_city.png" alt="2094년 도시 인트로: 푸른 밤의 고층 빌딩 숲"><br>
-<b>인트로</b> · 2094년의 도시
+<img src="Docs/05_Art/previews_readme/game_reader.gif" alt="판독: 종이가 말려 올라오고 はい, いいえ가 차례로 판독되며 왼쪽 기록지가 쌓임"><br>
+<b>판독</b> · 종이 한 장에 뜻 하나, 기록지에 쌓임
+</td>
+</tr>
+<tr>
+<td align="center">
+<img src="Docs/05_Art/Inbox/set7_props/_window_live.gif" alt="연구소 창밖: 비, 번개, 홀로그램 물고기, 렉스코드 간판, 지나가는 차"><br>
+<b>창밖</b> · 비 · 번개 · 홀로그램 물고기 · 렉스코드 간판
+</td>
+<td align="center">
+<img src="Docs/05_Art/Environment/previews/preview_corner_phosphor_ivy.gif" alt="초기 콘셉트: 크림색 레트로 PC와 초록 인광 화면, 담쟁이 덩굴" width="300"><br>
+<b>초기 콘셉트</b> · 크림색 PC + 초록 인광 + 담쟁이
 </td>
 </tr>
 </table>
+
+게임 화면은 Godot에서 직접 녹화했습니다 (640×360 원본 크기). 그 밖의 원본 · 제작 스크립트는 [`Docs/05_Art/`](Docs/05_Art/README.md)에 있습니다.
+
+---
+
+## 사람들
+
+<div align="center">
+<img src="Docs/05_Art/Cast/free_cast_2026-11-07/sheets/picked_lineup_x3.png" alt="새 조연 후보 12명: 필름 카메라 아이, 손편지 대필가, 레코드 · 헤드폰 · 카세트 · 타자기 가게 주인, 이발사, NeuroLex 쪽 인물 다섯" width="760">
+<br><sub>새 조연 후보 (선발 12) — 옛 동네 · 매체별 가게 사람들 7명과 NeuroLex 사람들 5명. 아직 게임에 넣기 전 (68×68, 정면)</sub>
+</div>
+
+인물 설정의 원본은 [`CHARACTERS.md`](Docs/02_Characters/CHARACTERS.md), 선발 기록은 [`SELECTION.md`](Docs/05_Art/Cast/free_cast_2026-11-07/SELECTION.md)에 있습니다.
 
 ---
 
